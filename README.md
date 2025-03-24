@@ -1,39 +1,15 @@
-# ez-admin-vue
+# EZ-ADMIN-VUE
+![Version](https://img.shields.io/badge/version-1.0.0-brightgreen)
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![GitHub Stars](https://img.shields.io/github/stars/Caoshenyang/EZ-ADMIN?style=social)
 
-This template should help get you started developing with Vue 3 in Vite.
+**一款简单易用的后台管理系统**
 
-## Recommended IDE Setup
+如果你不知道接下来该干什么，烦于学习更加高深的技术栈，或不想陷入源码的深渊，不妨做点自己擅长的事，加强自己的自信心，相信后台管理系统大家都不陌生，
+市面上优秀的产品也很多，有很多优点但也不乏一些弊端，那么我们为什么不取其精华，打造一款自己的产品，无论是学习，还是便于后面工作中提高自己的工作效率，
+都是一个不错的选择，而且我一直认为，“造轮子”是对于自己掌握知识的一个全面汇总，他可以很好的体现我们的项目落地能力。而 EZ-ADMIN 就是这样诞生的一个项目。
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+EZ 取自 “easy” 谐音，体现系统简单易用的特点，这也是开发这个项目的目标之一。
+没有复杂的过度封装，代码整洁，逻辑清晰，可轻松上手，易于二次开发，没有任何技术负担。
+配备详细的使用文档，希望能帮助到需要的朋友。
