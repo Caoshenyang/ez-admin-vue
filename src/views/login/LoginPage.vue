@@ -1,28 +1,55 @@
 <script lang="ts" setup>
+import router from '@/router';
+import { useUserStore } from '@/stores/modules/userStore';
+import type { FormInstance, FormRules } from 'element-plus';
 import { ref } from 'vue';
 
-// 登录按钮loading
-const loading = ref(false)
 
 // 登录表单数据
 const userLoginForm = ref({
-  username: '',
-  password: ''
+  username: 'admin',
+  password: 'admin123456'
 })
 
+// 登录表单ref
+const loginFormRef = ref<FormInstance>()
+// 加载动画
+const loading = ref(false)
+// 获取用户信息缓存仓库
+const userStore = useUserStore()
+
 // 表单验证规则
-const rules = {
-  username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' }
-  ],
-  password: [
-    { required: true, message: '请输入密码', trigger: 'blur' }
-  ]
-}
+const rules = ref<FormRules>({
+  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+  password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+})
 
 // 登录
-const handleLogin = () => {
-  console.log('登录')
+const handleLogin = async () => {
+  // 表单验证
+  const valid = await loginFormRef.value?.validate()
+  console.log('valid', valid)
+  // 校验不成功直接 return
+  if (!valid) {
+    return false
+  }
+  // 校验成功进行后续操作
+  // 1.加载 loading
+  loading.value = true
+  // 2.登录请求 获取token
+  userStore
+    .login(userLoginForm.value)
+    .then(() => {
+      // 跳转
+      router.push('/')
+    })
+    .catch(() => {
+      // 验证失败，重新加载验证码
+    })
+    .finally(() => {
+      // 验证结束，隐藏loading
+      loading.value = false
+    })
 }
 
 </script>
@@ -40,7 +67,7 @@ const handleLogin = () => {
         <span>账号密码登录</span>
         <span class="line"></span>
       </div>
-      <el-form class="login-form" ref="ruleFormRef" :rules="rules" :model="userLoginForm" size="large">
+      <el-form class="login-form" ref="loginFormRef" :rules="rules" :model="userLoginForm" size="large">
         <el-form-item prop="username">
           <el-input v-model="userLoginForm.username" placeholder="请输入用户名">
             <template #prefix>

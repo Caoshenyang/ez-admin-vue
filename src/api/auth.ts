@@ -1,4 +1,4 @@
-import type { LoginDTO, TokenInfoVO } from '@/types/auth'
+import type { LoginDTO, TokenInfoVO, UserInfoVO } from '@/types/auth'
 import request from '@/utils/request'
 
 /**
@@ -14,13 +14,13 @@ export const loginApi = (data: LoginDTO) => {
   })
 }
 
-// /**
-//  * 获取当前用户信息
-//  * @returns UserInfo
-//  */
-// export const getUserInfoApi = () => {
-//   return request<UserInfoVO>({
-//     method: 'GET',
-//     url: '/api/iam/auth/getUserInfo'
-//   })
-// }
+/**
+ * 获取当前用户信息
+ * @returns UserInfo
+ */
+export const getUserInfoApi = () => {
+  return request<UserInfoVO>({
+    method: 'POST',
+    url: '/auth/userInfo',
+  })
+}
