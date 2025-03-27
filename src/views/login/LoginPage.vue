@@ -58,11 +58,11 @@ const handleLogin = () => {
               </el-icon>
             </template>
           </el-input>
-
         </el-form-item>
         <el-form-item>
           <el-button class="login-button" color="#3b82f6" @click="handleLogin" :loading="loading"> 登 录 </el-button>
         </el-form-item>
+        <el-link type="primary">忘记密码</el-link>
       </el-form>
     </el-col>
   </el-row>

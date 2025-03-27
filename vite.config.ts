@@ -19,6 +19,21 @@ export default defineConfig({
       resolvers: [ElementPlusResolver()],
     }),
   ],
+  server: {
+    // 服务启动时是否自动打开浏览器
+    open: true,
+    host: '0.0.0.0',
+    port: 3333,
+    // 本地跨域代理 -> 代理到服务器的接口地址
+    proxy: {
+      '/dev-api': {
+        target: 'http://localhost:2222', // 后台服务器地址
+        changeOrigin: true, // 是否允许不同源
+        secure: false, // 支持https
+        rewrite: (path) => path.replace(/^\/dev-api/, ''),
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
