@@ -125,6 +125,10 @@ const handleSelect = (e: string) => {
   </el-menu>
 </template>
 <style lang="scss" scoped>
+.el-menu {
+  border: 0;
+}
+
 // 展开的宽度
 .el-menu:not(.el-menu--collapse) {
   width: 100%;

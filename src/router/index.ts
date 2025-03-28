@@ -26,6 +26,23 @@ const staticRoutes: Array<RouteRecordRaw> = [
           keepAlive: false,
         },
       },
+      {
+        path: '/system',
+        name: 'System',
+        children: [
+          {
+            path: '/system/menu',
+            name: 'menu',
+            component: () => import('@/views/system/menu/MenuManagementPage.vue'),
+            meta: {
+              title: '菜单管理',
+            },
+          },
+        ],
+        meta: {
+          title: '系统管理',
+        },
+      },
     ],
     meta: {
       title: '仪表盘',
