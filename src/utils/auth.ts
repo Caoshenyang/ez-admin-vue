@@ -3,7 +3,7 @@ import type { TokenInfoVO } from '@/types/auth'
 import Cookies from 'js-cookie'
 
 // token key
-export const TOKEN_KEY = 'EZADMIN-TOKEN'
+export const TOKEN_KEY = 'ezadmin-token'
 /**
  * expires:  token 过期时间 单位：天 不设置则默认为会话级别，关闭浏览器则失效
  * path: 指定该 Cookie 对应的 URL 路径。这个路径限制了 Cookie 的作用范围，只有当 URL 路径匹配时，浏览器才会发送这个 Cookie。将 path 设置为根路径 '/'，

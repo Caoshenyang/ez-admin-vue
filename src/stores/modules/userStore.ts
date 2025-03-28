@@ -17,10 +17,7 @@ export const useUserStore = defineStore(
       permissions: [],
       menus: [],
     })
-    const isLock = ref(false)
-    const setIsLock = (val: boolean) => {
-      isLock.value = val
-    }
+
     const avatar = computed(() => {
       return userInfo.value.avatar || '/images/avatar_boy.jpeg'
     })
@@ -48,7 +45,6 @@ export const useUserStore = defineStore(
     const logout = async () => {
       // 请求后端接口
       // await logout()
-
       removeToken()
       $reset()
     }
@@ -62,7 +58,7 @@ export const useUserStore = defineStore(
           userInfo.value = res
         })
         .catch(() => {
-          // logout()
+          logout()
           ElMessage.error('登录认证已过期，请重新登录。')
         })
     }
@@ -87,8 +83,6 @@ export const useUserStore = defineStore(
       logout,
       getUserInfo,
       $reset,
-      isLock,
-      setIsLock,
     }
   },
   {

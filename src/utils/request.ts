@@ -37,6 +37,8 @@ instance.interceptors.response.use(
   },
   (error) => {
     // 对响应错误做点什么
+    console.log('error', error)
+
     if (error.code === 'ERR_BAD_RESPONSE') {
     }
     if (error.code === 'ECONNABORTED') {

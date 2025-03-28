@@ -28,7 +28,6 @@ const rules = ref<FormRules>({
 const handleLogin = async () => {
   // 表单验证
   const valid = await loginFormRef.value?.validate()
-  console.log('valid', valid)
   // 校验不成功直接 return
   if (!valid) {
     return false
