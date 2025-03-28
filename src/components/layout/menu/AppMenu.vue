@@ -5,11 +5,14 @@ import { ref } from 'vue'
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import SubMenu from './SubMenu.vue'
 import type { MenuTreeVO } from '@/types/auth'
+import { useSettingStore } from '@/stores/modules/settingStore'
 
 
 /***************************** 数据源 ******************************************/
 
-const userInfoStore = useUserStore()
+const settingStore = useSettingStore()
+
+const menuWidth = ref(settingStore.menuWidth)
 // 菜单数据
 const menus = ref<MenuTreeVO[]>([
   {
@@ -114,7 +117,7 @@ const handleSelect = (e: string) => {
 </script>
 <template>
   <el-menu :default-active="defaultActive" @select="handleSelect" :unique-opened="true" class="side-menu"
-    :collapse="userInfoStore.collapse">
+    :collapse="settingStore.isCollapse">
     <el-menu-item index="/dashboard/workbench">
       <el-icon>
         <HomeFilled />
@@ -137,6 +140,5 @@ const handleSelect = (e: string) => {
 // 折叠后宽度
 .el-menu--collapse {
   width: 100%;
-
 }
 </style>

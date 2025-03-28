@@ -1,19 +1,17 @@
 <script lang="ts" setup>
+import { useSettingStore } from '@/stores/modules/settingStore';
 import AppLogo from './logo/AppLogo.vue';
 import AppMenu from './menu/AppMenu.vue';
-import { MenuWidth } from '@/enums/appEnums'
 import AppTopBar from './topbar/AppTopBar.vue';
 
+const settingStore = useSettingStore();
 
-
-const menuOpenWidth = MenuWidth.OPEN
-const menuCloseWidth = MenuWidth.CLOSE
 </script>
 
 <template>
   <el-container class="layout">
     <!-- 左侧菜单 -->
-    <el-aside class="app-sider-bar" :width="menuOpenWidth" :collapsed-width="menuCloseWidth">
+    <el-aside class="app-sider-bar" :width="settingStore.menuWidth">
       <AppLogo></AppLogo>
       <AppMenu></AppMenu>
     </el-aside>
@@ -39,6 +37,8 @@ const menuCloseWidth = MenuWidth.CLOSE
 .app-sider-bar {
   height: 100%;
   background-color: white;
+  transition: width 0.3s;
+  overflow-x: hidden;
 }
 
 .app-header {

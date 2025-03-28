@@ -10,7 +10,7 @@ const settingStore = useSettingStore();
     <el-icon :size="36" color="#0473fb">
       <element-plus />
     </el-icon>
-    <span v-if="settingStore.isCollapse" class="title">EZ-ADMIN</span>
+    <span v-if="!settingStore.isCollapse" class="title">EZ-ADMIN</span>
   </div>
 </template>
 <style scoped lang="scss">

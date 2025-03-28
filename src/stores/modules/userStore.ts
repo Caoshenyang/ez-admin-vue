@@ -9,7 +9,6 @@ import { defineStore } from 'pinia'
 export const useUserStore = defineStore('userInfo', {
   state: () => ({
     userInfo: {} as UserInfoVO,
-    collapse: false, // 菜单折叠状态
   }),
   getters: {
     avatar: (state) => {
@@ -17,10 +16,6 @@ export const useUserStore = defineStore('userInfo', {
     },
   },
   actions: {
-    /** 切换菜单折叠状态*/
-    switchFolding() {
-      this.collapse = !this.collapse
-    },
     /** 是否登录 */
     isLogin() {
       return !!getToken()
