@@ -10,6 +10,8 @@ declare module 'vue' {
   export interface GlobalComponents {
     AppLogo: typeof import('./src/components/layout/logo/AppLogo.vue')['default']
     AppMenu: typeof import('./src/components/layout/menu/AppMenu.vue')['default']
+    AppTopBar: typeof import('./src/components/layout/topbar/AppTopBar.vue')['default']
+    AppWorkTab: typeof import('./src/components/layout/worktab/AppWorkTab.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCol: typeof import('element-plus/es')['ElCol']

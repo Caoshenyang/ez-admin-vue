@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import type { MenuTreeVO } from '@/types/auth';
 import type { PropType } from 'vue';
-
+import SubMenu from '@/components/layout/menu/SubMenu.vue';
 
 defineProps({
   menuData: { type: Array as PropType<MenuTreeVO[]>, require: true },
@@ -18,7 +18,8 @@ defineProps({
         </el-icon>
         <span>{{ menuItem.menuName }}</span>
       </template>
-      <RecursiveMenu :menuData="menuItem.children" />
+      <!-- 递归子菜单 -->
+      <SubMenu :menuData="menuItem.children" />
     </el-sub-menu>
     <!-- 没有子级菜单的时候  el-menu-item -->
     <el-menu-item v-else :index="menuItem.menuPath">

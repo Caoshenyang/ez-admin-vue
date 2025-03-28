@@ -1,14 +1,19 @@
 <script lang="ts" setup>
 import AppLogo from './logo/AppLogo.vue';
 import AppMenu from './menu/AppMenu.vue';
+import { MenuWidth } from '@/enums/appEnums'
 
+
+
+const menuOpenWidth = MenuWidth.OPEN
+const menuCloseWidth = MenuWidth.CLOSE
 </script>
 
 <template>
   <div class="layout">
     <el-container>
       <!-- 左侧菜单 -->
-      <el-aside class="app-sider-bar">
+      <el-aside class="app-sider-bar" :width="menuOpenWidth" :collapsed-width="menuCloseWidth">
         <AppLogo></AppLogo>
         <AppMenu></AppMenu>
       </el-aside>
@@ -20,11 +25,19 @@ import AppMenu from './menu/AppMenu.vue';
         </el-header>
         <!-- 主体 -->
         <el-main class="app-main">
-          主体
+          <router-view></router-view>
         </el-main>
       </el-container>
     </el-container>
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.layout {
+  height: 100vh;
+
+  .el-container {
+    height: 100%;
+  }
+}
+</style>

@@ -2,6 +2,6 @@
 
 // Menu close width
 export enum MenuWidth {
-  OPEN = '262px',
+  OPEN = '252px',
   CLOSE = '70px',
 }
