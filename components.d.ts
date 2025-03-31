@@ -13,6 +13,8 @@ declare module 'vue' {
     AppTopBar: typeof import('./src/components/layout/topbar/AppTopBar.vue')['default']
     AppWorkTab: typeof import('./src/components/layout/worktab/AppWorkTab.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
+    ElAvatar: typeof import('element-plus/es')['ElAvatar']
+    ElBadge: typeof import('element-plus/es')['ElBadge']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCol: typeof import('element-plus/es')['ElCol']
     ElContainer: typeof import('element-plus/es')['ElContainer']

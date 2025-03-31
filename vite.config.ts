@@ -8,8 +8,6 @@ import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 
-const pathSrc = fileURLToPath(new URL('./src', import.meta.url))
-
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -30,6 +28,16 @@ export default defineConfig({
       iconDirs: [fileURLToPath(new URL('./src/assets/icons', import.meta.url))],
       // 指定symbolId格式
       symbolId: 'icon-[dir]-[name]',
+      /**
+       * custom insert position
+       * @default: body-last
+       */
+      inject: 'body-first',
+      /**
+       * custom dom id
+       * @default: __svg__icons__dom__
+       */
+      customDomId: '__svg__icons__dom__',
     }),
   ],
   server: {
@@ -49,7 +57,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': pathSrc,
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
 })

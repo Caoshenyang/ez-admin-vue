@@ -1,5 +1,8 @@
 {
   "files": [],
+  "compilerOptions": {
+    "types": ["vite-plugin-svg-icons/client"]
+  },
   "references": [
     {
       "path": "./tsconfig.node.json"
