@@ -1,9 +1,15 @@
 <script lang="ts" setup>
 
+
 </script>
 <template>
   <div class="app-top-bar">
-    头部
+    <div class="left">
+      <SvgIcon name="system-menu-fold"></SvgIcon>
+    </div>
+    <div class="right">
+
+    </div>
   </div>
 </template>
 

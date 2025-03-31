@@ -8,16 +8,22 @@ import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 
+const pathSrc = fileURLToPath(new URL('./src', import.meta.url))
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
     vueDevTools(),
     AutoImport({
+      // 自动导入 Vue 相关函数，如：ref, reactive, toRef 等
+      imports: ['vue'],
       resolvers: [ElementPlusResolver()],
+      dts: fileURLToPath(new URL('./auto-imports.d.ts', import.meta.url)),
     }),
     Components({
       resolvers: [ElementPlusResolver()],
+      dts: fileURLToPath(new URL('./components.d.ts', import.meta.url)),
     }),
     createSvgIconsPlugin({
       // 指定需要缓存的图标文件夹
@@ -43,7 +49,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@': pathSrc,
     },
   },
 })
