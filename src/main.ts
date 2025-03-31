@@ -8,11 +8,17 @@ import router from './router'
 import store from './stores'
 // 登录鉴权
 import './router/permission'
+import 'virtual:svg-icons-register'
+
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import SvgIcon from './components/icons/SvgIcon.vue'
 
 const app = createApp(App)
 app.use(router)
 app.use(store)
+
+// 全局注册组件
+app.component('SvgIcon', SvgIcon)
 
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
