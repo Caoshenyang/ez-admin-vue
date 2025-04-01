@@ -2,7 +2,7 @@
 import router, { HOME_PAGE } from '@/router';
 import { useUserStore } from '@/stores/modules/userStore';
 import type { WorkTab } from '@/types/theme';
-import { ArrowLeft, ArrowRight, CircleClose, Close } from '@element-plus/icons-vue';
+import { ArrowDown, ArrowLeft, ArrowRight, CircleClose, Close } from '@element-plus/icons-vue';
 import { storeToRefs } from 'pinia';
 import { onBeforeRouteUpdate, useRoute } from 'vue-router';
 
@@ -134,29 +134,63 @@ const handleClose = (command: string, currentTab?: string) => {
 <template>
   <div class="app-work-tab">
     <div class="tab-item">
-      <el-tag v-for="item in workTabList" :key="item.path" type="info"
-        :class="activeTab == item.path ? 'current-tag' : ''" :closable="item.path != HOME_PAGE"
-        @click="changeTab(item.path)" @close="removeTab(item.path)">
+      <el-check-tag class="work-tab-item" :checked="item.path === activeTab" v-for="item in workTabList"
+        :key="item.path" type="primary" @change="changeTab(item.path)">
         {{ item.title }}
-      </el-tag>
+        <el-link @click="removeTab(item.path)" v-if="item.path != HOME_PAGE" :underline="false" :icon="Close"></el-link>
+      </el-check-tag>
     </div>
-    <span class="tag-btn">
+    <div class="tag-btn">
       <el-dropdown @command="handleClose">
         <div class="button">
-          <el-icon><i-ep-arrow-down-bold /></el-icon>
+          <el-icon>
+            <ArrowDown />
+          </el-icon>
         </div>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item :icon="Close" command="closeLeft">关闭左侧</el-dropdown-item>
-            <el-dropdown-item :icon="CircleClose" command="closeRight">关闭右侧</el-dropdown-item>
-            <el-dropdown-item :icon="ArrowLeft" command="clearOther">关闭其他</el-dropdown-item>
-            <el-dropdown-item :icon="ArrowRight" command="clearAll">关闭全部</el-dropdown-item>
+            <el-dropdown-item :icon="ArrowLeft" command="closeLeft">关闭左侧</el-dropdown-item>
+            <el-dropdown-item :icon="ArrowRight" command="closeRight">关闭右侧</el-dropdown-item>
+            <el-dropdown-item :icon="Close" command="clearOther">关闭其他</el-dropdown-item>
+            <el-dropdown-item :icon="CircleClose" command="clearAll">关闭全部</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
-    </span>
+    </div>
   </div>
 </template>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.app-work-tab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tab-item {
+  display: flex;
+  gap: 10px;
+}
+
+:deep(.el-check-tag) {
+  background-color: white;
+  // 加边框，去除默认样式
+  border: 1px solid #e4e7ed;
+  // 去除默认样式
+  border-radius: 4px;
+  // 去除默认样式
+  padding: 0 10px;
+  // 去除默认样式
+  height: 32px;
+  // 去除默认样式
+
+}
+
+.work-tab-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+</style>
