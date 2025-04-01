@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import router from '@/router'
-import { useUserStore } from '@/stores/modules/userStore'
 import { ref } from 'vue'
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import SubMenu from './SubMenu.vue'
@@ -12,7 +11,6 @@ import { useSettingStore } from '@/stores/modules/settingStore'
 
 const settingStore = useSettingStore()
 
-const menuWidth = ref(settingStore.menuWidth)
 // 菜单数据
 const menus = ref<MenuTreeVO[]>([
   {

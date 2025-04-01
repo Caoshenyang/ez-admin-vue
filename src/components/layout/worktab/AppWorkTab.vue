@@ -1,9 +1,160 @@
 <script lang="ts" setup>
+import router, { HOME_PAGE } from '@/router';
+import { useUserStore } from '@/stores/modules/userStore';
+import type { WorkTab } from '@/types/theme';
+import { ArrowLeft, ArrowRight, CircleClose, Close } from '@element-plus/icons-vue';
+import { storeToRefs } from 'pinia';
+import { onBeforeRouteUpdate, useRoute } from 'vue-router';
+
+
+const userStore = useUserStore()
+// 路由
+const route = useRoute()
+// 当前选中的标签
+const activeTab = ref(route.path)
+// 当前打开的所有标签
+const { workTabList } = storeToRefs(userStore)
+
+/**
+ * 切换标签
+ * @param tab 切换标签路径
+ */
+const changeTab = (tab: string) => {
+  router.push(tab)
+}
+
+/**
+ * 跳转页面前将当前路由添加进缓存
+ */
+onBeforeRouteUpdate(to => {
+  activeTab.value = to.path
+  addTab({
+    title: to.meta.title + '',
+    path: to.path
+  })
+})
+
+/**
+ * 添加标签导航
+ * @param tab 添加标签
+ */
+const addTab = (tab: WorkTab) => {
+  // 与当前tabList中的tab进行比对
+  const noTab = workTabList.value.findIndex(t => t.path == tab.path) == -1
+  // 如果当前标签列表中没有则添加
+  if (noTab) {
+    workTabList.value.push(tab)
+  }
+}
+
+/**
+ * 移除标签
+ * @param tab 删除标签路径
+ */
+const removeTab = (tab: string) => {
+  const tabs = [...workTabList.value]
+  let active = activeTab.value
+  // 判断当前关闭的是否为当前选中的tab
+  if (active == tab) {
+    tabs.forEach((tabItem, index) => {
+      // 遍历寻找当前关闭的标签索引
+      if (tabItem.path === tab) {
+        // 将选中的标签标记为 下一个 或者 前一个 tab
+        const nextTab = tabs[index + 1] || tabs[index - 1]
+        if (nextTab) {
+          active = nextTab.path
+        }
+      }
+    })
+  }
+  // 更新 workTabList，去除掉关闭的标签
+  workTabList.value = workTabList.value.filter(tabItem => tabItem.path != tab)
+  activeTab.value = active
+  changeTab(active)
+}
+
+/**
+ * 关闭标签页操作
+ * @param command 命令类型
+ * @param currentTab 当前标签页（仅 closeLeft/closeRight 需要）
+ */
+const handleClose = (command: string, currentTab?: string) => {
+  const homeTab = { title: '工作台', path: HOME_PAGE }
+  const tabs = [...workTabList.value]
+  let newActiveTab = activeTab.value
+
+  switch (command) {
+    case 'clearOther':
+      // 保留首页和当前激活页
+      workTabList.value = tabs.filter(tab => tab.path === HOME_PAGE || tab.path === newActiveTab)
+      break
+    case 'clearAll':
+      // 重置为仅首页
+      newActiveTab = HOME_PAGE
+      workTabList.value = [homeTab]
+      changeTab(HOME_PAGE)
+      break
+    case 'closeLeft':
+      if (!currentTab) return
+      // 找到当前标签的索引
+      const leftIndex = tabs.findIndex(tab => tab.path === currentTab)
+      if (leftIndex <= 0) return  // 左侧无标签可关闭
+      // 保留：首页 + 当前及右侧标签
+      workTabList.value = [
+        homeTab,
+        ...tabs.slice(leftIndex)
+      ]
+
+      // 如果当前激活标签被关闭，则自动切换
+      if (newActiveTab !== HOME_PAGE && !workTabList.value.some(t => t.path === newActiveTab)) {
+        newActiveTab = currentTab
+        changeTab(currentTab)
+      }
+      break
+    case 'closeRight':
+      if (!currentTab) return
+      // 找到当前标签的索引
+      const rightIndex = tabs.findIndex(tab => tab.path === currentTab)
+      if (rightIndex === -1 || rightIndex === tabs.length - 1) return  // 右侧无标签可关闭
+      // 保留：首页 + 左侧及当前标签
+      workTabList.value = [
+        homeTab,
+        ...tabs.slice(0, rightIndex + 1)
+      ]
+      break
+    default:
+      break
+  }
+  // 统一更新激活标签（如果未变化则不影响）
+  activeTab.value = newActiveTab
+}
+
 
 </script>
 <template>
-  <div>
-    标签栏
+  <div class="app-work-tab">
+    <div class="tab-item">
+      <el-tag v-for="item in workTabList" :key="item.path" type="info"
+        :class="activeTab == item.path ? 'current-tag' : ''" :closable="item.path != HOME_PAGE"
+        @click="changeTab(item.path)" @close="removeTab(item.path)">
+        {{ item.title }}
+      </el-tag>
+    </div>
+    <span class="tag-btn">
+      <el-dropdown @command="handleClose">
+        <div class="button">
+          <el-icon><i-ep-arrow-down-bold /></el-icon>
+        </div>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item :icon="Close" command="closeLeft">关闭左侧</el-dropdown-item>
+            <el-dropdown-item :icon="CircleClose" command="closeRight">关闭右侧</el-dropdown-item>
+            <el-dropdown-item :icon="ArrowLeft" command="clearOther">关闭其他</el-dropdown-item>
+            <el-dropdown-item :icon="ArrowRight" command="clearAll">关闭全部</el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+    </span>
   </div>
 </template>
 

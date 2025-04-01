@@ -1,5 +1,7 @@
 import { getUserInfoApi, loginApi } from '@/api/auth'
+import { HOME_PAGE } from '@/router'
 import type { LoginDTO, UserInfoVO } from '@/types/auth'
+import type { WorkTab } from '@/types/theme'
 import { getToken, removeToken, setToken } from '@/utils/auth'
 import { msgErr } from '@/utils/message'
 import { defineStore } from 'pinia'
@@ -9,6 +11,7 @@ import { defineStore } from 'pinia'
 export const useUserStore = defineStore('userInfo', {
   state: () => ({
     userInfo: {} as UserInfoVO,
+    workTabList: [{ title: '工作台', path: HOME_PAGE }] as WorkTab[],
   }),
   getters: {
     avatar: (state) => {

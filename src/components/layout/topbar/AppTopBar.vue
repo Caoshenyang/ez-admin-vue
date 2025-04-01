@@ -9,6 +9,10 @@ const { isFullscreen, toggle } = useFullscreen()
 const settingStore = useSettingStore()
 const userStore = useUserStore()
 
+// 刷新
+const handleRefresh = () => {
+  location.reload()
+}
 </script>
 <template>
   <div class="app-top-bar">
@@ -16,7 +20,7 @@ const userStore = useUserStore()
       <div class="icon-btn" @click="settingStore.switchFolding">
         <SvgIcon :size="24" :name="settingStore.isCollapse ? 'system-menu-fold' : 'system-menu-unfold'"></SvgIcon>
       </div>
-      <div class="icon-btn">
+      <div class="icon-btn" @click="handleRefresh">
         <SvgIcon class="refresh-btn" :size="22" name="system-refresh"></SvgIcon>
       </div>
     </div>
@@ -31,7 +35,7 @@ const userStore = useUserStore()
         </el-badge>
       </div>
       <div class="icon-btn">
-        <el-badge is-dot>
+        <el-badge is-dot type="success">
           <SvgIcon class="message-bth" :size="22" name="system-message"></SvgIcon>
         </el-badge>
       </div>

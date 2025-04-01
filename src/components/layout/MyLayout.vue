@@ -20,6 +20,7 @@ const settingStore = useSettingStore();
       <!-- 头部 -->
       <el-header class="app-header">
         <AppTopBar></AppTopBar>
+        <AppWorkTab></AppWorkTab>
       </el-header>
       <!-- 主体 -->
       <el-main class="app-main">
