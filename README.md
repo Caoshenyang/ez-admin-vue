@@ -2,7 +2,7 @@
 ![Version](https://img.shields.io/badge/version-1.0.0-brightgreen)
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-blue)
-![GitHub Stars](https://img.shields.io/github/stars/Caoshenyang/EZ-ADMIN?style=social)
+![GitHub Stars](https://img.shields.io/github/stars/Caoshenyang/ez-admin-vue?style=social)
 
 **一款简单易用的后台管理系统**
 
