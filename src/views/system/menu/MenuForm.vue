@@ -69,12 +69,8 @@ const loadMenuTree = async () => {
 
 
 const handleEdit = async (menuId: number) => {
-  try {
-    const res = await getMenuByIdApi(menuId)
-    menuFormData.value = res
-  } catch (error) {
-    console.error('获取菜单详情失败:', error)
-  }
+  const res = await getMenuByIdApi(menuId)
+  menuFormData.value = res
 }
 
 const resetForm = () => {
@@ -83,18 +79,14 @@ const resetForm = () => {
 }
 
 const open = async (menuId?: number) => {
-  try {
-    await loadMenuTree()
-    visible.value = true
-    if (menuId) {
-      title.value = '编辑菜单'
-      await handleEdit(menuId)
-    } else {
-      title.value = '新增菜单'
-      resetForm()
-    }
-  } catch (error) {
-    console.error('打开表单失败:', error)
+  await loadMenuTree()
+  visible.value = true
+  if (menuId) {
+    title.value = '编辑菜单'
+    await handleEdit(menuId)
+  } else {
+    title.value = '新增菜单'
+    resetForm()
   }
 }
 

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Refresh, Search, Setting } from '@element-plus/icons-vue';
+import { Plus, Refresh, Search, Setting } from '@element-plus/icons-vue';
 import MenuForm from './MenuForm.vue';
 import { selectMenuTreeApi } from '@/api/system/menu';
 import type { MenuTreeVO } from '@/types/auth';
@@ -36,7 +36,7 @@ const handleAdd = () => {
     </div>
     <div class="operation-bar">
       <div class="operation-button">
-        <el-button type="primary" @click="handleAdd">新增菜单</el-button>
+        <el-button type="primary" :icon="Plus" plain @click="handleAdd">新增</el-button>
       </div>
       <div class="setting-button">
         <!-- 搜索显示/隐藏 -->
