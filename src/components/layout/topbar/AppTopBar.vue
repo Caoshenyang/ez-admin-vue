@@ -26,7 +26,8 @@ const handleRefresh = () => {
     </div>
     <div class="right">
       <div class="icon-btn" @click="toggle">
-        <SvgIcon class="screen-bth" :size="22" :name="isFullscreen ? 'system-off-screen' : 'system-full-screen'">
+        <SvgIcon :class="isFullscreen ? 'off-screen-bth' : 'full-screen-btn'" :size="22"
+          :name="isFullscreen ? 'system-off-screen' : 'system-full-screen'">
         </SvgIcon>
       </div>
       <div class="icon-btn">
@@ -97,7 +98,11 @@ const handleRefresh = () => {
       animation: rotate180 0.6s forwards;
     }
 
-    .screen-bth {
+    .off-screen-bth {
+      animation: shrink 0.6s forwards;
+    }
+
+    .full-screen-btn {
       animation: expand 0.6s forwards;
     }
 
