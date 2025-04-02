@@ -84,11 +84,11 @@ const handleClose = (command: string, currentTab?: string) => {
   let newActiveTab = activeTab.value
 
   switch (command) {
-    case 'clearOther':
+    case 'closeOthers':
       // 保留首页和当前激活页
       workTabList.value = tabs.filter(tab => tab.path === HOME_PAGE || tab.path === newActiveTab)
       break
-    case 'clearAll':
+    case 'closeAll':
       // 重置为仅首页
       newActiveTab = HOME_PAGE
       workTabList.value = [homeTab]
@@ -151,8 +151,8 @@ const handleClose = (command: string, currentTab?: string) => {
           <el-dropdown-menu>
             <el-dropdown-item :icon="ArrowLeft" command="closeLeft">关闭左侧</el-dropdown-item>
             <el-dropdown-item :icon="ArrowRight" command="closeRight">关闭右侧</el-dropdown-item>
-            <el-dropdown-item :icon="Close" command="clearOther">关闭其他</el-dropdown-item>
-            <el-dropdown-item :icon="CircleClose" command="clearAll">关闭全部</el-dropdown-item>
+            <el-dropdown-item :icon="Close" command="closeOthers">关闭其他</el-dropdown-item>
+            <el-dropdown-item :icon="CircleClose" command="closeAll">关闭全部</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>

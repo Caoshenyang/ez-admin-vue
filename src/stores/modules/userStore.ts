@@ -1,4 +1,4 @@
-import { getUserInfoApi, loginApi } from '@/api/auth'
+import { getUserInfoApi, loginApi } from '@/api/system/auth'
 import { HOME_PAGE } from '@/router'
 import type { LoginDTO, UserInfoVO } from '@/types/auth'
 import type { WorkTab } from '@/types/theme'

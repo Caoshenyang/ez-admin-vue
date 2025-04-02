@@ -22,11 +22,11 @@ export interface UserInfoVO {
 
 /** 路由类型 */
 export interface MenuTreeVO {
-  menuId: number
+  menuId: string
   menuName: string
   menuLabel: string
   menuPerm: string
-  parentId: number
+  parentId: string
   menuType: number
   menuSort: number
   menuIcon: string
