@@ -10,6 +10,9 @@ interface BaseMenu {
   menuSort: number
   menuType: number
   menuPerm: string
+  routePath: string
+  component: string
+  componentPath: string
   status: number
 }
 
@@ -24,12 +27,9 @@ export interface MenuQuery {
 }
 
 /**  选择菜单数据类型 */
-export interface MenuTreeVO extends BaseMenu {
-  menuIcon?: string
-  menuLabel?: string
-  menuSort?: number
-  menuType?: number
-  menuPerm?: string
-  status?: number
+export interface MenuTreeVO {
+  menuId: string
+  menuName: string
+  parentId: string
   children?: MenuTreeVO[]
 }

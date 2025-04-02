@@ -4,7 +4,7 @@ import { createMenuApi, getMenuByIdApi, selectMenuTreeApi, updateMenuApi } from 
 import type { MenuForm, MenuTreeVO } from '@/types/system';
 import type { FormInstance, FormRules } from 'element-plus';
 
-const initForm = {
+const initForm: MenuForm = {
   menuId: "",
   menuName: "",
   menuIcon: "",
@@ -13,6 +13,9 @@ const initForm = {
   menuSort: 0,
   menuType: 1,
   menuPerm: "",
+  routePath: "",
+  component: "",
+  componentPath: "",
   status: 0
 }
 
@@ -134,35 +137,43 @@ defineExpose({ open })
               :value="item.value" />
           </el-radio-group>
         </el-form-item>
+        <el-form-item label="上级菜单" prop="parentId" style="width: 100%">
+          <el-tree-select popper-class="menu-tree-popper" v-model="menuFormData.parentId" :data="seletMenuData"
+            check-strictly :props="treeProps" placeholder="请选择" />
+        </el-form-item>
         <el-form-item v-if="menuFormData.menuType !== 3" prop="icon" label="菜单图标">
           <el-input v-model="menuFormData.menuIcon" placeholder="菜单图标" />
         </el-form-item>
         <!-- 分两列展示 -->
         <el-row :gutter="20">
+          <!-- 左边列 -->
           <el-col :span="12">
             <el-form-item prop="menuName" :label="menuNameLabel">
               <el-input v-model="menuFormData.menuName" placeholder="菜单名称" />
             </el-form-item>
-            <!-- <el-form-item v-if="menuFormData.menuType !== 3" prop="path" label="路由地址">
-              <el-input v-model="menuFormData.path" placeholder="路由地址" />
-            </el-form-item> -->
+            <el-form-item v-if="menuFormData.menuType !== 3" prop="path" label="路由地址">
+              <el-input v-model="menuFormData.routePath" placeholder="路由地址" />
+            </el-form-item>
+            <el-form-item v-if="menuFormData.menuType !== 1" prop="perms" label="权限标识">
+              <el-input v-model="menuFormData.menuPerm" placeholder="权限标识" />
+            </el-form-item>
           </el-col>
+          <!-- 右边列 -->
           <el-col :span="12">
+
             <el-form-item prop="sort" label="菜单排序">
               <el-input-number style="width: 100%" v-model="menuFormData.menuSort" controls-position="right" />
             </el-form-item>
-            <!-- <el-form-item prop="component" v-if="menuFormData.menuType !== 3" label="组件名称">
-              <el-input :disabled="menuFormData.menuType !== 2" v-model="menuFormData.component" placeholder="组件名称" />
-            </el-form-item> -->
+            <template v-if="menuFormData.menuType == 2">
+              <el-form-item prop="component" label="组件名称">
+                <el-input v-model="menuFormData.component" placeholder="组件名称" />
+              </el-form-item>
+              <el-form-item prop="component" label="组件路径">
+                <el-input v-model="menuFormData.componentPath" placeholder="组件路径" />
+              </el-form-item>
+            </template>
           </el-col>
         </el-row>
-        <el-form-item prop="perms" label="权限标识">
-          <el-input v-model="menuFormData.menuPerm" placeholder="权限标识" />
-        </el-form-item>
-        <el-form-item label="上级菜单" prop="parentId" style="width: 100%">
-          <el-tree-select popper-class="menu-tree-popper" v-model="menuFormData.parentId" :data="seletMenuData"
-            check-strictly :props="treeProps" />
-        </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
@@ -175,4 +186,27 @@ defineExpose({ open })
 </template>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+:deep(.dialog-container) {
+  width: 580px;
+}
+
+.dialog-body {
+  padding: 20px 10px;
+}
+
+:deep(.el-form-item__label) {
+  font-weight: bold;
+}
+
+:deep(.el-select) {
+  font-weight: bold;
+}
+
+:deep(.menu-type) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+</style>
