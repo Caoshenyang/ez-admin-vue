@@ -134,8 +134,8 @@ const handleClose = (command: string, currentTab?: string) => {
 <template>
   <div class="app-work-tab">
     <div class="tab-item">
-      <el-check-tag class="work-tab-item" :checked="item.path === activeTab" v-for="item in workTabList"
-        :key="item.path" type="primary" @change="changeTab(item.path)">
+      <el-check-tag class="work-tab-item" type="info" :checked="item.path === activeTab" v-for="item in workTabList"
+        :key="item.path" @change="changeTab(item.path)">
         {{ item.title }}
         <el-link @click="removeTab(item.path)" v-if="item.path != HOME_PAGE" :underline="false" :icon="Close"></el-link>
       </el-check-tag>
@@ -171,20 +171,26 @@ const handleClose = (command: string, currentTab?: string) => {
 .tab-item {
   display: flex;
   gap: 10px;
+  user-select: none;
 }
 
-:deep(.el-check-tag) {
+.el-check-tag {
   background-color: white;
   // 加边框，去除默认样式
   border: 1px solid #e4e7ed;
   // 去除默认样式
-  border-radius: 4px;
+  border-radius: 8px;
   // 去除默认样式
   padding: 0 10px;
   // 去除默认样式
   height: 32px;
-  // 去除默认样式
+  // 字体样式
+  font-weight: 400;
+}
 
+.el-check-tag.el-check-tag--info.is-checked {
+  background-color: white;
+  color: #51a2ff;
 }
 
 .work-tab-item {
@@ -192,5 +198,36 @@ const handleClose = (command: string, currentTab?: string) => {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  border-radius: 8px;
+  border: 1px solid #e4e7ed;
+  cursor: pointer;
+  transition: all 0.3s;
+
+  &:hover {
+    background-color: #f5f7fa;
+    color: #51a2ff;
+  }
+
+}
+
+.tag-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: white;
+  border: 1px solid #e4e7ed;
+  cursor: pointer;
+  transition: all 0.3s;
+
+  &:hover {
+    background-color: #f5f7fa;
+  }
+
+  .button {
+    padding: 6px;
+  }
 }
 </style>

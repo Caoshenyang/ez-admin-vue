@@ -42,7 +42,7 @@ export default defineConfig({
   ],
   server: {
     // 服务启动时是否自动打开浏览器
-    open: true,
+    open: false,
     host: '0.0.0.0',
     port: 3333,
     // 本地跨域代理 -> 代理到服务器的接口地址

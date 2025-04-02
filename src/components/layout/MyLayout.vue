@@ -39,11 +39,11 @@ const settingStore = useSettingStore();
   height: 100%;
   background-color: white;
   transition: width 0.3s;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 .app-header {
-  height: 60px + 44px;
+  height: 60px + 34px;
 }
 
 .app-main {
