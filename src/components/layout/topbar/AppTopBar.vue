@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { useSettingStore } from '@/stores/modules/settingStore';
-import { useUserStore } from '@/stores/modules/userStore';
+import { useSettingStore } from '@/stores/modules/settingStore'
+import { useUserStore } from '@/stores/modules/userStore'
 import { useFullscreen } from '@vueuse/core'
 
 // 全屏 isFullscreen - 是否全屏 toggle - 切换
@@ -18,36 +18,39 @@ const handleRefresh = () => {
   <div class="app-top-bar">
     <div class="left">
       <div class="icon-btn" @click="settingStore.switchFolding">
-        <SvgIcon :size="24" :name="settingStore.isCollapse ? 'system-menu-fold' : 'system-menu-unfold'"></SvgIcon>
+        <EZSvgIcon :size="24" :name="settingStore.isCollapse ? 'system-menu-fold' : 'system-menu-unfold'"></EZSvgIcon>
       </div>
       <div class="icon-btn" @click="handleRefresh">
-        <SvgIcon class="refresh-btn" :size="22" name="system-refresh"></SvgIcon>
+        <EZSvgIcon class="refresh-btn" :size="22" name="system-refresh"></EZSvgIcon>
       </div>
     </div>
     <div class="right">
       <div class="icon-btn" @click="toggle">
-        <SvgIcon :class="isFullscreen ? 'off-screen-bth' : 'full-screen-btn'" :size="22"
-          :name="isFullscreen ? 'system-off-screen' : 'system-full-screen'">
-        </SvgIcon>
+        <EZSvgIcon
+          :class="isFullscreen ? 'off-screen-bth' : 'full-screen-btn'"
+          :size="22"
+          :name="isFullscreen ? 'system-off-screen' : 'system-full-screen'"
+        >
+        </EZSvgIcon>
       </div>
       <div class="icon-btn">
         <el-badge is-dot>
-          <SvgIcon class="remind-btn" :size="22" name="system-remind"></SvgIcon>
+          <EZSvgIcon class="remind-btn" :size="22" name="system-remind"></EZSvgIcon>
         </el-badge>
       </div>
       <div class="icon-btn">
         <el-badge is-dot type="success">
-          <SvgIcon class="message-bth" :size="22" name="system-message"></SvgIcon>
+          <EZSvgIcon class="message-bth" :size="22" name="system-message"></EZSvgIcon>
         </el-badge>
       </div>
       <div class="icon-btn">
-        <SvgIcon class="international-btn" :size="22" name="system-international"></SvgIcon>
+        <EZSvgIcon class="international-btn" :size="22" name="system-international"></EZSvgIcon>
       </div>
       <div class="icon-btn">
-        <SvgIcon class="setting-btn" :size="22" name="system-setting"></SvgIcon>
+        <EZSvgIcon class="setting-btn" :size="22" name="system-setting"></EZSvgIcon>
       </div>
       <div class="icon-btn" @click="settingStore.switchNight">
-        <SvgIcon :size="22" :name="settingStore.isNight ? 'system-moon' : 'system-sun'"></SvgIcon>
+        <EZSvgIcon :size="22" :name="settingStore.isNight ? 'system-moon' : 'system-sun'"></EZSvgIcon>
       </div>
       <div class="avatar">
         <el-avatar class="avatar" :src="userStore.avatar" />
@@ -55,7 +58,6 @@ const handleRefresh = () => {
     </div>
   </div>
 </template>
-
 
 <style lang="scss" scoped>
 @use '@/assets/styles/animation.scss';
@@ -75,7 +77,6 @@ const handleRefresh = () => {
 }
 
 .avatar {
-
   margin: 0 10px;
 }
 

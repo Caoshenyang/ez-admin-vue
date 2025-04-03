@@ -10,7 +10,7 @@ export const selectMenuTreeApi = (data?: MenuQuery) => {
   return request<MenuTreeVO[]>({
     method: 'POST',
     url: '/system/menu/tree',
-    data: { ...data },
+    data: { ...data }
   })
 }
 
@@ -23,7 +23,7 @@ export const createMenuApi = (menuCreateDTO: MenuForm) => {
   return request<string>({
     method: 'POST',
     url: '/system/menu/save',
-    data: { ...menuCreateDTO },
+    data: { ...menuCreateDTO }
   })
 }
 
@@ -36,7 +36,7 @@ export const updateMenuApi = (menuUpdateDTO: MenuForm) => {
   return request<string>({
     method: 'POST',
     url: '/system/menu/update',
-    data: { ...menuUpdateDTO },
+    data: { ...menuUpdateDTO }
   })
 }
 
@@ -45,10 +45,23 @@ export const updateMenuApi = (menuUpdateDTO: MenuForm) => {
  * @param menuId 菜单ID
  * @returns  string
  */
-export const deleteMenuApi = (menuId: number) => {
+export const deleteMenuApi = (menuId: string) => {
   return request<string>({
     method: 'DELETE',
-    url: `/system/menu/delete/${menuId}`,
+    url: `/system/menu/delete/${menuId}`
+  })
+}
+
+/**
+ * 批量删除
+ * @param data 菜单ID数组
+ * @returns string
+ */
+export const deleteBatchMenuApi = (data: string[]) => {
+  return request<string>({
+    method: 'DELETE',
+    url: `/system/menu/deleteBatch`,
+    data
   })
 }
 
@@ -57,9 +70,9 @@ export const deleteMenuApi = (menuId: number) => {
  * @param menuId 菜单ID
  * @returns  string
  */
-export const getMenuByIdApi = (menuId: number) => {
+export const getMenuByIdApi = (menuId: string) => {
   return request<MenuDetailVO>({
     method: 'GET',
-    url: `system/menu/${menuId}`,
+    url: `system/menu/${menuId}`
   })
 }

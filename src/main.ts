@@ -11,7 +11,7 @@ import './router/permission'
 import 'virtual:svg-icons-register'
 
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-import SvgIcon from './components/icons/SvgIcon.vue'
+import SvgIcon from './components/icons/EZSvgIcon.vue'
 
 const app = createApp(App)
 app.use(router)

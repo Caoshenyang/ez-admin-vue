@@ -1,18 +1,24 @@
 export const msgSuccess = (msg: string) => {
   ElMessage({
     message: msg,
-    type: 'success',
+    type: 'success'
   })
 }
 export const msgInfo = (msg: string) => {
   ElMessage({
     message: msg,
-    type: 'warning',
+    type: 'info'
+  })
+}
+export const msgWarning = (msg: string) => {
+  ElMessage({
+    message: msg,
+    type: 'warning'
   })
 }
 export const msgErr = (msg: string) => {
   ElMessage({
     message: msg,
-    type: 'error',
+    type: 'error'
   })
 }
