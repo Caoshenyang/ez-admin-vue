@@ -9,9 +9,7 @@ import { msgInfo, msgSuccess } from '@/utils/message'
 const menuTableTreeData = ref<MenuTreeVO[]>([]) // 表格树形数据
 const menuFormDialogRef = ref() // 表单弹窗 ref
 const selectedRows = ref<MenuTreeVO[]>([]) // 选中的行数据
-const isBatchDelete = ref<boolean>(false) // 是否批量删除
 const confirmContent = ref<string>('') // 确认框内容
-const deleteMenuId = ref<string>() // 删除菜单id
 
 onMounted(() => {
   refreshList()
@@ -41,7 +39,7 @@ const handleAdd = () => {
  * 编辑
  * @param id menuId
  */
-const handleEdit = (id: number) => {
+const handleEdit = (id: string) => {
   menuFormDialogRef.value.open(id)
 }
 
@@ -50,21 +48,29 @@ const handleEdit = (id: number) => {
  * @param isBatch 是否批量删除
  * @param row 删除行
  */
-const handleDelete = (isBatch: boolean, row?: MenuTreeVO) => {
+const handleDelete = (isBatch: boolean, memuId?: string) => {
   confirmContent.value = isBatch ? `确定要删除选中的菜单吗？` : `确定要删除该菜单吗？`
-  isBatchDelete.value = isBatch
   // 如果不是批量删除，给删除id赋值
-  // 如果是批量删除，则从选中的行中取id，即 selectedRows
-  if (!isBatch && row) {
-    deleteMenuId.value = row.menuId
-  }
+
   ElMessageBox.confirm(confirmContent.value, '删除提醒', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
   })
-    .then(() => {
-      handleDeleteMenu()
+    .then(async () => {
+      if (!isBatch && memuId) {
+        console.log(memuId)
+
+        // 调用接口删除菜单
+        await deleteMenuApi(memuId)
+      } else {
+        // 获取所有选择menuId
+        const deleteMenuIdList = selectedRows.value.map((item) => item.menuId)
+        // 调用接口删除用户
+        await deleteBatchMenuApi(deleteMenuIdList)
+      }
+      msgSuccess('删除成功')
+      refreshList()
     })
     .catch(() => {
       msgInfo('已取消删除')
@@ -74,33 +80,6 @@ const handleDelete = (isBatch: boolean, row?: MenuTreeVO) => {
 // 监听表格勾选变化事件
 const handleSelectionChange = (val: MenuTreeVO[]) => {
   selectedRows.value = val
-}
-
-/**
- * 删除菜单
- */
-const handleDeleteMenu = async () => {
-  if (isBatchDelete.value) {
-    await batchDelete()
-  } else {
-    await sigleDelete()
-  }
-  refreshList()
-}
-
-const sigleDelete = async () => {
-  // 调用接口删除菜单
-  await deleteMenuApi(deleteMenuId.value!).then(() => {
-    msgSuccess('删除成功')
-  })
-}
-const batchDelete = async () => {
-  // 获取所有选择menuId
-  const deleteMenuIdList = selectedRows.value.map((item) => item.menuId)
-  // 调用接口删除用户
-  await deleteBatchMenuApi(deleteMenuIdList).then(() => {
-    msgSuccess('删除成功')
-  })
 }
 </script>
 <template>
@@ -154,7 +133,7 @@ const batchDelete = async () => {
           <template #default="scope">
             <div class="table-option">
               <el-button type="success" :icon="Edit" @click="handleEdit(scope.row.menuId)"></el-button>
-              <el-button type="danger" :icon="Delete" @click="handleDelete(false)"></el-button>
+              <el-button type="danger" :icon="Delete" @click="handleDelete(false, scope.row.menuId)"></el-button>
             </div>
           </template>
         </el-table-column>
