@@ -106,34 +106,31 @@ const handleSelectionChange = (val: MenuTreeVO[]) => {
         :data="menuTableTreeData"
         row-key="menuId"
         default-expand-all
-        :header-cell-style="{ 'text-align': 'center' }"
-        cell-class-name="select"
         @selection-change="handleSelectionChange"
       >
         <!-- 选项 -->
         <el-table-column type="selection" width="55" />
         <el-table-column prop="menuName" label="菜单名称" />
-        <el-table-column prop="icon" label="图标" width="55">
+        <el-table-column prop="menuIcon" label="图标">
           <template #default="scope">
             <el-icon>
-              <component :is="scope.row.icon" v-if="scope.row.icon" />
+              <component :is="scope.row.icon" v-if="scope.row.menuIcon" />
             </el-icon>
           </template>
         </el-table-column>
-        <el-table-column prop="sort" label="排序" />
-        <el-table-column prop="perms" label="权限标识">
+        <el-table-column prop="menuSort" label="排序" />
+        <el-table-column prop="menuPerms" label="权限标识">
           <template #default="scope">
-            <el-tag v-if="scope.row.perms" size="small">{{ scope.row.perms }}</el-tag>
+            <el-tag v-if="scope.row.perms" size="small">{{ scope.row.menuPerms }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="path" label="路由地址" />
-        <el-table-column show-overflow-tooltip prop="component" label="组件名称" />
-        <el-table-column show-overflow-tooltip prop="createTime" label="创建时间" />
+        <el-table-column prop="routePath" label="路由地址" />
+        <el-table-column show-overflow-tooltip prop="updateTime" label="更新时间" />
         <el-table-column label="操作" fixed="right">
           <template #default="scope">
             <div class="table-option">
-              <el-button type="success" :icon="Edit" @click="handleEdit(scope.row.menuId)"></el-button>
-              <el-button type="danger" :icon="Delete" @click="handleDelete(false, scope.row.menuId)"></el-button>
+              <el-button type="success" plain :icon="Edit" @click="handleEdit(scope.row.menuId)"></el-button>
+              <el-button type="danger" plain :icon="Delete" @click="handleDelete(false, scope.row.menuId)"></el-button>
             </div>
           </template>
         </el-table-column>

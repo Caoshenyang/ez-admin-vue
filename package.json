@@ -24,6 +24,10 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
+    "@iconify-json/ant-design": "^1.2.5",
+    "@iconify-json/ep": "^1.2.2",
+    "@iconify-json/icon-park": "^1.2.2",
+    "@iconify-json/icon-park-outline": "^1.2.2",
     "@tsconfig/node22": "^22.0.0",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^22.13.9",
@@ -40,7 +44,8 @@
     "sass": "^1.86.0",
     "sass-loader": "^16.0.5",
     "typescript": "~5.8.0",
-    "unplugin-auto-import": "^19.1.1",
+    "unplugin-auto-import": "^19.1.2",
+    "unplugin-icons": "^22.1.0",
     "unplugin-vue-components": "^28.4.1",
     "vite": "^6.2.1",
     "vite-plugin-svg-icons": "^2.0.1",

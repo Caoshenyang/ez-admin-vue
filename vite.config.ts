@@ -7,6 +7,9 @@ import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
+import Icons from 'unplugin-icons/vite'
+import IconsResolver from 'unplugin-icons/resolver'
+import Inspect from 'vite-plugin-inspect'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -16,13 +19,30 @@ export default defineConfig({
     AutoImport({
       // 自动导入 Vue 相关函数，如：ref, reactive, toRef 等
       imports: ['vue'],
-      resolvers: [ElementPlusResolver()],
-      dts: fileURLToPath(new URL('./auto-imports.d.ts', import.meta.url)),
+      // 自动导入 Element Plus 相关函数，如：ElMessage, ElMessageBox... (带样式)
+      resolvers: [
+        ElementPlusResolver(),
+        // 自动导入图标组件
+        IconsResolver({
+          prefix: 'Icon'
+        })
+      ],
+      dts: fileURLToPath(new URL('./auto-imports.d.ts', import.meta.url))
     }),
     Components({
-      resolvers: [ElementPlusResolver()],
-      dts: fileURLToPath(new URL('./components.d.ts', import.meta.url)),
+      resolvers: [
+        ElementPlusResolver(),
+        // 自动注册图标组件
+        IconsResolver({
+          enabledCollections: ['ep', 'ant-design', 'icon-park', 'icon-park-outline']
+        })
+      ],
+      dts: fileURLToPath(new URL('./components.d.ts', import.meta.url))
     }),
+    Icons({
+      autoInstall: true
+    }),
+    Inspect(),
     createSvgIconsPlugin({
       // 指定需要缓存的图标文件夹
       iconDirs: [fileURLToPath(new URL('./src/assets/icons', import.meta.url))],
@@ -37,8 +57,8 @@ export default defineConfig({
        * custom dom id
        * @default: __svg__icons__dom__
        */
-      customDomId: '__svg__icons__dom__',
-    }),
+      customDomId: '__svg__icons__dom__'
+    })
   ],
   server: {
     // 服务启动时是否自动打开浏览器
@@ -50,14 +70,14 @@ export default defineConfig({
       '/dev-api': {
         target: 'http://localhost:2222', // 后台服务器地址
         changeOrigin: true, // 是否允许不同源
-        secure: false, // 支持https
+        secure: false // 支持https
         // rewrite: (path) => path.replace(/^\/dev-api/, ''),
-      },
-    },
+      }
+    }
   },
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
-  },
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
+  }
 })

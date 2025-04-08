@@ -1,14 +1,13 @@
 <!-- logo 组件 -->
 <script setup lang="ts">
-import { useSettingStore } from '@/stores/modules/settingStore';
+import { useSettingStore } from '@/stores/modules/settingStore'
 
-const settingStore = useSettingStore();
-
+const settingStore = useSettingStore()
 </script>
 <template>
   <div class="app-logo">
     <el-icon :size="36" color="#0473fb">
-      <element-plus />
+      <i-ep-element-plus />
     </el-icon>
     <span v-if="!settingStore.isCollapse" class="title">EZ-ADMIN</span>
   </div>
@@ -23,7 +22,6 @@ const settingStore = useSettingStore();
   padding-bottom: 1rem;
   cursor: pointer;
   border-right-width: 0;
-
 }
 
 .title {

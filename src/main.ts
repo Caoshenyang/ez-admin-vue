@@ -10,7 +10,6 @@ import store from './stores'
 import './router/permission'
 import 'virtual:svg-icons-register'
 
-import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import SvgIcon from './components/icons/EZSvgIcon.vue'
 
 const app = createApp(App)
@@ -20,7 +19,4 @@ app.use(store)
 // 全局注册组件
 app.component('SvgIcon', SvgIcon)
 
-for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-  app.component(key, component)
-}
 app.mount('#app')

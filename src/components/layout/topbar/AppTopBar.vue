@@ -17,41 +17,39 @@ const handleRefresh = () => {
 <template>
   <div class="app-top-bar">
     <div class="left">
-      <div class="icon-btn" @click="settingStore.switchFolding">
-        <EZSvgIcon :size="24" :name="settingStore.isCollapse ? 'system-menu-fold' : 'system-menu-unfold'"></EZSvgIcon>
-      </div>
-      <div class="icon-btn" @click="handleRefresh">
-        <EZSvgIcon class="refresh-btn" :size="22" name="system-refresh"></EZSvgIcon>
-      </div>
+      <el-icon class="icon-btn" @click="settingStore.switchFolding">
+        <i-ep-expand v-if="settingStore.isCollapse" />
+        <i-ep-fold v-else />
+      </el-icon>
+      <el-icon class="icon-btn" @click="handleRefresh">
+        <i-ant-design-sync-outlined class="refresh-btn" />
+      </el-icon>
     </div>
     <div class="right">
-      <div class="icon-btn" @click="toggle">
-        <EZSvgIcon
-          :class="isFullscreen ? 'off-screen-bth' : 'full-screen-btn'"
-          :size="22"
-          :name="isFullscreen ? 'system-off-screen' : 'system-full-screen'"
-        >
-        </EZSvgIcon>
-      </div>
-      <div class="icon-btn">
+      <el-icon class="icon-btn" @click="toggle" :size="isFullscreen ? 28 : 22">
+        <i-ant-design-fullscreen-exit-outlined class="off-screen-bth" v-if="isFullscreen" />
+        <i-icon-park-full-screen class="full-screen-btn" v-else />
+      </el-icon>
+      <el-icon class="icon-btn">
         <el-badge is-dot>
-          <EZSvgIcon class="remind-btn" :size="22" name="system-remind"></EZSvgIcon>
+          <i-ep-bell class="remind-btn" />
         </el-badge>
-      </div>
-      <div class="icon-btn">
+      </el-icon>
+      <el-icon class="icon-btn">
         <el-badge is-dot type="success">
-          <EZSvgIcon class="message-bth" :size="22" name="system-message"></EZSvgIcon>
+          <i-ep-chat-dot-square class="remind-btn" />
         </el-badge>
-      </div>
-      <div class="icon-btn">
-        <EZSvgIcon class="international-btn" :size="22" name="system-international"></EZSvgIcon>
-      </div>
-      <div class="icon-btn">
-        <EZSvgIcon class="setting-btn" :size="22" name="system-setting"></EZSvgIcon>
-      </div>
-      <div class="icon-btn" @click="settingStore.switchNight">
-        <EZSvgIcon :size="22" :name="settingStore.isNight ? 'system-moon' : 'system-sun'"></EZSvgIcon>
-      </div>
+      </el-icon>
+      <el-icon class="icon-btn">
+        <i-icon-park-international class="international-btn" />
+      </el-icon>
+      <el-icon class="icon-btn">
+        <i-ep-setting class="setting-btn" />
+      </el-icon>
+      <el-icon class="icon-btn" @click="settingStore.switchNight">
+        <i-icon-park-outline-moon v-if="settingStore.isNight" />
+        <i-icon-park-sun v-else />
+      </el-icon>
       <div class="avatar">
         <el-avatar class="avatar" :src="userStore.avatar" />
       </div>
@@ -88,6 +86,7 @@ const handleRefresh = () => {
   width: 36px;
   height: 36px;
   padding: 6px;
+  font-size: 22px;
   border-radius: 3px;
   transition: all 0.2s;
   cursor: pointer;

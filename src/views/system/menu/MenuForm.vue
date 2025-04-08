@@ -145,7 +145,7 @@ defineExpose({ open })
             placeholder="请选择"
           />
         </el-form-item>
-        <el-form-item v-if="menuFormData.menuType !== 3" prop="icon" label="菜单图标">
+        <el-form-item v-if="menuFormData.menuType !== 3" prop="menuIcon" label="菜单图标">
           <el-input v-model="menuFormData.menuIcon" placeholder="菜单图标" />
         </el-form-item>
         <!-- 分两列展示 -->
@@ -155,23 +155,23 @@ defineExpose({ open })
             <el-form-item prop="menuName" :label="menuNameLabel">
               <el-input v-model="menuFormData.menuName" placeholder="菜单名称" />
             </el-form-item>
-            <el-form-item v-if="menuFormData.menuType !== 3" prop="path" label="路由地址">
+            <el-form-item v-if="menuFormData.menuType !== 3" prop="routePath" label="路由地址">
               <el-input v-model="menuFormData.routePath" placeholder="路由地址" />
             </el-form-item>
-            <el-form-item v-if="menuFormData.menuType !== 1" prop="perms" label="权限标识">
+            <el-form-item v-if="menuFormData.menuType !== 1" prop="menuPerm" label="权限标识">
               <el-input v-model="menuFormData.menuPerm" placeholder="权限标识" />
             </el-form-item>
           </el-col>
           <!-- 右边列 -->
           <el-col :span="12">
-            <el-form-item prop="sort" label="菜单排序">
+            <el-form-item prop="menuSort" label="菜单排序">
               <el-input-number style="width: 100%" v-model="menuFormData.menuSort" controls-position="right" />
             </el-form-item>
             <template v-if="menuFormData.menuType == 2">
               <el-form-item prop="component" label="组件名称">
                 <el-input v-model="menuFormData.component" placeholder="组件名称" />
               </el-form-item>
-              <el-form-item prop="component" label="组件路径">
+              <el-form-item prop="componentPath" label="组件路径">
                 <el-input v-model="menuFormData.componentPath" placeholder="组件路径" />
               </el-form-item>
             </template>
