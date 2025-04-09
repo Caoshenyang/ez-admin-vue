@@ -4,7 +4,6 @@ import { deleteBatchMenuApi, deleteMenuApi, selectMenuTreeApi } from '@/api/syst
 import type { MenuTreeVO } from '@/types/auth'
 import type { MenuQuery } from '@/types/system'
 import { msgInfo, msgSuccess } from '@/utils/message'
-import { Icon } from '@iconify/vue'
 
 const menuTableTreeData = ref<MenuTreeVO[]>([]) // 表格树形数据
 const menuFormDialogRef = ref() // 表单弹窗 ref
@@ -81,21 +80,35 @@ const handleSelectionChange = (val: MenuTreeVO[]) => {
 </script>
 <template>
   <div class="menu-container">
-    <div class="search-bar">
-      <Icon icon="ep:avatar" />
-      <el-button icon="ep:avatar">Home</el-button>
-    </div>
+    <div class="search-bar"></div>
     <div class="operation-bar">
       <div class="operation-button">
-        <el-button type="primary" :icon="Plus" plain @click="handleAdd">新增</el-button>
+        <el-button type="primary" plain @click="handleAdd">
+          <template #icon>
+            <IconifyIcon icon="ep:plus" />
+          </template>
+          新增
+        </el-button>
       </div>
       <div class="setting-button">
         <!-- 搜索显示/隐藏 -->
-        <el-button :icon="Search" circle />
+        <el-button circle>
+          <template #icon>
+            <EZSvgIcon icon="ep:search" />
+          </template>
+        </el-button>
         <!-- 刷新列表数据 -->
-        <el-button :icon="Refresh" circle @click="refreshList" />
+        <el-button circle @click="refreshList">
+          <template #icon>
+            <EZSvgIcon icon="ep:refresh" />
+          </template>
+        </el-button>
         <!-- 展示列设置 -->
-        <el-button :icon="Setting" circle />
+        <el-button circle>
+          <template #icon>
+            <EZSvgIcon icon="ep:setting" />
+          </template>
+        </el-button>
       </div>
     </div>
     <div class="table-container">
@@ -113,12 +126,8 @@ const handleSelectionChange = (val: MenuTreeVO[]) => {
         <el-table-column prop="menuName" label="菜单名称" />
         <el-table-column prop="menuIcon" label="图标">
           <template #default="scope">
-            <div>{{ scope.row.menuIcon }}</div>
-            <CirclePlusFilled />
             <el-icon>
-
-               <IconifyIcon :icon="scope.row.menuIcon" />
-              <component :is="scope.row.menuIcon" v-if="scope.row.menuIcon" />
+              <EZSvgIcon :icon="scope.row.menuIcon" v-if="scope.row.menuIcon" />
             </el-icon>
           </template>
         </el-table-column>
@@ -133,8 +142,16 @@ const handleSelectionChange = (val: MenuTreeVO[]) => {
         <el-table-column label="操作" fixed="right">
           <template #default="scope">
             <div class="table-option">
-              <el-button type="success" plain :icon="Edit" @click="handleEdit(scope.row.menuId)"></el-button>
-              <el-button type="danger" plain :icon="Delete" @click="handleDelete(false, scope.row.menuId)"></el-button>
+              <el-button type="success" plain @click="handleEdit(scope.row.menuId)">
+                <template #icon>
+                  <EZSvgIcon icon="ant-design:edit-outlined" />
+                </template>
+              </el-button>
+              <el-button type="danger" plain @click="handleDelete(false, scope.row.menuId)">
+                <template #icon>
+                  <EZSvgIcon icon="ep:delete" />
+                </template>
+              </el-button>
             </div>
           </template>
         </el-table-column>

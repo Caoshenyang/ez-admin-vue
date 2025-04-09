@@ -17,17 +17,18 @@ export default defineConfig({
       // 自动导入 Vue 相关函数，如：ref, reactive, toRef 等
       imports: ['vue'],
       // 自动导入 Element Plus 相关函数，如：ElMessage, ElMessageBox... (带样式)
-      resolvers: [
-        ElementPlusResolver(),
-
-      ],
+      resolvers: [ElementPlusResolver()],
       dts: fileURLToPath(new URL('./auto-imports.d.ts', import.meta.url))
     }),
     Components({
-      resolvers: [ ElementPlusResolver()],
+      dirs: [
+        'src/components', // 默认会扫描
+        'src/views' // 自定义的组件目录
+      ],
+      resolvers: [ElementPlusResolver()],
       dts: fileURLToPath(new URL('./components.d.ts', import.meta.url))
     }),
-    Inspect(),
+    Inspect()
   ],
   server: {
     // 服务启动时是否自动打开浏览器

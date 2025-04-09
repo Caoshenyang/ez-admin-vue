@@ -7,7 +7,7 @@ const settingStore = useSettingStore()
 <template>
   <div class="app-logo">
     <el-icon :size="36" color="#0473fb">
-      <i-ep-element-plus />
+      <EZSvgIcon icon="ep:element-plus" />
     </el-icon>
     <span v-if="!settingStore.isCollapse" class="title">EZ-ADMIN</span>
   </div>

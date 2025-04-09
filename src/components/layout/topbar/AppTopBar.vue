@@ -18,37 +18,37 @@ const handleRefresh = () => {
   <div class="app-top-bar">
     <div class="left">
       <el-icon class="icon-btn" @click="settingStore.switchFolding">
-        <i-ep-expand v-if="settingStore.isCollapse" />
-        <i-ep-fold v-else />
+        <EZSvgIcon :icon="settingStore.isCollapse ? 'ep-expand' : 'ep-fold'" />
       </el-icon>
       <el-icon class="icon-btn" @click="handleRefresh">
-        <i-ant-design-sync-outlined class="refresh-btn" />
+        <EZSvgIcon icon="ant-design:sync-outlined" class="refresh-btn" />
       </el-icon>
     </div>
     <div class="right">
       <el-icon class="icon-btn" @click="toggle" :size="isFullscreen ? 28 : 22">
-        <i-ant-design-fullscreen-exit-outlined class="off-screen-bth" v-if="isFullscreen" />
-        <i-icon-park-full-screen class="full-screen-btn" v-else />
+        <EZSvgIcon
+          :icon="isFullscreen ? 'ant-design:fullscreen-exit-outlined' : 'icon-park:full-screen'"
+          :class="isFullscreen ? 'off-screen-bth' : 'full-screen-btn'"
+        />
       </el-icon>
       <el-icon class="icon-btn">
         <el-badge is-dot>
-          <i-ep-bell class="remind-btn" />
+          <EZSvgIcon icon="ep-bell" class="remind-btn" />
         </el-badge>
       </el-icon>
       <el-icon class="icon-btn">
         <el-badge is-dot type="success">
-          <i-ep-chat-dot-square class="remind-btn" />
+          <EZSvgIcon icon="ep-chat-dot-square" class="remind-btn" />
         </el-badge>
       </el-icon>
       <el-icon class="icon-btn">
-        <i-icon-park-international class="international-btn" />
+        <EZSvgIcon icon="icon-park:international" class="international-btn" />
       </el-icon>
       <el-icon class="icon-btn">
-        <i-ep-setting class="setting-btn" />
+        <EZSvgIcon icon="ep-setting" class="setting-btn" />
       </el-icon>
       <el-icon class="icon-btn" @click="settingStore.switchNight">
-        <i-icon-park-outline-moon v-if="settingStore.isNight" />
-        <i-icon-park-sun v-else />
+        <EZSvgIcon :icon="settingStore.isNight ? 'icon-park-outline:moon' : 'icon-park:sun'" />
       </el-icon>
       <div class="avatar">
         <el-avatar class="avatar" :src="userStore.avatar" />

@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import router from '@/router';
-import { useUserStore } from '@/stores/modules/userStore';
-import type { FormInstance, FormRules } from 'element-plus';
-import { ref } from 'vue';
-
+import router from '@/router'
+import { useUserStore } from '@/stores/modules/userStore'
+import type { FormInstance, FormRules } from 'element-plus'
+import { ref } from 'vue'
 
 // 登录表单数据
 const userLoginForm = ref({
@@ -50,7 +49,6 @@ const handleLogin = async () => {
       loading.value = false
     })
 }
-
 </script>
 
 <template>
@@ -70,8 +68,8 @@ const handleLogin = async () => {
         <el-form-item prop="username">
           <el-input v-model="userLoginForm.username" placeholder="请输入用户名">
             <template #prefix>
-              <el-icon >
-                <IconifyIcon icon="ep:user" width></IconifyIcon>
+              <el-icon>
+                <EZSvgIcon icon="ep:user" />
               </el-icon>
             </template>
           </el-input>
@@ -79,7 +77,7 @@ const handleLogin = async () => {
         <el-form-item prop="password">
           <el-input type="password" v-model="userLoginForm.password" placeholder="请输入密码" show-password>
             <template #prefix>
-                <IconifyIcon icon="ep:lock" width></IconifyIcon>
+              <EZSvgIcon icon="ep:lock" />
             </template>
           </el-input>
         </el-form-item>
@@ -90,7 +88,6 @@ const handleLogin = async () => {
       </el-form>
     </el-col>
   </el-row>
-
 </template>
 
 <style lang="scss" scoped>
@@ -136,7 +133,6 @@ const handleLogin = async () => {
     font-size: 30px;
     font-weight: bold;
     color: #000;
-
   }
 
   .login-text {
