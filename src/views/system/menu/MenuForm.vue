@@ -41,7 +41,7 @@ const INIT_FORM: MenuForm = {
   menuType: 1,
   menuPerm: '',
   routePath: '',
-  component: '',
+  routeName: '',
   componentPath: '',
   status: 0
 }
@@ -90,6 +90,15 @@ const open = async (menuId?: string) => {
   }
 }
 
+/** 添加子节点 */
+const addChildren = async (menuId: string) => {
+  await loadMenuTree()
+  visible.value = true
+  title.value = '新增菜单'
+  resetForm()
+  menuFormData.value.parentId = menuId
+}
+
 const close = () => {
   visible.value = false
 }
@@ -118,7 +127,7 @@ const handleSubmit = async () => {
   }
 }
 
-defineExpose({ open })
+defineExpose({ open, addChildren, close })
 </script>
 <template>
   <div>
@@ -145,7 +154,24 @@ defineExpose({ open })
             placeholder="请选择"
           />
         </el-form-item>
-        <el-form-item v-if="menuFormData.menuType !== 3" prop="menuIcon" label="菜单图标">
+        <el-form-item prop="menuIcon">
+          <template #label>
+            <div class="menu-label-notice">
+              <el-tooltip placement="bottom" effect="light">
+                <EZSvgIcon icon="ep:question-filled" />
+                <template #content>
+                  在以下站点选择图标:
+                  <br />
+                  <el-link href="https://icon-sets.iconify.design/" target="_blank">
+                    https://icon-sets.iconify.design/
+                  </el-link>
+                  <br />
+                  <el-link href="https://icones.js.org/" target="_blank"> https://icones.js.org/ </el-link>
+                </template>
+              </el-tooltip>
+              菜单图标
+            </div>
+          </template>
           <el-input v-model="menuFormData.menuIcon" placeholder="菜单图标" />
         </el-form-item>
         <!-- 分两列展示 -->
@@ -167,14 +193,12 @@ defineExpose({ open })
             <el-form-item prop="menuSort" label="菜单排序">
               <el-input-number style="width: 100%" v-model="menuFormData.menuSort" controls-position="right" />
             </el-form-item>
-            <template v-if="menuFormData.menuType == 2">
-              <el-form-item prop="component" label="组件名称">
-                <el-input v-model="menuFormData.component" placeholder="组件名称" />
-              </el-form-item>
-              <el-form-item prop="componentPath" label="组件路径">
-                <el-input v-model="menuFormData.componentPath" placeholder="组件路径" />
-              </el-form-item>
-            </template>
+            <el-form-item prop="routeName" label="路由名称" v-if="menuFormData.menuType != 3">
+              <el-input v-model="menuFormData.routeName" placeholder="路由名称" />
+            </el-form-item>
+            <el-form-item prop="componentPath" label="组件路径" v-if="menuFormData.menuType == 2">
+              <el-input v-model="menuFormData.componentPath" placeholder="组件路径" />
+            </el-form-item>
           </el-col>
         </el-row>
       </el-form>
@@ -212,5 +236,12 @@ defineExpose({ open })
   align-items: center;
   justify-content: center;
   cursor: pointer;
+}
+
+.menu-label-notice {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
 }
 </style>

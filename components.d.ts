@@ -41,6 +41,7 @@ declare module 'vue' {
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     ElTag: typeof import('element-plus/es')['ElTag']
     ElText: typeof import('element-plus/es')['ElText']
+    ElTooltip: typeof import('element-plus/es')['ElTooltip']
     ElTreeSelect: typeof import('element-plus/es')['ElTreeSelect']
     EZSvgIcon: typeof import('./src/components/icons/EZSvgIcon.vue')['default']
     LoginPage: typeof import('./src/views/login/LoginPage.vue')['default']
@@ -51,6 +52,8 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SubMenu: typeof import('./src/components/layout/menu/SubMenu.vue')['default']
+    UserManagement: typeof import('./src/views/system/user/UserManagementPage.vue')['default']
+    UserManagementPage: typeof import('./src/views/system/user/UserManagementPage.vue')['default']
     WorkbenchPage: typeof import('./src/views/dashboard/WorkbenchPage.vue')['default']
   }
 }

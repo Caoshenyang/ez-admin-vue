@@ -35,6 +35,13 @@ const handleAdd = () => {
 }
 
 /**
+ * 新增子节点
+ */
+const handleAddChildren = (parentId: string) => {
+  menuFormDialogRef.value.addChildren(parentId)
+}
+
+/**
  * 编辑
  * @param id menuId
  */
@@ -85,7 +92,7 @@ const handleSelectionChange = (val: MenuTreeVO[]) => {
       <div class="operation-button">
         <el-button type="primary" plain @click="handleAdd">
           <template #icon>
-            <IconifyIcon icon="ep:plus" />
+            <EZSvgIcon icon="ep:plus" />
           </template>
           新增
         </el-button>
@@ -142,9 +149,14 @@ const handleSelectionChange = (val: MenuTreeVO[]) => {
         <el-table-column label="操作" fixed="right">
           <template #default="scope">
             <div class="table-option">
+              <el-button type="primary" plain @click="handleAddChildren(scope.row.menuId)">
+                <template #icon>
+                  <EZSvgIcon icon="ep:plus" />
+                </template>
+              </el-button>
               <el-button type="success" plain @click="handleEdit(scope.row.menuId)">
                 <template #icon>
-                  <EZSvgIcon icon="ant-design:edit-outlined" />
+                  <EZSvgIcon icon="ep:edit-pen" />
                 </template>
               </el-button>
               <el-button type="danger" plain @click="handleDelete(false, scope.row.menuId)">

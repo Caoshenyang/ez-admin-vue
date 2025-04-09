@@ -11,7 +11,7 @@ interface BaseMenu {
   menuType: number
   menuPerm: string
   routePath: string
-  component: string
+  routeName: string
   componentPath: string
   status: number
 }
