@@ -23,36 +23,36 @@ const staticRoutes: Array<RouteRecordRaw> = [
         meta: {
           title: '工作台',
           title_en: 'Workbench',
-          keepAlive: false,
-        },
+          keepAlive: false
+        }
       },
       {
         path: '/system',
         name: 'System',
         children: [
           {
-            path: '/system/menu',
+            path: 'menu',
             name: 'menu',
             component: () => import('@/views/system/menu/MenuManagementPage.vue'),
             meta: {
-              title: '菜单管理',
-            },
-          },
+              title: '菜单管理'
+            }
+          }
         ],
         meta: {
-          title: '系统管理',
-        },
-      },
+          title: '系统管理'
+        }
+      }
     ],
     meta: {
-      title: '仪表盘',
-    },
-  },
+      title: '仪表盘'
+    }
+  }
 ]
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
-  routes: staticRoutes,
+  routes: staticRoutes
 })
 
 export default router

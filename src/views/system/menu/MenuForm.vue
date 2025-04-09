@@ -36,7 +36,7 @@ const INIT_FORM: MenuForm = {
   menuName: '',
   menuIcon: '',
   menuLabel: '',
-  parentId: '',
+  parentId: '0',
   menuSort: 0,
   menuType: 1,
   menuPerm: '',

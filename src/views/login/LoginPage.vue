@@ -70,8 +70,8 @@ const handleLogin = async () => {
         <el-form-item prop="username">
           <el-input v-model="userLoginForm.username" placeholder="请输入用户名">
             <template #prefix>
-              <el-icon>
-                <User />
+              <el-icon >
+                <IconifyIcon icon="ep:user" width></IconifyIcon>
               </el-icon>
             </template>
           </el-input>
@@ -79,9 +79,7 @@ const handleLogin = async () => {
         <el-form-item prop="password">
           <el-input type="password" v-model="userLoginForm.password" placeholder="请输入密码" show-password>
             <template #prefix>
-              <el-icon>
-                <Lock />
-              </el-icon>
+                <IconifyIcon icon="ep:lock" width></IconifyIcon>
             </template>
           </el-input>
         </el-form-item>

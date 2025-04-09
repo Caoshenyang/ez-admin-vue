@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { Delete, Edit, Plus, Refresh, Search, Setting } from '@element-plus/icons-vue'
 import MenuForm from './MenuForm.vue'
 import { deleteBatchMenuApi, deleteMenuApi, selectMenuTreeApi } from '@/api/system/menu'
 import type { MenuTreeVO } from '@/types/auth'
 import type { MenuQuery } from '@/types/system'
 import { msgInfo, msgSuccess } from '@/utils/message'
+import { Icon } from '@iconify/vue'
 
 const menuTableTreeData = ref<MenuTreeVO[]>([]) // 表格树形数据
 const menuFormDialogRef = ref() // 表单弹窗 ref
@@ -59,8 +59,6 @@ const handleDelete = (isBatch: boolean, memuId?: string) => {
   })
     .then(async () => {
       if (!isBatch && memuId) {
-        console.log(memuId)
-
         // 调用接口删除菜单
         await deleteMenuApi(memuId)
       } else {
@@ -76,7 +74,6 @@ const handleDelete = (isBatch: boolean, memuId?: string) => {
       msgInfo('已取消删除')
     })
 }
-
 // 监听表格勾选变化事件
 const handleSelectionChange = (val: MenuTreeVO[]) => {
   selectedRows.value = val
@@ -84,7 +81,10 @@ const handleSelectionChange = (val: MenuTreeVO[]) => {
 </script>
 <template>
   <div class="menu-container">
-    <div class="search-bar">搜索区域</div>
+    <div class="search-bar">
+      <Icon icon="ep:avatar" />
+      <el-button icon="ep:avatar">Home</el-button>
+    </div>
     <div class="operation-bar">
       <div class="operation-button">
         <el-button type="primary" :icon="Plus" plain @click="handleAdd">新增</el-button>
@@ -93,7 +93,7 @@ const handleSelectionChange = (val: MenuTreeVO[]) => {
         <!-- 搜索显示/隐藏 -->
         <el-button :icon="Search" circle />
         <!-- 刷新列表数据 -->
-        <el-button :icon="Refresh" circle />
+        <el-button :icon="Refresh" circle @click="refreshList" />
         <!-- 展示列设置 -->
         <el-button :icon="Setting" circle />
       </div>
@@ -113,8 +113,12 @@ const handleSelectionChange = (val: MenuTreeVO[]) => {
         <el-table-column prop="menuName" label="菜单名称" />
         <el-table-column prop="menuIcon" label="图标">
           <template #default="scope">
+            <div>{{ scope.row.menuIcon }}</div>
+            <CirclePlusFilled />
             <el-icon>
-              <component :is="scope.row.icon" v-if="scope.row.menuIcon" />
+
+               <IconifyIcon :icon="scope.row.menuIcon" />
+              <component :is="scope.row.menuIcon" v-if="scope.row.menuIcon" />
             </el-icon>
           </template>
         </el-table-column>

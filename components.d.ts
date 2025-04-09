@@ -55,6 +55,7 @@ declare module 'vue' {
     IAntDesignFullscreenExitOutlined: typeof import('~icons/ant-design/fullscreen-exit-outlined')['default']
     IAntDesignRefresh: typeof import('~icons/ant-design/refresh')['default']
     IAntDesignSyncOutlined: typeof import('~icons/ant-design/sync-outlined')['default']
+    IEpAddLocation: typeof import('~icons/ep/add-location')['default']
     IEpAim: typeof import('~icons/ep/aim')['default']
     IEpArrowDown: typeof import('~icons/ep/arrow-down')['default']
     IEpBell: typeof import('~icons/ep/bell')['default']
