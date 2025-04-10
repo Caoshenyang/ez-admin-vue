@@ -12,7 +12,7 @@ const staticRoutes: Array<RouteRecordRaw> = [
   { path: '/:pathMatch(.*)*', component: NotFountPage, name: 'NotFound' },
   {
     path: '/',
-    name: 'Main',
+    name: 'dashboard',
     redirect: HOME_PAGE,
     component: MyLayout,
     children: [
@@ -43,10 +43,7 @@ const staticRoutes: Array<RouteRecordRaw> = [
           title: '系统管理'
         }
       }
-    ],
-    meta: {
-      title: '仪表盘'
-    }
+    ]
   }
 ]
 

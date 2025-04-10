@@ -133,15 +133,15 @@ const handleSelectionChange = (val: MenuTreeVO[]) => {
         <el-table-column prop="menuName" label="菜单名称" />
         <el-table-column prop="menuIcon" label="图标">
           <template #default="scope">
-            <el-icon>
+            <el-icon :size="20">
               <EZSvgIcon :icon="scope.row.menuIcon" v-if="scope.row.menuIcon" />
             </el-icon>
           </template>
         </el-table-column>
         <el-table-column prop="menuSort" label="排序" />
-        <el-table-column prop="menuPerms" label="权限标识">
+        <el-table-column prop="menuPerm" label="权限标识">
           <template #default="scope">
-            <el-tag v-if="scope.row.perms" size="small">{{ scope.row.menuPerms }}</el-tag>
+            <el-tag v-if="scope.row.menuPerm" size="small">{{ scope.row.menuPerm }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="routePath" label="路由地址" />
@@ -169,7 +169,6 @@ const handleSelectionChange = (val: MenuTreeVO[]) => {
         </el-table-column>
       </el-table>
     </div>
-    <div class="pagination-container">分页区域</div>
     <MenuForm ref="menuFormDialogRef" @confirm="refreshList" />
   </div>
 </template>
