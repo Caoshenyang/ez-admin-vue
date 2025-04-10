@@ -37,6 +37,14 @@ const staticRoutes: Array<RouteRecordRaw> = [
             meta: {
               title: '菜单管理'
             }
+          },
+          {
+            path: 'role',
+            name: 'role',
+            component: () => import('@/views/system/role/RoleManagementPage.vue'),
+            meta: {
+              title: '角色管理'
+            }
           }
         ],
         meta: {

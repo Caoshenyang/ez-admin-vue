@@ -8,3 +8,12 @@
   padding: 0;
   background-color: #f3f4f6;
 }
+
+// 操作栏样式
+.operation-bar {
+  height: 40px;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

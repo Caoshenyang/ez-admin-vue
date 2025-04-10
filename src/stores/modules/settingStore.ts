@@ -1,4 +1,4 @@
-import { MenuWidth } from '@/enums/appEnums'
+import { MenuWidthEnum } from '@/enums/appEnums'
 import { defineStore } from 'pinia'
 
 export const useSettingStore = defineStore('settingStore', {
@@ -6,12 +6,12 @@ export const useSettingStore = defineStore('settingStore', {
     // 菜单是否折叠
     isCollapse: false,
     // 是否开启夜间模式
-    isNight: false,
+    isNight: false
   }),
   getters: {
     menuWidth: (state) => {
-      return state.isCollapse ? MenuWidth.CLOSE : MenuWidth.OPEN
-    },
+      return state.isCollapse ? MenuWidthEnum.CLOSE : MenuWidthEnum.OPEN
+    }
   },
   actions: {
     /** 切换菜单折叠状态*/
@@ -21,7 +21,7 @@ export const useSettingStore = defineStore('settingStore', {
     /** 切换夜间模式*/
     switchNight() {
       this.isNight = !this.isNight
-    },
+    }
   },
-  persist: true,
+  persist: true
 })

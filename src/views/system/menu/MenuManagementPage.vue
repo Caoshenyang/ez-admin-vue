@@ -87,7 +87,7 @@ const handleSelectionChange = (val: MenuTreeVO[]) => {
 </script>
 <template>
   <div class="menu-container">
-    <div class="search-bar"></div>
+    <div class="search-bar">搜索区域</div>
     <div class="operation-bar">
       <div class="operation-button">
         <el-button type="primary" plain @click="handleAdd">
@@ -173,12 +173,4 @@ const handleSelectionChange = (val: MenuTreeVO[]) => {
   </div>
 </template>
 
-<style lang="scss" scoped>
-.operation-bar {
-  height: 40px;
-  padding: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-</style>
+<style lang="scss" scoped></style>
