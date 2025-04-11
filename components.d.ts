@@ -64,4 +64,7 @@ declare module 'vue' {
     UserManagementPage: typeof import('./src/views/system/user/UserManagementPage.vue')['default']
     WorkbenchPage: typeof import('./src/views/dashboard/WorkbenchPage.vue')['default']
   }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
+  }
 }

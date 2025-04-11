@@ -62,9 +62,10 @@ const handleDelete = (row: any) => {
   console.log(row)
 }
 
-const handleSelectionChange = (val: any) => {
-  console.log(val)
+const handleSelectionChange = (roleItem: RoleListVO) => {
+  console.log(roleItem)
 }
+const handleCellClick = (roleItem: RoleListVO) => {}
 </script>
 <template>
   <div class="role-container">
@@ -106,7 +107,6 @@ const handleSelectionChange = (val: any) => {
             <span>角色列表</span>
           </div>
         </template>
-
         <el-table
           stripe
           height="100%"
@@ -115,6 +115,7 @@ const handleSelectionChange = (val: any) => {
           row-key="menuId"
           default-expand-all
           @selection-change="handleSelectionChange"
+          @cell-click="handleCellClick"
         >
           <!-- 选项 -->
           <el-table-column type="selection" width="55" />
@@ -160,7 +161,7 @@ const handleSelectionChange = (val: any) => {
             :page-sizes="[15, 30, 45, 60]"
             :background="false"
             layout="total, prev, pager, next, sizes"
-            :total="roleTableData?.total"
+            :total="roleTableData?.total || 0"
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
           />
@@ -170,6 +171,7 @@ const handleSelectionChange = (val: any) => {
         <template #header>
           <div class="card-header">
             <span>菜单列表</span>
+            <el-button type="primary">保存</el-button>
           </div>
         </template>
         <div class="menu-tree">
@@ -177,7 +179,6 @@ const handleSelectionChange = (val: any) => {
             ref="menuTreeRef"
             :data="menuTreeData"
             :props="menuTreeProps"
-            check-strictly
             accordion
             show-checkbox
             node-key="menuId"
@@ -189,26 +190,24 @@ const handleSelectionChange = (val: any) => {
 </template>
 
 <style lang="scss" scoped>
-.role-container {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
 .content-container {
   display: flex;
   gap: 20px;
 }
+
 .table-container {
   flex: 1;
+  height: 100%;
 }
 .menu-container {
   width: 480px;
+  height: 100%;
 }
 .card-header {
   font-size: 18px;
   font-weight: bold;
-}
-.table-option {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 </style>
