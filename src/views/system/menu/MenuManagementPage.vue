@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import MenuForm from './MenuForm.vue'
-import { deleteBatchMenuApi, deleteMenuApi, selectMenuTreeApi } from '@/api/system/menu'
+import { menuApi } from '@/api/system/menu'
 import type { MenuTreeVO } from '@/types/auth'
 import type { MenuQuery } from '@/types/system'
 import { msgInfo, msgSuccess } from '@/utils/message'
@@ -16,15 +16,13 @@ onMounted(() => {
 
 /** 查询对象 */
 const menuQuery = reactive<MenuQuery>({
-  menuName: '',
-  dateRange: []
+  menuName: ''
 })
 
 // 刷新列表
 const refreshList = async () => {
-  await selectMenuTreeApi(menuQuery).then((data: MenuTreeVO[]) => {
-    menuTableTreeData.value = data
-  })
+  const data = await menuApi.selectMenuTree(menuQuery)
+  menuTableTreeData.value = data
 }
 
 /**
@@ -66,12 +64,12 @@ const handleDelete = (isBatch: boolean, memuId?: string) => {
     .then(async () => {
       if (!isBatch && memuId) {
         // 调用接口删除菜单
-        await deleteMenuApi(memuId)
+        await menuApi.deleteMenu(memuId)
       } else {
         // 获取所有选择menuId
         const deleteMenuIdList = selectedRows.value.map((item) => item.menuId)
         // 调用接口删除用户
-        await deleteBatchMenuApi(deleteMenuIdList)
+        await menuApi.deleteBatchMenu(deleteMenuIdList)
       }
       msgSuccess('删除成功')
       refreshList()

@@ -23,7 +23,7 @@ export type MenuDetailVO = BaseMenu
 /** 查询 */
 export interface MenuQuery {
   menuName?: string
-  dateRange?: []
+  status?: number
 }
 
 /**  选择菜单数据类型 */

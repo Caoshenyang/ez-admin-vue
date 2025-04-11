@@ -1,6 +1,6 @@
 <!-- 新增编辑表单 -->
 <script lang="ts" setup>
-import { createMenuApi, getMenuByIdApi, selectMenuTreeApi, updateMenuApi } from '@/api/system/menu'
+import { menuApi } from '@/api/system/menu'
 import type { MenuForm, MenuTreeVO } from '@/types/system'
 import type { FormInstance, FormRules } from 'element-plus'
 
@@ -65,11 +65,11 @@ const menuNameLabel = computed(() => {
 
 // 方法定义
 const loadMenuTree = async () => {
-  seletMenuData.value[0].children = await selectMenuTreeApi()
+  seletMenuData.value[0].children = await menuApi.selectMenuTree()
 }
 
 const handleEdit = async (menuId: string) => {
-  const res = await getMenuByIdApi(menuId)
+  const res = await menuApi.getMenuById(menuId)
   menuFormData.value = res
 }
 
@@ -113,9 +113,9 @@ const handleSubmit = async () => {
     loading.value = true
 
     if (!menuFormData.value.menuId) {
-      await createMenuApi(menuFormData.value)
+      await menuApi.createMenu(menuFormData.value)
     } else {
-      await updateMenuApi(menuFormData.value)
+      await menuApi.updateMenu(menuFormData.value)
     }
 
     close()

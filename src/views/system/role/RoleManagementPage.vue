@@ -1,25 +1,53 @@
 <script lang="ts" setup>
-import { selectRoleListApi } from '@/api/system/role'
-import type { RoleListVO, RoleQuery } from '@/types/system'
+import { roleApi } from '@/api/system/role'
+import type { MenuQuery, RoleListVO, RoleQuery } from '@/types/system'
 import { DataScopeEnum, StatusEnum } from '@/enums/appEnums'
+import { type PageQuery, type PageVO } from '@/types/common'
+import type { MenuTreeVO } from '@/types/auth'
+import { menuApi } from '@/api/system/menu'
 
-const roleTableData = ref<RoleListVO[]>([])
+const roleTableData = ref<PageVO<RoleListVO>>()
+
+const menuTreeData = ref<MenuTreeVO[]>([])
+const menuTreeRef = ref()
+
+const menuTreeProps = {
+  children: 'children',
+  label: 'menuName'
+}
 
 onMounted(() => {
   refreshList()
 })
 
 /** 查询对象 */
-const roleQuery = reactive<RoleQuery>({
-  roleName: '',
-  dateRange: []
+const roleQuery = reactive<PageQuery<RoleQuery>>({
+  pageNum: 1,
+  pageSize: 15,
+  search: {
+    roleName: '',
+    dateRange: []
+  }
 })
+
+/** 查询对象 */
+const menuQuery = reactive<MenuQuery>({
+  status: 1
+})
+
+const handleSizeChange = (pageSize: number) => {
+  roleQuery.pageSize = pageSize
+  refreshList()
+}
+const handleCurrentChange = (pageNum: number) => {
+  roleQuery.pageNum = pageNum
+  refreshList()
+}
 
 // 刷新列表
 const refreshList = async () => {
-  const data = await selectRoleListApi(roleQuery)
-  roleTableData.value = data.records
-  console.log(data)
+  roleTableData.value = await roleApi.selectRoleList(roleQuery)
+  menuTreeData.value = await menuApi.selectMenuTree(menuQuery)
 }
 
 const handleAdd = () => {
@@ -58,7 +86,7 @@ const handleSelectionChange = (val: any) => {
           </template>
         </el-button>
         <!-- 刷新列表数据 -->
-        <el-button circle>
+        <el-button circle @click="refreshList">
           <template #icon>
             <EZSvgIcon icon="ep:refresh" />
           </template>
@@ -83,7 +111,7 @@ const handleSelectionChange = (val: any) => {
           stripe
           height="100%"
           highlight-current-row
-          :data="roleTableData"
+          :data="roleTableData?.records"
           row-key="menuId"
           default-expand-all
           @selection-change="handleSelectionChange"
@@ -127,14 +155,15 @@ const handleSelectionChange = (val: any) => {
         </el-table>
         <template #footer>
           <el-pagination
-            v-model:current-page="currentPage3"
-            :page-sizes="[100, 200, 300, 400]"
+            v-model:current-page="roleQuery.pageNum"
+            v-model:page-size="roleQuery.pageSize"
+            :page-sizes="[15, 30, 45, 60]"
+            :background="false"
             layout="total, prev, pager, next, sizes"
-            :total="400"
+            :total="roleTableData?.total"
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
-          >
-          </el-pagination>
+          />
         </template>
       </el-card>
       <el-card class="menu-container">
@@ -143,7 +172,17 @@ const handleSelectionChange = (val: any) => {
             <span>菜单列表</span>
           </div>
         </template>
-        <div class="menu-tree">菜单树</div>
+        <div class="menu-tree">
+          <el-tree
+            ref="menuTreeRef"
+            :data="menuTreeData"
+            :props="menuTreeProps"
+            check-strictly
+            accordion
+            show-checkbox
+            node-key="menuId"
+          />
+        </div>
       </el-card>
     </div>
   </div>

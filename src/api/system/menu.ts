@@ -1,78 +1,23 @@
 import type { MenuTreeVO } from '@/types/auth'
 import type { MenuDetailVO, MenuForm, MenuQuery } from '@/types/system'
-import request from '@/utils/request'
+import http from '@/utils/request'
 
-/**
- * 获取菜单树
- * @returns  MenuTreeVO[]
- */
-export const selectMenuTreeApi = (data?: MenuQuery) => {
-  return request<MenuTreeVO[]>({
-    method: 'POST',
-    url: '/system/menu/tree',
-    data: { ...data }
-  })
-}
+export const menuApi = {
+  // 获取菜单树
+  selectMenuTree: (data?: MenuQuery) => http.post<MenuTreeVO[]>('/system/menu/tree', data),
 
-/**
- * 新增菜单
- * @param menuCreateDTO 菜单新增
- * @returns  string
- */
-export const createMenuApi = (menuCreateDTO: MenuForm) => {
-  return request<string>({
-    method: 'POST',
-    url: '/system/menu/save',
-    data: { ...menuCreateDTO }
-  })
-}
+  // 根据菜单id删除菜单
+  getMenuById: (menuId: string) => http.get<MenuDetailVO>(`system/menu/${menuId}`),
 
-/**
- * 编辑菜单
- * @param menuUpdateDTO 编辑菜单
- * @returns  string
- */
-export const updateMenuApi = (menuUpdateDTO: MenuForm) => {
-  return request<string>({
-    method: 'POST',
-    url: '/system/menu/update',
-    data: { ...menuUpdateDTO }
-  })
-}
+  // 新增菜单
+  createMenu: (data?: MenuForm) => http.post('/system/menu/save', data),
 
-/**
- * 根据菜单id删除菜单
- * @param menuId 菜单ID
- * @returns  string
- */
-export const deleteMenuApi = (menuId: string) => {
-  return request<string>({
-    method: 'DELETE',
-    url: `/system/menu/delete/${menuId}`
-  })
-}
+  // 编辑菜单
+  updateMenu: (data?: MenuForm) => http.post('/system/menu/update', data),
 
-/**
- * 批量删除
- * @param data 菜单ID数组
- * @returns string
- */
-export const deleteBatchMenuApi = (data: string[]) => {
-  return request<string>({
-    method: 'DELETE',
-    url: `/system/menu/deleteBatch`,
-    data
-  })
-}
+  // 删除菜单
+  deleteMenu: (menuId: string) => http.delete(`/system/menu/delete/${menuId}`),
 
-/**
- * 根据菜单id删除菜单
- * @param menuId 菜单ID
- * @returns  string
- */
-export const getMenuByIdApi = (menuId: string) => {
-  return request<MenuDetailVO>({
-    method: 'GET',
-    url: `system/menu/${menuId}`
-  })
+  // 批量删除菜单
+  deleteBatchMenu: (menuIds: string[]) => http.delete(`/system/menu/deleteBatch`, menuIds)
 }
