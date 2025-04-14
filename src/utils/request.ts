@@ -4,8 +4,6 @@ import axios, {
   type AxiosResponse,
   type InternalAxiosRequestConfig
 } from 'axios'
-import { ElLoading, ElMessage } from 'element-plus'
-import type { LoadingInstance } from 'element-plus/es/components/loading/src/loading'
 import { msgErr } from './message'
 import { getToken } from './auth'
 
@@ -17,13 +15,11 @@ type RequestConfig<T = unknown> = AxiosRequestConfig & {
 
 class Request {
   private instance: AxiosInstance // axios实例
-  private loadingInstance: LoadingInstance | null = null // loading实例
-  private loadingCount = 0 // loading计数
 
   constructor() {
     this.instance = axios.create({
       baseURL: import.meta.env.VITE_APP_BASE_API,
-      timeout: 10000,
+      timeout: 50000,
       headers: {
         'Content-Type': 'application/json;charset=UTF-8'
       }
@@ -43,19 +39,6 @@ class Request {
             data: (config as RequestConfig).mockData
           })
         }
-
-        // 全局 Loading 控制 loadingCount 计数 (避免多个请求时加载闪烁问题)
-        if (!config.noLoading) {
-          if (this.loadingCount === 0) {
-            this.loadingInstance = ElLoading.service({
-              lock: true,
-              text: '加载中...',
-              background: 'rgba(0, 0, 0, 0.5)'
-            })
-          }
-          this.loadingCount++
-        }
-
         // 添加认证 token
         const token = getToken()
         if (token && config.headers) {
@@ -64,7 +47,6 @@ class Request {
         return config
       },
       (error) => {
-        this.handleLoadingError(error.config)
         return Promise.reject(error)
       }
     )
@@ -72,21 +54,15 @@ class Request {
     // 响应拦截器
     this.instance.interceptors.response.use(
       (response: AxiosResponse) => {
-        this.handleLoadingComplete(response.config)
-
         // 业务状态码处理
         if (response.data.code !== 200) {
-          if (!response.config.noErrorToast) {
-            msgErr(response.data.message || '请求失败')
-          }
+          msgErr(response.data.message || '请求失败')
           return Promise.reject(response.data)
         }
 
         return response.data.data
       },
       (error) => {
-        this.handleLoadingComplete(error.config)
-
         // HTTP 状态码处理
         if (!error.config?.noErrorToast) {
           let message = '请求错误'
@@ -109,24 +85,6 @@ class Request {
         return Promise.reject(error)
       }
     )
-  }
-
-  private handleLoadingComplete(config?: RequestConfig) {
-    if (!config?.noLoading) {
-      this.loadingCount--
-      if (this.loadingCount <= 0) {
-        this.loadingInstance?.close()
-      }
-    }
-  }
-
-  private handleLoadingError(config?: RequestConfig) {
-    if (!config?.noLoading) {
-      this.loadingCount--
-      if (this.loadingCount <= 0) {
-        this.loadingInstance?.close()
-      }
-    }
   }
 
   // 封装核心请求方法

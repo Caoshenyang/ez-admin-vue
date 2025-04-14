@@ -5,6 +5,9 @@ import { DataScopeEnum, StatusEnum } from '@/enums/appEnums'
 import { type PageQuery, type PageVO } from '@/types/common'
 import type { MenuTreeVO } from '@/types/auth'
 import { menuApi } from '@/api/system/menu'
+import { useLoading } from '@/composables/useLoading'
+
+const { withLoading, isLoading } = useLoading()
 
 const roleTableData = ref<PageVO<RoleListVO>>()
 
@@ -46,8 +49,16 @@ const handleCurrentChange = (pageNum: number) => {
 
 // 刷新列表
 const refreshList = async () => {
-  roleTableData.value = await roleApi.selectRoleList(roleQuery)
-  menuTreeData.value = await menuApi.selectMenuTree(menuQuery)
+  await Promise.all([
+    withLoading(
+      'roleTableData',
+      roleApi.selectRoleList(roleQuery).then((data) => (roleTableData.value = data))
+    ),
+    withLoading(
+      'menuTreeData',
+      menuApi.selectMenuTree(menuQuery).then((data) => (menuTreeData.value = data))
+    )
+  ])
 }
 
 const handleAdd = () => {
@@ -108,6 +119,7 @@ const handleCellClick = (roleItem: RoleListVO) => {}
           </div>
         </template>
         <el-table
+          v-loading="isLoading('roleTableData')"
           stripe
           height="100%"
           highlight-current-row
@@ -176,6 +188,7 @@ const handleCellClick = (roleItem: RoleListVO) => {}
         </template>
         <div class="menu-tree">
           <el-tree
+            v-loading="isLoading('menuTreeData')"
             ref="menuTreeRef"
             :data="menuTreeData"
             :props="menuTreeProps"
