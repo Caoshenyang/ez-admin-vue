@@ -62,3 +62,8 @@ export interface RoleQuery {
   roleName?: string
   dateRange?: []
 }
+
+export interface RoleMenuRelation {
+  roleId: string
+  menuIds: string[]
+}

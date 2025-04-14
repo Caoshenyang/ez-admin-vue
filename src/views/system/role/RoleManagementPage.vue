@@ -6,13 +6,16 @@ import { type PageQuery, type PageVO } from '@/types/common'
 import type { MenuTreeVO } from '@/types/auth'
 import { menuApi } from '@/api/system/menu'
 import { useLoading } from '@/composables/useLoading'
+import { msgErr, msgSuccess } from '@/utils/message'
 
 const { withLoading, isLoading } = useLoading()
 
 const roleTableData = ref<PageVO<RoleListVO>>()
-
+const isCheckStrictly = ref(false) // 默认不严格模式（保持关联）
+const roleTableRef = ref()
 const menuTreeData = ref<MenuTreeVO[]>([])
 const menuTreeRef = ref()
+const selectedRole = ref<string>()
 
 const menuTreeProps = {
   children: 'children',
@@ -59,6 +62,8 @@ const refreshList = async () => {
       menuApi.selectMenuTree(menuQuery).then((data) => (menuTreeData.value = data))
     )
   ])
+  // 去除表单的高亮
+  roleTableRef.value.setCurrentRow(null)
 }
 
 const handleAdd = () => {
@@ -73,10 +78,59 @@ const handleDelete = (row: any) => {
   console.log(row)
 }
 
+const handleSaveRoleMenu = async () => {
+  if (!selectedRole.value) {
+    msgErr('请先选择角色')
+    return
+  }
+  // 获取选中的菜单
+  const checkedMenus = menuTreeRef.value?.getCheckedKeys()
+  // 获取半选中的菜单
+  const halfCheckedMenus = menuTreeRef.value?.getHalfCheckedKeys()
+
+  // 合并菜单
+  const menuIds = [...checkedMenus, ...halfCheckedMenus]
+  // 保存角色菜单
+  await roleApi.saveRoleMenu({
+    roleId: selectedRole.value!,
+    menuIds
+  })
+  msgSuccess('保存成功')
+}
+
 const handleSelectionChange = (roleItem: RoleListVO) => {
   console.log(roleItem)
 }
-const handleCellClick = (roleItem: RoleListVO) => {}
+const handleCellClick = async (roleItem: RoleListVO) => {
+  const menuIds = await roleApi.selectRoleMenu(roleItem.roleId)
+  selectedRole.value = roleItem.roleId
+  setCheckedKeysWithoutRelation(menuIds)
+}
+
+/**
+ * 反选角色已有的菜单权限
+ * @param menuIds
+ */
+const setCheckedKeysWithoutRelation = (menuIds: string[]) => {
+  // 临时启用严格模式
+  isCheckStrictly.value = true
+
+  nextTick(() => {
+    const tree = menuTreeRef.value
+    if (tree) {
+      // 先清除所有选中
+      tree.setCheckedKeys([])
+      // 设置指定节点的选中状态（不关联子节点）
+      menuIds.forEach((menuId) => {
+        tree.setChecked(menuId, true, false) // 第三个参数false表示不选中子节点
+      })
+    }
+    // 操作完成后恢复非严格模式
+    nextTick(() => {
+      isCheckStrictly.value = false
+    })
+  })
+}
 </script>
 <template>
   <div class="role-container">
@@ -119,6 +173,7 @@ const handleCellClick = (roleItem: RoleListVO) => {}
           </div>
         </template>
         <el-table
+          ref="roleTableRef"
           v-loading="isLoading('roleTableData')"
           stripe
           height="100%"
@@ -183,12 +238,13 @@ const handleCellClick = (roleItem: RoleListVO) => {}
         <template #header>
           <div class="card-header">
             <span>菜单列表</span>
-            <el-button type="primary">保存</el-button>
+            <el-button type="primary" @click="handleSaveRoleMenu">保存</el-button>
           </div>
         </template>
         <div class="menu-tree">
           <el-tree
             v-loading="isLoading('menuTreeData')"
+            :check-strictly="isCheckStrictly"
             ref="menuTreeRef"
             :data="menuTreeData"
             :props="menuTreeProps"
