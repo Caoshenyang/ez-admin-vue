@@ -12,7 +12,7 @@ const staticRoutes: Array<RouteRecordRaw> = [
   { path: '/:pathMatch(.*)*', component: NotFountPage, name: 'NotFound' },
   {
     path: '/',
-    name: 'dashboard',
+    name: 'aaa',
     redirect: HOME_PAGE,
     component: MyLayout,
     children: [

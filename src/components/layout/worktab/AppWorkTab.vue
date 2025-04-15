@@ -1,11 +1,10 @@
 <script lang="ts" setup>
-import router, { HOME_PAGE } from '@/router';
-import { useUserStore } from '@/stores/modules/userStore';
-import type { WorkTab } from '@/types/theme';
-import { ArrowDown, ArrowLeft, ArrowRight, CircleClose, Close } from '@element-plus/icons-vue';
-import { storeToRefs } from 'pinia';
-import { onBeforeRouteUpdate, useRoute } from 'vue-router';
-
+import router, { HOME_PAGE } from '@/router'
+import { useUserStore } from '@/stores/modules/userStore'
+import type { WorkTab } from '@/types/theme'
+import { ArrowDown, ArrowLeft, ArrowRight, CircleClose, Close } from '@element-plus/icons-vue'
+import { storeToRefs } from 'pinia'
+import { useRoute } from 'vue-router'
 
 const userStore = useUserStore()
 // 路由
@@ -24,28 +23,30 @@ const changeTab = (tab: string) => {
 }
 
 /**
- * 跳转页面前将当前路由添加进缓存
- */
-onBeforeRouteUpdate(to => {
-  activeTab.value = to.path
-  addTab({
-    title: to.meta.title + '',
-    path: to.path
-  })
-})
-
-/**
  * 添加标签导航
  * @param tab 添加标签
  */
 const addTab = (tab: WorkTab) => {
   // 与当前tabList中的tab进行比对
-  const noTab = workTabList.value.findIndex(t => t.path == tab.path) == -1
+  const noTab = workTabList.value.findIndex((t) => t.path == tab.path) == -1
   // 如果当前标签列表中没有则添加
   if (noTab) {
     workTabList.value.push(tab)
   }
 }
+
+// 跳转页面前将当前路由添加进缓存
+watch(
+  () => route.path,
+  (newPath) => {
+    activeTab.value = newPath
+    addTab({
+      title: route.meta.title + '',
+      path: newPath
+    })
+  },
+  { immediate: true }
+)
 
 /**
  * 移除标签
@@ -68,7 +69,7 @@ const removeTab = (tab: string) => {
     })
   }
   // 更新 workTabList，去除掉关闭的标签
-  workTabList.value = workTabList.value.filter(tabItem => tabItem.path != tab)
+  workTabList.value = workTabList.value.filter((tabItem) => tabItem.path != tab)
   activeTab.value = active
   changeTab(active)
 }
@@ -79,6 +80,8 @@ const removeTab = (tab: string) => {
  * @param currentTab 当前标签页（仅 closeLeft/closeRight 需要）
  */
 const handleClose = (command: string, currentTab?: string) => {
+  // todo 暂时只支持关闭当前标签页，后续完善右键菜单关闭功能
+  currentTab = activeTab.value
   const homeTab = { title: '工作台', path: HOME_PAGE }
   const tabs = [...workTabList.value]
   let newActiveTab = activeTab.value
@@ -86,7 +89,7 @@ const handleClose = (command: string, currentTab?: string) => {
   switch (command) {
     case 'closeOthers':
       // 保留首页和当前激活页
-      workTabList.value = tabs.filter(tab => tab.path === HOME_PAGE || tab.path === newActiveTab)
+      workTabList.value = tabs.filter((tab) => tab.path === HOME_PAGE || tab.path === newActiveTab)
       break
     case 'closeAll':
       // 重置为仅首页
@@ -95,18 +98,17 @@ const handleClose = (command: string, currentTab?: string) => {
       changeTab(HOME_PAGE)
       break
     case 'closeLeft':
+      console.log('tabs', currentTab)
+
       if (!currentTab) return
       // 找到当前标签的索引
-      const leftIndex = tabs.findIndex(tab => tab.path === currentTab)
-      if (leftIndex <= 0) return  // 左侧无标签可关闭
+      const leftIndex = tabs.findIndex((tab) => tab.path === currentTab)
+      if (leftIndex <= 0) return // 左侧无标签可关闭
       // 保留：首页 + 当前及右侧标签
-      workTabList.value = [
-        homeTab,
-        ...tabs.slice(leftIndex)
-      ]
+      workTabList.value = [homeTab, ...tabs.slice(leftIndex)]
 
       // 如果当前激活标签被关闭，则自动切换
-      if (newActiveTab !== HOME_PAGE && !workTabList.value.some(t => t.path === newActiveTab)) {
+      if (newActiveTab !== HOME_PAGE && !workTabList.value.some((t) => t.path === newActiveTab)) {
         newActiveTab = currentTab
         changeTab(currentTab)
       }
@@ -114,13 +116,10 @@ const handleClose = (command: string, currentTab?: string) => {
     case 'closeRight':
       if (!currentTab) return
       // 找到当前标签的索引
-      const rightIndex = tabs.findIndex(tab => tab.path === currentTab)
-      if (rightIndex === -1 || rightIndex === tabs.length - 1) return  // 右侧无标签可关闭
+      const rightIndex = tabs.findIndex((tab) => tab.path === currentTab)
+      if (rightIndex === -1 || rightIndex === tabs.length - 1) return // 右侧无标签可关闭
       // 保留：首页 + 左侧及当前标签
-      workTabList.value = [
-        homeTab,
-        ...tabs.slice(0, rightIndex + 1)
-      ]
+      workTabList.value = [homeTab, ...tabs.slice(0, rightIndex + 1)]
       break
     default:
       break
@@ -128,14 +127,18 @@ const handleClose = (command: string, currentTab?: string) => {
   // 统一更新激活标签（如果未变化则不影响）
   activeTab.value = newActiveTab
 }
-
-
 </script>
 <template>
   <div class="app-work-tab">
     <div class="tab-item">
-      <el-check-tag class="work-tab-item" type="info" :checked="item.path === activeTab" v-for="item in workTabList"
-        :key="item.path" @change="changeTab(item.path)">
+      <el-check-tag
+        class="work-tab-item"
+        type="info"
+        :checked="item.path === activeTab"
+        v-for="item in workTabList"
+        :key="item.path"
+        @change="changeTab(item.path)"
+      >
         {{ item.title }}
         <el-link @click="removeTab(item.path)" v-if="item.path != HOME_PAGE" :underline="false" :icon="Close"></el-link>
       </el-check-tag>
@@ -159,7 +162,6 @@ const handleClose = (command: string, currentTab?: string) => {
     </div>
   </div>
 </template>
-
 
 <style lang="scss" scoped>
 .app-work-tab {
@@ -207,7 +209,6 @@ const handleClose = (command: string, currentTab?: string) => {
     background-color: #f5f7fa;
     color: #51a2ff;
   }
-
 }
 
 .tag-btn {

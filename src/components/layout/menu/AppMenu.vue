@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import router from '@/router'
+import router, { HOME_PAGE } from '@/router'
 import { ref } from 'vue'
-import { onBeforeRouteUpdate, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 import SubMenu from './SubMenu.vue'
 import type { MenuTreeVO } from '@/types/auth'
 import { useSettingStore } from '@/stores/modules/settingStore'
@@ -21,14 +21,16 @@ const route = useRoute()
 const defaultActive = ref(route.path)
 
 /***************************** 方法区 ******************************************/
-
 // 监听路由变化
-onBeforeRouteUpdate((to) => {
-  defaultActive.value = to.path
-})
-const handleSelect = (e: string) => {
-  console.log(e)
+watch(
+  () => route.path,
+  (newPath) => {
+    defaultActive.value = newPath
+  },
+  { immediate: true }
+)
 
+const handleSelect = (e: string) => {
   router.push(e)
 }
 </script>
@@ -40,7 +42,7 @@ const handleSelect = (e: string) => {
     class="side-menu"
     :collapse="settingStore.isCollapse"
   >
-    <el-menu-item index="/dashboard/workbench">
+    <el-menu-item :index="HOME_PAGE">
       <el-icon>
         <EZSvgIcon icon="ep:home-filled"></EZSvgIcon>
       </el-icon>
