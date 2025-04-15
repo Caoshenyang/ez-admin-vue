@@ -12,8 +12,6 @@ import { useUserStore } from '@/stores/modules/userStore'
 const settingStore = useSettingStore()
 const userStore = useUserStore()
 
-console.log(userStore.userInfo.menus)
-
 // 菜单数据
 const menus = ref<MenuTreeVO[]>(userStore.userInfo.menus)
 const route = useRoute()

@@ -68,11 +68,6 @@ const loadMenuTree = async () => {
   seletMenuData.value[0].children = await menuApi.selectMenuTree()
 }
 
-const handleEdit = async (menuId: string) => {
-  const res = await menuApi.getMenuById(menuId)
-  menuFormData.value = res
-}
-
 const resetForm = () => {
   menuFormRef.value?.resetFields()
   menuFormData.value = { ...INIT_FORM }
@@ -83,7 +78,7 @@ const open = async (menuId?: string) => {
   visible.value = true
   if (menuId) {
     title.value = '编辑菜单'
-    await handleEdit(menuId)
+    menuFormData.value = await menuApi.getMenuById(menuId)
   } else {
     title.value = '新增菜单'
     resetForm()

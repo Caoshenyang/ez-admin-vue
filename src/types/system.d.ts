@@ -38,7 +38,8 @@ export interface MenuTreeVO {
 export interface BaseRole {
   roleId?: string
   roleName: string
-  roleKey: string
+  roleLabel: string
+  dataScope: number
   roleSort: number
   status: number
   description: string
@@ -52,7 +53,7 @@ export type RoleDetailVO = BaseRole
 export interface RoleListVO {
   roleId: string
   roleName: string
-  roleKey: string
+  roleLabel: string
   roleSort: number
   status: number
   description: string

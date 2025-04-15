@@ -10,7 +10,7 @@ export const menuApi = {
   getMenuById: (menuId: string) => http.get<MenuDetailVO>(`system/menu/${menuId}`),
 
   // 新增菜单
-  createMenu: (data?: MenuForm) => http.post('/system/menu/save', data),
+  createMenu: (data?: MenuForm) => http.post('/system/menu/create', data),
 
   // 编辑菜单
   updateMenu: (data?: MenuForm) => http.post('/system/menu/update', data),

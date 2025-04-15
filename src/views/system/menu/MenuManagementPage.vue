@@ -8,7 +8,6 @@ import { msgInfo, msgSuccess } from '@/utils/message'
 const menuTableTreeData = ref<MenuTreeVO[]>([]) // 表格树形数据
 const menuFormDialogRef = ref() // 表单弹窗 ref
 const selectedRows = ref<MenuTreeVO[]>([]) // 选中的行数据
-const confirmContent = ref<string>('') // 确认框内容
 
 onMounted(() => {
   refreshList()
@@ -53,10 +52,8 @@ const handleEdit = (id: string) => {
  * @param row 删除行
  */
 const handleDelete = (isBatch: boolean, memuId?: string) => {
-  confirmContent.value = isBatch ? `确定要删除选中的菜单吗？` : `确定要删除该菜单吗？`
   // 如果不是批量删除，给删除id赋值
-
-  ElMessageBox.confirm(confirmContent.value, '删除提醒', {
+  ElMessageBox.confirm(isBatch ? `确定要删除选中的菜单吗？` : `确定要删除该菜单吗？`, '删除提醒', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'

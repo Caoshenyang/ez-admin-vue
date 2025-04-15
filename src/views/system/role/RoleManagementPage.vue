@@ -6,7 +6,7 @@ import { type PageQuery, type PageVO } from '@/types/common'
 import type { MenuTreeVO } from '@/types/auth'
 import { menuApi } from '@/api/system/menu'
 import { useLoading } from '@/composables/useLoading'
-import { msgErr, msgSuccess } from '@/utils/message'
+import { msgErr, msgInfo, msgSuccess } from '@/utils/message'
 
 const { withLoading, isLoading } = useLoading()
 
@@ -16,7 +16,8 @@ const roleTableRef = ref()
 const menuTreeData = ref<MenuTreeVO[]>([])
 const menuTreeRef = ref()
 const selectedRole = ref<string>()
-const roleFormRef = ref()
+const roleFormDialogRef = ref()
+const selectedRows = ref<RoleListVO[]>([]) // 选中的行数据
 
 const menuTreeProps = {
   children: 'children',
@@ -31,6 +32,7 @@ onMounted(() => {
 const roleQuery = reactive<PageQuery<RoleQuery>>({
   pageNum: 1,
   pageSize: 15,
+  orderItems: [{ column: 'role_sort', asc: true }],
   search: {
     roleName: '',
     dateRange: []
@@ -69,15 +71,46 @@ const refreshList = async () => {
 }
 
 const handleAdd = () => {
-  roleFormRef.value.open()
+  roleFormDialogRef.value.open()
 }
 
-const handleEdit = (row: any) => {
-  console.log(row)
+/**
+ * 编辑
+ * @param id roleId
+ */
+const handleEdit = (id: string) => {
+  roleFormDialogRef.value.open(id)
 }
 
-const handleDelete = (row: any) => {
-  console.log(row)
+/**
+ * 删除
+ * @param isBatch 是否批量删除
+ * @param row 删除行
+ */
+const handleDelete = (isBatch: boolean, id?: string) => {
+  // 如果不是批量删除，给删除id赋值
+
+  ElMessageBox.confirm(isBatch ? `确定要删除选中的角色吗？` : `确定要删除该角色吗？`, '删除提醒', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+    .then(async () => {
+      if (!isBatch && id) {
+        // 调用接口删除菜单
+        await roleApi.deleteRole(id)
+      } else {
+        // 获取所有选择menuId
+        const deleteIdList = selectedRows.value.map((item) => item.roleId)
+        // 调用接口删除用户
+        await roleApi.deleteBatchRole(deleteIdList)
+      }
+      msgSuccess('删除成功')
+      refreshList()
+    })
+    .catch(() => {
+      msgInfo('已取消删除')
+    })
 }
 
 const handleSaveRoleMenu = async () => {
@@ -209,12 +242,22 @@ const setCheckedKeysWithoutRelation = (menuIds: string[]) => {
           <el-table-column label="操作" fixed="right" width="180">
             <template #default="scope">
               <div class="table-option">
-                <el-button type="success" plain @click="handleEdit(scope.row.roleId)">
+                <el-button
+                  type="success"
+                  :disabled="scope.row.roleLabel === 'admin'"
+                  plain
+                  @click.stop="handleEdit(scope.row.roleId)"
+                >
                   <template #icon>
                     <EZSvgIcon icon="ep:edit-pen" />
                   </template>
                 </el-button>
-                <el-button type="danger" plain>
+                <el-button
+                  type="danger"
+                  :disabled="scope.row.roleLabel === 'admin'"
+                  plain
+                  @click.stop="handleDelete(false, scope.row.roleId)"
+                >
                   <template #icon>
                     <EZSvgIcon icon="ep:delete" />
                   </template>
@@ -257,7 +300,7 @@ const setCheckedKeysWithoutRelation = (menuIds: string[]) => {
         </div>
       </el-card>
     </div>
-    <RoleFrom ref="roleFormRef" />
+    <RoleFrom ref="roleFormDialogRef" @confirm="refreshList" />
   </div>
 </template>
 
