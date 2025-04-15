@@ -56,6 +56,7 @@ declare module 'vue' {
     MenuManagementPage: typeof import('./src/views/system/menu/MenuManagementPage.vue')['default']
     MyLayout: typeof import('./src/components/layout/MyLayout.vue')['default']
     NotFountPage: typeof import('./src/views/errors/NotFountPage.vue')['default']
+    RoleFrom: typeof import('./src/views/system/role/RoleFrom.vue')['default']
     RoleManagementPage: typeof import('./src/views/system/role/RoleManagementPage.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

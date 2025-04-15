@@ -25,31 +25,6 @@ const staticRoutes: Array<RouteRecordRaw> = [
           title_en: 'Workbench',
           keepAlive: false
         }
-      },
-      {
-        path: '/system',
-        name: 'System',
-        children: [
-          {
-            path: 'menu',
-            name: 'menu',
-            component: () => import('@/views/system/menu/MenuManagementPage.vue'),
-            meta: {
-              title: '菜单管理'
-            }
-          },
-          {
-            path: 'role',
-            name: 'role',
-            component: () => import('@/views/system/role/RoleManagementPage.vue'),
-            meta: {
-              title: '角色管理'
-            }
-          }
-        ],
-        meta: {
-          title: '系统管理'
-        }
       }
     ]
   }

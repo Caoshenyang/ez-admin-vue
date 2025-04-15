@@ -24,13 +24,15 @@ export interface UserInfoVO {
 export interface MenuTreeVO {
   menuId: string
   menuName: string
-  menuLabel: string
-  menuPerm: string
-  parentId: string
-  menuType: number
-  menuSort: number
   menuIcon: string
-  menuPath: string
-  component: string
+  menuLabel: string
+  parentId: string
+  menuSort: number
+  menuType: number
+  menuPerm: string
+  routePath: string
+  routeName: string
+  componentPath: string
+  status: number
   children?: MenuTreeVO[]
 }

@@ -16,6 +16,7 @@ const roleTableRef = ref()
 const menuTreeData = ref<MenuTreeVO[]>([])
 const menuTreeRef = ref()
 const selectedRole = ref<string>()
+const roleFormRef = ref()
 
 const menuTreeProps = {
   children: 'children',
@@ -64,10 +65,11 @@ const refreshList = async () => {
   ])
   // 去除表单的高亮
   roleTableRef.value.setCurrentRow(null)
+  selectedRole.value = ''
 }
 
 const handleAdd = () => {
-  console.log('add')
+  roleFormRef.value.open()
 }
 
 const handleEdit = (row: any) => {
@@ -238,7 +240,7 @@ const setCheckedKeysWithoutRelation = (menuIds: string[]) => {
         <template #header>
           <div class="card-header">
             <span>菜单列表</span>
-            <el-button type="primary" @click="handleSaveRoleMenu">保存</el-button>
+            <el-button type="primary" @click="handleSaveRoleMenu" :disabled="selectedRole == ''">保存</el-button>
           </div>
         </template>
         <div class="menu-tree">
@@ -255,6 +257,7 @@ const setCheckedKeysWithoutRelation = (menuIds: string[]) => {
         </div>
       </el-card>
     </div>
+    <RoleFrom ref="roleFormRef" />
   </div>
 </template>
 

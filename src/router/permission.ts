@@ -1,8 +1,9 @@
 import nprogress from '../plugins/nprogress'
 import router from '@/router'
 import { useUserStore } from '@/stores/modules/userStore'
-import { transformMenusToRoutes } from '@/utils/dynamicRoutes'
+import { generateDynamicRoutes } from '@/utils/dynamicRoutes'
 import { ref } from 'vue'
+import type { RouteRecordRaw } from 'vue-router'
 
 /**  白名单，用户不登录也可以进入 */
 const whiteList = ['/login']
@@ -27,9 +28,12 @@ router.beforeEach(async (to, from) => {
         const menus = userStore.userInfo.menus
         // 完成动态路由组装
         if (menus.length > 0) {
-          const routerList = transformMenusToRoutes(menus)
-          routerList.forEach((route) => {
-            router.addRoute('Main', route)
+          const dynamicRoutes = generateDynamicRoutes(menus)
+          // 添加动态路由
+          dynamicRoutes.forEach((route: RouteRecordRaw) => {
+            if (!router.hasRoute(route.name as string)) {
+              router.addRoute(route)
+            }
           })
           // 可能需要等待路由更新完成
           router.isReady()
