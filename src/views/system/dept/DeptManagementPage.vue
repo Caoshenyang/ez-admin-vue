@@ -2,7 +2,7 @@
 import type { DeptForm, DeptQuery, DeptTreeVO } from '@/types/system'
 import { INIT_DEPT_TREE_DATA, INIT_FORM_DATA, INIT_QUERY } from './data'
 import { deptApi } from '@/api/system/dept'
-import { msgInfo, msgSuccess } from '@/utils/message'
+import { msgErr, msgInfo, msgSuccess } from '@/utils/message'
 
 const deptTableTreeData = ref<DeptTreeVO[]>([]) // 表格树形数据
 const deptFormDialogRef = ref() // 表单弹窗 ref
@@ -27,23 +27,51 @@ const refreshList = async () => {
 
 // 新增
 const handleAdd = async () => {
-  initDeptForm({ title: '新增部门' })
+  initDeptForm()
 }
 /**
  * 新增子节点
  */
-const handleAddChildren = async (parentId: string) => {
-  await initDeptForm({ title: '新增部门', parentId })
+const handleAddChildren = async (row: DeptTreeVO) => {
+  // 未开启的节点无法直接添加子节点
+  if (!row.status) {
+    msgErr('该节点未启用，无法添加子节点')
+    return
+  }
+
+  await initDeptForm({ parentId: row.parentId })
 }
 
-const initDeptForm = async (options: { title: string; parentId?: string }) => {
-  // 设置表单标题
-  formTitle.value = options.title
+/**
+ * 编辑
+ * @param id menuId
+ */
+const handleEdit = async (deptId: string) => {
+  initDeptForm({ deptId })
+}
+
+/**
+ * 初始化表单
+ * deptId: 部门id parentId: 父部门id
+ * 有deptId则为编辑操作
+ * 有parentId则为新增子节点操作
+ * @param options { deptId?: string; parentId?: string }
+ */
+const initDeptForm = async (options: { deptId?: string; parentId?: string } = {}) => {
+  // 设置表单标题  deptId存在则为编辑操作
+  formTitle.value = options.deptId ? '编辑部门' : '新增部门'
 
   // 初始化表单数据，可覆盖parentId
-  formData.value = {
-    ...INIT_FORM_DATA,
-    parentId: options.parentId || INIT_FORM_DATA.parentId
+  if (options.deptId) {
+    const data = await deptApi.getDeptById(options.deptId)
+    formData.value = { ...data }
+  } else {
+    console.log(options.parentId)
+
+    formData.value = {
+      ...INIT_FORM_DATA,
+      parentId: options.parentId || INIT_FORM_DATA.parentId
+    }
   }
 
   // 加载部门树数据
@@ -58,7 +86,11 @@ const handleConfirm = async () => {
   try {
     await deptFormRef.value.validate()
     const formData = deptFormRef.value.getData()
-    await deptApi.createDept(formData)
+    if (formData.deptId) {
+      await deptApi.updateDept(formData)
+    } else {
+      await deptApi.createDept(formData)
+    }
     deptFormDialogRef.value.close()
     refreshList()
   } catch (error) {
@@ -67,31 +99,21 @@ const handleConfirm = async () => {
 }
 
 /**
- * 编辑
- * @param id menuId
- */
-const handleEdit = async (id: string) => {
-  formTitle.value = '编辑部门'
-  formData.value = await deptApi.getDeptById(id)
-  deptFormDialogRef.value.open()
-}
-
-/**
  * 删除
  * @param isBatch 是否批量删除
  * @param row 删除行
  */
-const handleDelete = (isBatch: boolean, memuId?: string) => {
+const handleDelete = (isBatch: boolean, deptId?: string) => {
   // 如果不是批量删除，给删除id赋值
-  ElMessageBox.confirm(isBatch ? `确定要删除选中的菜单吗？` : `确定要删除该菜单吗？`, '删除提醒', {
+  ElMessageBox.confirm(isBatch ? `确定要删除选中的部门吗？` : `确定要删除该部门吗？`, '删除提醒', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
   })
     .then(async () => {
-      if (!isBatch && memuId) {
+      if (!isBatch && deptId) {
         // 调用接口删除菜单
-        await deptApi.deleteDept(memuId)
+        await deptApi.deleteDept(deptId)
       } else {
         // 获取所有选择menuId
         const deleteDeptIdList = selectedRows.value.map((item) => item.deptId)
@@ -175,7 +197,7 @@ const handleSelectionChange = (val: DeptTreeVO[]) => {
         <el-table-column label="操作" fixed="right">
           <template #default="scope">
             <div class="table-option">
-              <el-button type="primary" plain @click="handleAddChildren(scope.row.deptId)">
+              <el-button type="primary" plain @click="handleAddChildren(scope.row)">
                 <template #icon>
                   <EZSvgIcon icon="ep:plus" />
                 </template>
