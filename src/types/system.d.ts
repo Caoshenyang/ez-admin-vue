@@ -36,7 +36,7 @@ export interface MenuTreeVO {
 
 // 角色基础类型
 export interface BaseRole {
-  roleId?: string
+  roleId: string
   roleName: string
   roleLabel: string
   dataScope: number
@@ -50,21 +50,36 @@ export type RoleForm = BaseRole
 /** 详情 */
 export type RoleDetailVO = BaseRole
 /** 查询列表 */
-export interface RoleListVO {
-  roleId: string
-  roleName: string
-  roleLabel: string
-  roleSort: number
-  status: number
-  description: string
-}
-
+export type RoleListVO = BaseRole
 export interface RoleQuery {
   roleName?: string
   dateRange?: []
 }
-
 export interface RoleMenuRelation {
   roleId: string
   menuIds: string[]
+}
+
+// 部门基础类型
+export interface BaseDept {
+  deptId: string
+  deptName: string
+  deptSort: number
+  ancestors: string
+  parentId: string
+  description: string
+  status: number
+}
+
+/** 表单 */
+export type DeptForm = Partial<BaseDept>
+/** 详情 */
+export type DeptDetailVO = BaseDept
+/** 查询列表 */
+export interface DeptTreeVO extends BaseDept {
+  children?: DeptTreeVO[]
+}
+
+export interface DeptQuery {
+  deptName?: string
 }

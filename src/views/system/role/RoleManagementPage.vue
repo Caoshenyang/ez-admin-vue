@@ -101,7 +101,7 @@ const handleDelete = (isBatch: boolean, id?: string) => {
         await roleApi.deleteRole(id)
       } else {
         // 获取所有选择menuId
-        const deleteIdList = selectedRows.value.map((item) => item.roleId)
+        const deleteIdList = selectedRows.value.map((item) => item.roleId!)
         // 调用接口删除用户
         await roleApi.deleteBatchRole(deleteIdList)
       }
@@ -137,7 +137,7 @@ const handleSelectionChange = (roleItem: RoleListVO) => {
   console.log(roleItem)
 }
 const handleCellClick = async (roleItem: RoleListVO) => {
-  const menuIds = await roleApi.selectRoleMenu(roleItem.roleId)
+  const menuIds = await roleApi.selectRoleMenu(roleItem.roleId!)
   selectedRole.value = roleItem.roleId
   setCheckedKeysWithoutRelation(menuIds)
 }
