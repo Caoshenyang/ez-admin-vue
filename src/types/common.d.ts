@@ -18,3 +18,7 @@ export interface OrderItem {
   column: string // 排序字段
   asc: boolean // 是否升序
 }
+
+export interface Tree {
+  [key: string]: string
+}

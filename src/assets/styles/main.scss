@@ -17,3 +17,8 @@
   align-items: center;
   justify-content: space-between;
 }
+
+.el-form-item__label,
+.el-select {
+  font-weight: bold;
+}

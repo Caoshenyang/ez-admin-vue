@@ -58,7 +58,7 @@ const refreshList = async () => {
   await Promise.all([
     withLoading(
       'roleTableData',
-      roleApi.selectRoleList(roleQuery).then((data) => (roleTableData.value = data))
+      roleApi.selectRolePageList(roleQuery).then((data) => (roleTableData.value = data))
     ),
     withLoading(
       'menuTreeData',
@@ -214,8 +214,7 @@ const setCheckedKeysWithoutRelation = (menuIds: string[]) => {
           height="100%"
           highlight-current-row
           :data="roleTableData?.records"
-          row-key="menuId"
-          default-expand-all
+          row-key="roleId"
           @selection-change="handleSelectionChange"
           @cell-click="handleCellClick"
         >
@@ -300,7 +299,7 @@ const setCheckedKeysWithoutRelation = (menuIds: string[]) => {
         </div>
       </el-card>
     </div>
-    <RoleFrom ref="roleFormDialogRef" @confirm="refreshList" />
+    <RoleForm ref="roleFormDialogRef" @confirm="refreshList" />
   </div>
 </template>
 

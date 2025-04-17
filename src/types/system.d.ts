@@ -83,3 +83,30 @@ export interface DeptTreeVO extends BaseDept {
 export interface DeptQuery {
   deptName?: string
 }
+
+// 部门基础类型
+export interface BaseUser {
+  userId: string
+  deptId: string
+  username: string
+  password: string
+  nickname: string
+  email: string
+  phoneNumber: string
+  gender: number
+  avatar: string
+  status: number
+  description: string
+}
+
+/** 表单 */
+export interface UserForm extends Partial<BaseUser> {
+  roleIds?: string[]
+}
+
+/** 查询列表 */
+export type UserListVO = Partial<BaseUser>
+
+export interface UserQuey {
+  username?: string
+}

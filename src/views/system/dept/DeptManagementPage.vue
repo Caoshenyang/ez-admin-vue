@@ -39,7 +39,7 @@ const handleAddChildren = async (row: DeptTreeVO) => {
     return
   }
 
-  await initDeptForm({ parentId: row.parentId })
+  await initDeptForm({ parentId: row.deptId })
 }
 
 /**
@@ -66,8 +66,6 @@ const initDeptForm = async (options: { deptId?: string; parentId?: string } = {}
     const data = await deptApi.getDeptById(options.deptId)
     formData.value = { ...data }
   } else {
-    console.log(options.parentId)
-
     formData.value = {
       ...INIT_FORM_DATA,
       parentId: options.parentId || INIT_FORM_DATA.parentId
@@ -83,19 +81,15 @@ const initDeptForm = async (options: { deptId?: string; parentId?: string } = {}
 }
 
 const handleConfirm = async () => {
-  try {
-    await deptFormRef.value.validate()
-    const formData = deptFormRef.value.getData()
-    if (formData.deptId) {
-      await deptApi.updateDept(formData)
-    } else {
-      await deptApi.createDept(formData)
-    }
-    deptFormDialogRef.value.close()
-    refreshList()
-  } catch (error) {
-    console.error('表单验证失败:', error)
+  await deptFormRef.value.validate()
+  const formData = deptFormRef.value.getData()
+  if (formData.deptId) {
+    await deptApi.updateDept(formData)
+  } else {
+    await deptApi.createDept(formData)
   }
+  deptFormDialogRef.value.close()
+  refreshList()
 }
 
 /**
@@ -127,6 +121,7 @@ const handleDelete = (isBatch: boolean, deptId?: string) => {
       msgInfo('已取消删除')
     })
 }
+
 // 切换部门启动状态
 const handleStatusChange = async (status: number, deptId: string) => {
   await deptApi.updateDept({ deptId, status })
@@ -217,7 +212,7 @@ const handleSelectionChange = (val: DeptTreeVO[]) => {
         </el-table-column>
       </el-table>
     </div>
-    <!-- 使用更清晰的 visible 属性 -->
+    <!-- 表单弹框 -->
     <EZFormDialog ref="deptFormDialogRef" :title="formTitle" width="30%" @confirm="handleConfirm">
       <DeptForm ref="deptFormRef" :form-data="formData" :deptTree="deptSelectOptions" />
     </EZFormDialog>

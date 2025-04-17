@@ -10,8 +10,14 @@ const props = defineProps({
 
 const formRef = ref()
 const form = ref({ ...props.formData })
-console.log(form.value)
-console.log(props.formData)
+// 深度监听 prop 变化
+watch(
+  () => props.formData,
+  (newVal) => {
+    form.value = { ...newVal }
+  },
+  { deep: true }
+)
 
 const rules = reactive<FormRules<typeof form>>({
   deptName: [{ required: true, message: '名称不能为空', trigger: 'blur' }],
@@ -22,15 +28,6 @@ const rules = reactive<FormRules<typeof form>>({
 const handParentChange = (node: DeptTreeVO) => {
   form.value.ancestors = node.deptId !== '0' ? `${node.ancestors},${node.deptId}` : '0'
 }
-
-// 深度监听 prop 变化
-watch(
-  () => props.formData,
-  (newVal) => {
-    form.value = { ...newVal }
-  },
-  { deep: true }
-)
 
 defineExpose({
   validate: () => formRef.value.validate(),
@@ -71,11 +68,4 @@ defineExpose({
   </div>
 </template>
 
-<style lang="scss" scoped>
-:deep(.el-form-item__label) {
-  font-weight: bold;
-}
-:deep(.el-select) {
-  font-weight: bold;
-}
-</style>
+<style lang="scss" scoped></style>

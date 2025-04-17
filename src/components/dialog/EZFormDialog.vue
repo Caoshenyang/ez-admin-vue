@@ -50,7 +50,7 @@ defineExpose({ open, close })
   user-select: none;
   // 自定义样式可以放在这里
   :deep(.el-dialog__body) {
-    padding: 20px;
+    padding: 10px;
     max-height: 70vh;
     overflow-y: auto;
   }
