@@ -9,7 +9,7 @@ export const defaultProps = {
 
 export const INIT_USER_QUERY: PageQuery<UserQuey> = {
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
   orderItems: [
     {
       column: 'create_time',
@@ -17,6 +17,7 @@ export const INIT_USER_QUERY: PageQuery<UserQuey> = {
     }
   ],
   search: {
-    username: ''
+    username: '',
+    deptId: ''
   }
 }

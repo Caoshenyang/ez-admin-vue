@@ -82,6 +82,15 @@ const handleConfirm = async () => {
   refreshList()
 }
 
+const handleSizeChange = (pageSize: number) => {
+  userQuery.pageSize = pageSize
+  refreshList()
+}
+const handleCurrentChange = (pageNum: number) => {
+  userQuery.pageNum = pageNum
+  refreshList()
+}
+
 watch(filterText, (val) => {
   // filter	过滤所有树节点，过滤后的节点将被隐藏	接收一个参数并指定为 filter-node-method 属性的第一个参数
   deptTreeRef.value!.filter(val)
@@ -90,6 +99,11 @@ watch(filterText, (val) => {
 const filterNode = (value: string, data: Tree) => {
   if (!value) return true
   return data.deptName.includes(value)
+}
+
+const handleNodeClick = (data: DeptTreeVO) => {
+  userQuery.search!.deptId = data.deptId
+  refreshList()
 }
 </script>
 <template>
@@ -109,6 +123,7 @@ const filterNode = (value: string, data: Tree) => {
             :props="defaultProps"
             default-expand-all
             :filter-node-method="filterNode"
+            @node-click="handleNodeClick"
           />
         </div>
       </el-col>
@@ -212,16 +227,16 @@ const filterNode = (value: string, data: Tree) => {
                 </el-table-column>
               </el-table>
               <template #footer>
-                <!-- <el-pagination
-                  v-model:current-page="roleQuery.pageNum"
-                  v-model:page-size="roleQuery.pageSize"
+                <el-pagination
+                  v-model:current-page="userQuery.pageNum"
+                  v-model:page-size="userQuery.pageSize"
                   :page-sizes="[15, 30, 45, 60]"
                   :background="false"
                   layout="total, prev, pager, next, sizes"
-                  :total="roleTableData?.total || 0"
+                  :total="userTabData?.total || 0"
                   @size-change="handleSizeChange"
                   @current-change="handleCurrentChange"
-                /> -->
+                />
               </template>
             </el-card>
           </div>

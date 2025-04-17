@@ -9,6 +9,12 @@ const props = defineProps({
   roleList: { type: Array as PropType<RoleListVO[]>, default: () => [] }
 })
 
+const genderOptions = [
+  { label: '保密', value: 0 },
+  { label: '男', value: 1 },
+  { label: '女', value: 2 }
+]
+
 const formRef = ref()
 const form = ref({ ...props.formData })
 // 深度监听 prop 变化
@@ -49,7 +55,8 @@ defineExpose({
       <!-- 分成左右两列 -->
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="账号" prop="username">
+          <!-- 账号编辑时只读，不让修改 -->
+          <el-form-item label="账号" prop="username" v-if="!form.userId">
             <el-input v-model="form.username" placeholder="请输入账号"></el-input>
           </el-form-item>
           <!-- 昵称 -->
@@ -62,15 +69,13 @@ defineExpose({
           </el-form-item>
           <!-- 性别 -->
           <el-form-item label="性别" prop="gender">
-            <el-radio-group v-model="form.gender">
-              <el-radio :value="1">男</el-radio>
-              <el-radio :value="2">女</el-radio>
-              <el-radio :value="3">保密</el-radio>
-            </el-radio-group>
+            <el-select v-model="form.gender" placeholder="请选择性别">
+              <el-option v-for="item in genderOptions" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="密码" prop="password">
+          <el-form-item label="密码" prop="password" v-if="!form.userId">
             <el-input v-model="form.password" placeholder="请输入密码" type="password"></el-input>
           </el-form-item>
           <!-- 部门 -->

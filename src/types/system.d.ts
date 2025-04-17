@@ -109,4 +109,5 @@ export type UserListVO = Partial<BaseUser>
 
 export interface UserQuey {
   username?: string
+  deptId?: string
 }

@@ -15,6 +15,13 @@ export enum DataScopeEnum {
   '全部' = 5
 }
 
+// 性别
+export enum GenderEnum {
+  '保密' = 0,
+  '男' = 1,
+  '女' = 2
+}
+
 // 系统状态 【0 禁用 1 启用】
 export enum StatusEnum {
   '禁用' = 0,
