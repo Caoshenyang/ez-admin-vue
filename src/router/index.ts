@@ -5,6 +5,7 @@ import MyLayout from '@/components/layout/MyLayout.vue'
 import WorkbenchPage from '@/views/dashboard/WorkbenchPage.vue'
 
 export const HOME_PAGE = '/dashboard/workbench'
+export const HOME_PAGE_NAME = '工作台'
 
 /** 静态路由，所有用户默认拥有的菜单路由 */
 const staticRoutes: Array<RouteRecordRaw> = [
@@ -18,10 +19,10 @@ const staticRoutes: Array<RouteRecordRaw> = [
     children: [
       {
         path: HOME_PAGE,
-        name: 'Workbench',
+        name: HOME_PAGE_NAME,
         component: WorkbenchPage,
         meta: {
-          title: '工作台',
+          title: HOME_PAGE_NAME,
           title_en: 'Workbench',
           keepAlive: false
         }

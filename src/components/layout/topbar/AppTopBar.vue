@@ -8,11 +8,6 @@ const { isFullscreen, toggle } = useFullscreen()
 
 const settingStore = useSettingStore()
 const userStore = useUserStore()
-
-// 刷新
-const handleRefresh = () => {
-  location.reload()
-}
 </script>
 <template>
   <div class="app-top-bar">
@@ -20,9 +15,7 @@ const handleRefresh = () => {
       <el-icon class="icon-btn" @click="settingStore.switchFolding">
         <EZSvgIcon :icon="settingStore.isCollapse ? 'ep-expand' : 'ep-fold'" />
       </el-icon>
-      <el-icon class="icon-btn" @click="handleRefresh">
-        <EZSvgIcon icon="ant-design:sync-outlined" class="refresh-btn" />
-      </el-icon>
+      <AppBreadcrumb />
     </div>
     <div class="right">
       <el-icon class="icon-btn" @click="toggle" :size="isFullscreen ? 28 : 22">

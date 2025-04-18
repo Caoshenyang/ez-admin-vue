@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AppBreadcrumb: typeof import('./src/components/layout/breadcrumb/AppBreadcrumb.vue')['default']
     AppLogo: typeof import('./src/components/layout/logo/AppLogo.vue')['default']
     AppMenu: typeof import('./src/components/layout/menu/AppMenu.vue')['default']
     AppTopBar: typeof import('./src/components/layout/topbar/AppTopBar.vue')['default']
@@ -19,6 +20,8 @@ declare module 'vue' {
     ElAside: typeof import('element-plus/es')['ElAside']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElBadge: typeof import('element-plus/es')['ElBadge']
+    ElBreadcrumb: typeof import('element-plus/es')['ElBreadcrumb']
+    ElBreadcrumbItem: typeof import('element-plus/es')['ElBreadcrumbItem']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCard: typeof import('element-plus/es')['ElCard']
     ElCheckTag: typeof import('element-plus/es')['ElCheckTag']

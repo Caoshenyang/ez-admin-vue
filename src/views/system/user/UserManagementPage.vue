@@ -101,9 +101,10 @@ const filterNode = (value: string, data: Tree) => {
   return data.deptName.includes(value)
 }
 
-const handleNodeClick = (data: DeptTreeVO) => {
+const handleNodeClick = async (data: DeptTreeVO) => {
   userQuery.search!.deptId = data.deptId
-  refreshList()
+  // 加载用户列表
+  userTabData.value = await userApi.getUserList(userQuery)
 }
 </script>
 <template>
@@ -122,6 +123,7 @@ const handleNodeClick = (data: DeptTreeVO) => {
             :data="deptTreeData"
             :props="defaultProps"
             default-expand-all
+            highlight-current
             :filter-node-method="filterNode"
             @node-click="handleNodeClick"
           />
