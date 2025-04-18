@@ -111,3 +111,42 @@ export interface UserQuey {
   username?: string
   deptId?: string
 }
+
+// 字典类型基础类型
+export interface BaseDictType {
+  dictId: string
+  dictName: string
+  dictType: string
+  status: number
+  description: string
+}
+
+export type DictTypeForm = Partial<BaseDictType>
+export interface DictTypeListVO {
+  dictId: string
+  dictName: string
+  dictType: string
+  status: number
+  description: string
+}
+
+export interface DictTypeQuery {
+  dictName?: string
+  dictType?: string
+}
+
+// 字典数据基础类型
+export interface BaseDictData {
+  dictDataId: string
+  dictSort: number
+  dictLabel: string
+  dictValue: string
+  dictType: string
+  listClass: string
+  isDefault: number
+  status: number
+  description: string
+}
+
+export type DictDataForm = Partial<BaseDictData>
+export type DictDataListVO = Partial<BaseDictData>

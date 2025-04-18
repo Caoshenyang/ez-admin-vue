@@ -98,8 +98,6 @@ const handleClose = (command: string, currentTab?: string) => {
       changeTab(HOME_PAGE)
       break
     case 'closeLeft':
-      console.log('tabs', currentTab)
-
       if (!currentTab) return
       // 找到当前标签的索引
       const leftIndex = tabs.findIndex((tab) => tab.path === currentTab)

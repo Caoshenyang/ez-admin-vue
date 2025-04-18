@@ -34,10 +34,12 @@ const onLinkClick = (path: string) => {
       </el-breadcrumb-item>
       <el-breadcrumb-item v-for="(item, index) in breadcrumbData" :key="item.path">
         <!-- 最后一层，不可点击 -->
-        <span v-if="index === breadcrumbData?.length - 1" class="no-redirect">
+        <span v-if="index === breadcrumbData?.length - 1" class="no-redirect" :key="item.path + '-no-redirect'">
           {{ item.meta.title }}
         </span>
-        <a v-else class="redirect" @click.prevent="onLinkClick(item.path)">{{ item.meta.title }}</a>
+        <a v-else class="redirect" @click.prevent="onLinkClick(item.path)" :key="item.path + '-redirect'">
+          {{ item.meta.title }}
+        </a>
       </el-breadcrumb-item>
     </el-breadcrumb>
   </div>

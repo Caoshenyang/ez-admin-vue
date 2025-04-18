@@ -238,7 +238,7 @@ const setCheckedKeysWithoutRelation = (menuIds: string[]) => {
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="操作" fixed="right" width="180">
+          <el-table-column label="操作" fixed="right">
             <template #default="scope">
               <div class="table-option">
                 <el-button

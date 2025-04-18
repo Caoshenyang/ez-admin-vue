@@ -19,13 +19,13 @@ export const roleApi = {
   updateRole: (data: RoleForm) => http.post('/system/role/update', data),
 
   // 删除角色
-  deleteRole: (id: string) => http.delete('/system/role/delete/' + id),
+  deleteRole: (roleId: string) => http.delete(`/system/role/delete/${roleId}`),
 
   // 批量删除角色
   deleteBatchRole: (ids: string[]) => http.delete(`/system/role/deleteBatch`, ids),
 
   // 查询角色菜单权限
-  selectRoleMenu: (roleId: string) => http.get<string[]>('/system/role/findMenusByRoleId/' + roleId),
+  selectRoleMenu: (roleId: string) => http.get<string[]>(`/system/role/findMenusByRoleId/${roleId}`),
 
   // 保存角色菜单权限
   saveRoleMenu: (data: RoleMenuRelation) => http.post('/system/role/saveRoleMenus', data)

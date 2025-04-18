@@ -136,7 +136,7 @@ const handleSelectionChange = (val: MenuTreeVO[]) => {
         <el-table-column prop="menuSort" label="排序" />
         <el-table-column prop="menuPerm" label="权限标识">
           <template #default="scope">
-            <el-tag v-if="scope.row.menuPerm" size="small">{{ scope.row.menuPerm }}</el-tag>
+            <el-tag v-if="scope.row.menuPerm" size="small">{{ scope.row.menuPerm}}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="routePath" label="路由地址" />

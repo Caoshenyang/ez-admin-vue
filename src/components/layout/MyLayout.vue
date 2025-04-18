@@ -1,11 +1,10 @@
 <script lang="ts" setup>
-import { useSettingStore } from '@/stores/modules/settingStore';
-import AppLogo from './logo/AppLogo.vue';
-import AppMenu from './menu/AppMenu.vue';
-import AppTopBar from './topbar/AppTopBar.vue';
+import { useSettingStore } from '@/stores/modules/settingStore'
+import AppLogo from './logo/AppLogo.vue'
+import AppMenu from './menu/AppMenu.vue'
+import AppTopBar from './topbar/AppTopBar.vue'
 
-const settingStore = useSettingStore();
-
+const settingStore = useSettingStore()
 </script>
 
 <template>
@@ -24,7 +23,14 @@ const settingStore = useSettingStore();
       </el-header>
       <!-- 主体 -->
       <el-main class="app-main">
-        <router-view></router-view>
+        <RouterView v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <!-- 这里手动指定去除了 UserManagementPage 的keepAlive,后面优化，后端返回菜单的meta里控制 -->
+            <KeepAlive :max="10" exclude="UserManagementPage">
+              <component :is="Component"></component>
+            </KeepAlive>
+          </transition>
+        </RouterView>
       </el-main>
     </el-container>
   </el-container>
@@ -51,5 +57,24 @@ const settingStore = useSettingStore();
   background-color: white;
   border: 1px solid #ebeef5;
   border-radius: 10px;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.3s;
+}
+
+.fade-enter-active {
+  transition-delay: 0.3;
 }
 </style>
