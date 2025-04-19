@@ -40,7 +40,7 @@ export default defineConfig({
       '/dev-api': {
         target: 'http://localhost:2222', // 后台服务器地址
         changeOrigin: true, // 是否允许不同源
-        secure: false // 支持https
+        secure: false, // 支持https
         // rewrite: (path) => path.replace(/^\/dev-api/, ''),
       }
     }
