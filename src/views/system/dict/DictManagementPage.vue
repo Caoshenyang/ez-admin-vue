@@ -2,7 +2,7 @@
 import { dictApi } from '@/api/system/dict'
 import type { FormItem, PageQuery, PageVO, SmartActionBarState } from '@/types/common'
 import type { DictDataListVO, DictTypeListVO, DictTypeQuery } from '@/types/system'
-import { ElInput, ElSelect } from 'element-plus'
+import { ElInput } from 'element-plus'
 
 // 字典类型数据
 const dictTypeTableData = ref<PageVO<DictTypeListVO>>()
