@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // =============== 统一结果 类型定义 =============== //
 // 分页结果类型
 export interface PageVO<T> {
@@ -41,8 +42,8 @@ export interface ActionItem {
 export interface FormItem {
   field: string // 字段名
   label: string // 标签
-  component: string | Component // 组件名或组件实例
-  props?: Record<string, unknown> // 组件属性
+  component: Component // 组件实例
+  props?: Record<string, any> // 组件属性
   advanced?: boolean // 是否高级搜索
   span?: number // 跨列数
   hidden?: boolean | (() => boolean) // 是否隐藏
@@ -55,7 +56,7 @@ export interface SmartActionBarState {
 
 export interface SmartActionBarProps {
   modelValue: SmartActionBarState // 当前状态
-  searchParams?: Record<string, unknownany> // 搜索参数
+  searchParams?: Record<string, any> // 搜索参数
   formConfig?: FormItem[] // 搜索表单配置
   actions?: ActionItem[] // 操作按钮
   maxPrimaryActions?: number // 最大主操作按钮数量

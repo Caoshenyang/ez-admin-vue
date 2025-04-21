@@ -65,6 +65,15 @@ const modelValue: SmartActionBarState = {
 // 字典类型查询表单配置
 const filterFormConfig: FormItem[] = [
   {
+    field: 'keyword',
+    label: '关键词',
+    component: ElInput, // 直接使用组件实例
+    props: {
+      placeholder: '请输入关键词',
+      clearable: true
+    }
+  },
+  {
     field: 'dictName',
     label: '字典名称',
     component: ElInput,
@@ -85,17 +94,6 @@ const filterFormConfig: FormItem[] = [
     },
     advanced: true,
     span: 1
-  },
-  {
-    field: 'status',
-    label: '状态',
-    component: ElSelect, // 使用字符串自动解析为ElSelect
-    props: {
-      options: [
-        { label: '启用', value: 1 },
-        { label: '禁用', value: 0 }
-      ]
-    }
   }
 ]
 </script>

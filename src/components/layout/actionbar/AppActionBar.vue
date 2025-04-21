@@ -1,7 +1,6 @@
 <template>
-  <!-- 根容器添加移动端类名 -->
   <div class="smart-action-bar">
-    <!-- 动态搜索区域 - 使用自定义过渡动画 -->
+    <!-- 搜索区域 -->
     <Transition name="smart-slide">
       <div
         v-show="internalState.showSearch"
@@ -11,27 +10,31 @@
           '--item-span': 2
         }"
       >
-        <!-- 自动表单生成区域 -->
         <div class="form-grid">
           <template v-if="hasFormConfig">
-            <!-- 动态渲染每个表单项 -->
             <component
               v-for="item in effectiveConfig"
-              :is="resolveComponent(item.component)"
               :key="item.field"
+              :is="item.component"
               v-model="searchData[item.field]"
               v-bind="getItemProps(item)"
-              :label="item.label"
-              class="form-item"
-              :style="{ 'grid-column': `span ${item.span || 1}` }"
-            />
+              :loading="isSelectComponent(item.component) ? searchData[`${item.field}Loading`] : undefined"
+              :filter-method="item.props?.remoteMethod"
+            >
+              <template v-if="isSelectComponent(item.component)">
+                <el-option
+                  v-for="opt in item.props?.options || []"
+                  :key="opt.value"
+                  :label="opt.label"
+                  :value="opt.value"
+                />
+              </template>
+            </component>
           </template>
 
-          <!-- 自定义表单插槽（优先级高于自动配置） -->
           <slot v-else name="search-form" />
         </div>
 
-        <!-- 搜索操作按钮组 -->
         <div class="action-row">
           <el-button type="primary" @click="handleSearch" :loading="searchLoading">
             <template #icon><Search /></template>
@@ -39,7 +42,6 @@
           </el-button>
           <el-button @click="handleReset">重置</el-button>
 
-          <!-- 高级搜索切换按钮（仅当有高级选项时显示） -->
           <el-link
             v-if="hasAdvancedOptions"
             type="primary"
@@ -53,14 +55,11 @@
       </div>
     </Transition>
 
-    <!-- 主操作工具栏 -->
+    <!-- 操作栏 -->
     <div class="action-bar">
-      <!-- 左侧操作按钮区 -->
       <div class="left-group">
-        <!-- 前置操作插槽 -->
         <slot name="prepend-actions" />
 
-        <!-- 搜索栏切换按钮 -->
         <el-button
           v-if="showToggleButton"
           :icon="internalState.showSearch ? ArrowUp : ArrowDown"
@@ -71,10 +70,8 @@
         </el-button>
       </div>
 
-      <!-- 右侧操作按钮区 -->
       <div class="right-group">
         <el-space :size="8" v-if="hasActions">
-          <!-- 主要操作按钮（带Tooltip提示） -->
           <el-tooltip
             v-for="action in primaryActions"
             :key="action.name"
@@ -92,12 +89,10 @@
             </el-button>
           </el-tooltip>
 
-          <!-- 更多操作下拉菜单 -->
           <el-dropdown v-if="secondaryActions.length > 0" trigger="click" class="more-actions-dropdown">
             <el-button type="primary" plain>
               更多<el-icon class="el-icon--right"><MoreFilled /></el-icon>
             </el-button>
-
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item
@@ -122,15 +117,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watchEffect, useSlots, type Component } from 'vue'
+import { computed, ref, watchEffect, useSlots } from 'vue'
 import { useWindowSize, useLocalStorage } from '@vueuse/core'
 import { debounce } from 'lodash-es'
 import { Search, ArrowUp, ArrowDown, MoreFilled, Refresh, Setting } from '@element-plus/icons-vue'
-import { hasPermission } from '@/utils/permission'
+import type { Component } from 'vue'
 import type { ActionItem, FormItem, SmartActionBarProps, SmartActionBarState } from '@/types/common'
 
-// =============== 组件逻辑 =============== //
+// 默认props
 const props = withDefaults(defineProps<SmartActionBarProps>(), {
+  modelValue: () => ({ showSearch: true, showAdvanced: false }),
   searchParams: () => ({}),
   formConfig: () => [],
   actions: () => [
@@ -151,30 +147,23 @@ const emit = defineEmits<{
   action: [name: string]
 }>()
 
-// =============== 响应式状态 =============== //
+// 响应式状态
 const { width } = useWindowSize()
 const slots = useSlots()
 const searchLoading = ref(false)
 const actionLoading = ref<Record<string, boolean>>({})
+const searchData = ref<Record<string, unknown>>({ ...props.searchParams })
 
 // 合并props和本地存储的状态
-const internalState = useLocalStorage('smart-action-bar/state', () => ({ ...props.modelValue }), {
-  listenToStorageChanges: true
+const internalState = useLocalStorage<SmartActionBarState>('smart-action-bar/state', () => ({ ...props.modelValue }), {
+  listenToStorageChanges: props.rememberState
 })
 
-// 搜索表单数据（深度响应式）
-const searchData = ref(JSON.parse(JSON.stringify(props.searchParams)))
-
-// =============== 计算属性 =============== //
+// 计算属性
 const isMobile = computed(() => width.value < 768)
-
-// 是否有表单配置
 const hasFormConfig = computed(() => props.formConfig.length > 0 && !slots['search-form'])
-
-// 是否有高级选项
 const hasAdvancedOptions = computed(() => props.formConfig.some((item) => item.advanced))
 
-// 有效的表单配置（根据高级选项过滤）
 const effectiveConfig = computed(() =>
   props.formConfig.filter((item) => {
     if (typeof item.hidden === 'function') return !item.hidden()
@@ -183,103 +172,68 @@ const effectiveConfig = computed(() =>
   })
 )
 
-// 处理后的操作按钮
 const processedActions = computed(() =>
   props.actions
     .map((action) => ({
       ...action,
-      // 处理可见性
       visible: typeof action.visible === 'function' ? action.visible() : action.visible !== false,
-      // 处理权限（假设有权限检查函数）
       disabled: typeof action.disabled === 'function' ? action.disabled() : action.disabled
     }))
     .filter((action) => action.visible)
     .sort((a, b) => (a.sort || 0) - (b.sort || 0))
 )
 
-// 主要操作按钮
-const primaryActions = computed(() => processedActions.value.slice(0, props.maxPrimaryActions))
+const computedActions = computed(() => [
+  processedActions.value.slice(0, props.maxPrimaryActions),
+  processedActions.value.slice(props.maxPrimaryActions)
+])
 
-// 次要操作按钮（更多菜单中的）
-const secondaryActions = computed(() => processedActions.value.slice(props.maxPrimaryActions))
+// 使用 .value 来访问 computed 的结果，然后进行解构
+const [primaryActions, secondaryActions] = computedActions.value
 
-// 是否有操作按钮
 const hasActions = computed(() => processedActions.value.length > 0)
 
-// =============== 方法 =============== //
-/**
- * 解析组件名称（自动添加El前缀）
- * @param comp 组件名或组件对象
- */
-const resolveComponent = (comp: string | Component): string | Component => {
-  return typeof comp === 'string' ? (comp.startsWith('El') ? comp : `El${comp}`) : comp
+const isSelectComponent = (comp: string | Component) => {
+  const name = typeof comp === 'string' ? comp : comp.name
+  return name?.endsWith('Select')
 }
 
-/**
- * 获取表单项的props（合并默认props）
- * @param item 表单项配置
- */
-const getItemProps = (item: FormItem) => {
-  const defaults = {
-    clearable: true,
-    placeholder: `请输入${item.label}`,
-    style: { width: '100%' }
-  }
-  return { ...defaults, ...item.props }
-}
+const getItemProps = (item: FormItem) => ({
+  clearable: true,
+  placeholder: `请${item.component.name?.endsWith('Select') ? '选择' : '输入'}${item.label}`,
+  style: { width: '100%' },
+  ...item.props,
+  ...(isSelectComponent(item.component) && { options: item.props?.options || [] })
+})
 
-/**
- * 检查操作是否禁用
- * @param action 操作项
- */
-const isActionDisabled = (action: ActionItem) => {
-  return !!(action.disabled || (action.permission && !hasPermission(action.permission)))
-}
+const isActionDisabled = (action: ActionItem) => !!action.disabled
 
-// 防抖搜索方法
 const debouncedSearch = debounce(() => {
   emit('update:searchParams', { ...searchData.value })
   emit('search', { ...searchData.value })
   searchLoading.value = false
 }, props.searchDebounce)
 
-/**
- * 触发搜索
- */
 const handleSearch = () => {
   searchLoading.value = true
   debouncedSearch()
 }
 
-/**
- * 重置搜索
- */
 const handleReset = () => {
-  searchData.value = JSON.parse(JSON.stringify(props.searchParams))
+  searchData.value = { ...props.searchParams }
   emit('update:searchParams', {})
   emit('reset')
-  // 重置后立即触发搜索
   handleSearch()
 }
 
-/**
- * 切换搜索区域显示
- */
 const toggleSearch = () => {
   internalState.value.showSearch = !internalState.value.showSearch
 }
 
-/**
- * 切换高级搜索
- */
 const toggleAdvanced = () => {
   internalState.value.showAdvanced = !internalState.value.showAdvanced
 }
 
-/**
- * 触发操作事件
- * @param name 操作名称
- */
 const emitAction = (name: string) => {
   actionLoading.value[name] = true
   emit('action', name)
@@ -288,20 +242,13 @@ const emitAction = (name: string) => {
   }, 1000)
 }
 
-// =============== 生命周期 =============== //
 // 监听props.searchParams变化
 watchEffect(() => {
-  searchData.value = JSON.parse(JSON.stringify(props.searchParams))
-})
-
-// 组件卸载时取消防抖
-onUnmounted(() => {
-  debouncedSearch.cancel()
+  searchData.value = { ...props.searchParams }
 })
 </script>
 
 <style scoped lang="scss">
-/* 根容器样式 */
 .smart-action-bar {
   --form-gap: 16px;
   --action-bar-height: 56px;
@@ -312,7 +259,6 @@ onUnmounted(() => {
   }
 }
 
-/* 搜索区域样式 */
 .search-area {
   background: var(--el-fill-color-light);
   border-radius: var(--border-radius);
@@ -326,12 +272,6 @@ onUnmounted(() => {
     gap: var(--form-gap);
     grid-template-columns: repeat(var(--columns), 1fr);
     margin-bottom: var(--form-gap);
-
-    .form-item {
-      &:deep(.el-form-item__label) {
-        font-weight: 500;
-      }
-    }
   }
 
   .action-row {
@@ -347,32 +287,22 @@ onUnmounted(() => {
   }
 }
 
-/* 操作栏样式 */
 .action-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   height: var(--action-bar-height);
 
-  .left-group {
+  .left-group,
+  .right-group {
     display: flex;
     gap: 8px;
     align-items: center;
   }
-
-  .right-group {
-    display: flex;
-    gap: 4px;
-    align-items: center;
-
-    .more-actions-dropdown {
-      margin-left: 4px;
-    }
-  }
 }
 
 /* 移动端适配 */
-.is-mobile {
+@media (max-width: 768px) {
   .search-area {
     padding: 12px;
 
