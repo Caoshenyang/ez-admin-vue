@@ -22,3 +22,11 @@
 .el-select {
   font-weight: bold;
 }
+:root {
+  --smart-action-bar-bg: #f8fafc;
+  --form-gap: 12px;
+}
+
+.dark {
+  --smart-action-bar-bg: #1a1a1a;
+}

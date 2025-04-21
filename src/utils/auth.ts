@@ -21,7 +21,7 @@ export const TOKEN_KEY = 'ezadmin-token'
 export const setToken = (token: TokenInfoVO) => {
   Cookies.set(TOKEN_KEY, token.tokenValue, {
     expires: 30,
-    path: '/',
+    path: '/'
     // secure: true,
     // sameSite: 'Strict',
   })

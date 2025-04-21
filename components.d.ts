@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AppActionBar: typeof import('./src/components/layout/actionbar/AppActionBar.vue')['default']
     AppBreadcrumb: typeof import('./src/components/layout/breadcrumb/AppBreadcrumb.vue')['default']
     AppLogo: typeof import('./src/components/layout/logo/AppLogo.vue')['default']
     AppMenu: typeof import('./src/components/layout/menu/AppMenu.vue')['default']
@@ -49,6 +50,7 @@ declare module 'vue' {
     ElRadioGroup: typeof import('element-plus/es')['ElRadioGroup']
     ElRow: typeof import('element-plus/es')['ElRow']
     ElSelect: typeof import('element-plus/es')['ElSelect']
+    ElSpace: typeof import('element-plus/es')['ElSpace']
     ElSubMenu: typeof import('element-plus/es')['ElSubMenu']
     ElSwitch: typeof import('element-plus/es')['ElSwitch']
     ElTable: typeof import('element-plus/es')['ElTable']

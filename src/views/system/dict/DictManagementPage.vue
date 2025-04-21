@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { dictApi } from '@/api/system/dict'
-import type { PageQuery, PageVO } from '@/types/common'
+import type { FormItem, PageQuery, PageVO, SmartActionBarState } from '@/types/common'
 import type { DictDataListVO, DictTypeListVO, DictTypeQuery } from '@/types/system'
+import { ElInput, ElSelect } from 'element-plus'
 
 // 字典类型数据
 const dictTypeTableData = ref<PageVO<DictTypeListVO>>()
@@ -54,40 +55,53 @@ const handleCurrentChange = (pageNum: number) => {
   dictTypeQuery.pageNum = pageNum
   refreshList()
 }
+
+// 操作栏配置
+const modelValue: SmartActionBarState = {
+  showSearch: true,
+  showAdvanced: true
+}
+
+// 字典类型查询表单配置
+const filterFormConfig: FormItem[] = [
+  {
+    field: 'dictName',
+    label: '字典名称',
+    component: ElInput,
+    props: {
+      placeholder: '请输入字典名称',
+      clearable: true
+    },
+    advanced: true,
+    span: 1
+  },
+  {
+    field: 'dictType',
+    label: '字典类型',
+    component: ElInput,
+    props: {
+      placeholder: '请输入字典类型',
+      clearable: true
+    },
+    advanced: true,
+    span: 1
+  },
+  {
+    field: 'status',
+    label: '状态',
+    component: ElSelect, // 使用字符串自动解析为ElSelect
+    props: {
+      options: [
+        { label: '启用', value: 1 },
+        { label: '禁用', value: 0 }
+      ]
+    }
+  }
+]
 </script>
 <template>
   <div class="dict-container">
-    <div class="search-bar">搜索区域</div>
-    <div class="operation-bar">
-      <div class="operation-button">
-        <el-button type="primary" plain>
-          <template #icon>
-            <EZSvgIcon icon="ep:plus" />
-          </template>
-          新增
-        </el-button>
-      </div>
-      <div class="setting-button">
-        <!-- 搜索显示/隐藏 -->
-        <el-button circle>
-          <template #icon>
-            <EZSvgIcon icon="ep:search" />
-          </template>
-        </el-button>
-        <!-- 刷新列表数据 -->
-        <el-button circle @click="refreshList">
-          <template #icon>
-            <EZSvgIcon icon="ep:refresh" />
-          </template>
-        </el-button>
-        <!-- 展示列设置 -->
-        <el-button circle>
-          <template #icon>
-            <EZSvgIcon icon="ep:setting" />
-          </template>
-        </el-button>
-      </div>
-    </div>
+    <AppActionBar :model-value="modelValue" :form-config="filterFormConfig" />
 
     <!-- 左右分栏布局 -->
     <el-row :gutter="20">

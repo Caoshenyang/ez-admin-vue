@@ -41,7 +41,7 @@ export const useUserStore = defineStore('userInfo', {
         const userInfo = await authApi.getUserInfo()
         this.userInfo = userInfo
       } catch (error) {
-        // this.logout()
+        this.logout()
         console.log(error)
       }
     },
