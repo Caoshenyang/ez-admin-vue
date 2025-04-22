@@ -44,23 +44,19 @@ export interface FormItem {
   label: string // 标签
   component: Component // 组件实例
   props?: Record<string, any> // 组件属性
-  advanced?: boolean // 是否高级搜索
+  collapsed?: boolean //  默认是否折叠
   span?: number // 跨列数
   hidden?: boolean | (() => boolean) // 是否隐藏
 }
 
-export interface SmartActionBarState {
-  showSearch: boolean // 是否显示搜索
-  showAdvanced: boolean // 是否显示高级搜索
-}
-
 export interface SmartActionBarProps {
-  modelValue: SmartActionBarState // 当前状态
   searchParams?: Record<string, any> // 搜索参数
   formConfig?: FormItem[] // 搜索表单配置
   actions?: ActionItem[] // 操作按钮
   maxPrimaryActions?: number // 最大主操作按钮数量
   showToggleButton?: boolean // 是否显示折叠按钮
+  showRefreshButton?: boolean // 是否显示刷新按钮
+  showSettingButton?: boolean // 是否显示设置按钮
   rememberState?: boolean // 是否记住状态
   searchDebounce?: number // 搜索防抖时间(ms)
 }

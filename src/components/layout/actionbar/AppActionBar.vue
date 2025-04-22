@@ -1,29 +1,29 @@
 <script setup lang="ts">
 import { computed, ref, watchEffect, useSlots } from 'vue'
-import { useLocalStorage } from '@vueuse/core'
 import { debounce } from 'lodash-es'
-import { Search, ArrowUp, ArrowDown, MoreFilled, Refresh, Setting } from '@element-plus/icons-vue'
+import { Search, ArrowUp, ArrowDown, MoreFilled, Refresh, Setting, RefreshRight } from '@element-plus/icons-vue'
 import type { Component } from 'vue'
-import type { FormItem, SmartActionBarProps, SmartActionBarState } from '@/types/common'
+import type { ActionItem, FormItem, SmartActionBarProps } from '@/types/common'
+import { hasPermission } from '@/utils/permission'
 
 // 默认props
 const props = withDefaults(defineProps<SmartActionBarProps>(), {
-  modelValue: () => ({ showSearch: true, showAdvanced: false }),
   searchParams: () => ({}),
   formConfig: () => [],
-  actions: () => [
-    { name: 'refresh', icon: Refresh, tooltip: '刷新' },
-    { name: 'settings', icon: Setting, tooltip: '列设置' }
-  ],
+  actions: () => [],
   maxPrimaryActions: 3, // 最多显示几个主按钮
   showToggleButton: true, // 是否显示折叠按钮
+  showRefreshButton: true, // 是否显示刷新按钮
+  showSettingButton: true, // 是否显示列设置按钮
   rememberState: true, // 是否记住状态
   searchDebounce: 300 // 搜索防抖时间
 })
 
+// 控制全局折叠状态
+const globalCollapsed = ref(true)
+
 // 事件
 const emit = defineEmits<{
-  'update:modelValue': [value: SmartActionBarState] // 更新状态
   'update:searchParams': [value: Record<string, unknown>] // 更新搜索参数
   search: [params: Record<string, unknown>] // 搜索
   reset: [] // 重置
@@ -31,27 +31,20 @@ const emit = defineEmits<{
 }>()
 
 // 响应式状态
-const slots = useSlots()
 const searchLoading = ref(false)
 const actionLoading = ref<Record<string, boolean>>({})
 const searchData = ref<Record<string, unknown>>({ ...props.searchParams })
 
-// 合并props和本地存储的状态
-const internalState = useLocalStorage<SmartActionBarState>('smart-action-bar/state', () => ({ ...props.modelValue }), {
-  listenToStorageChanges: props.rememberState
-})
-
-// 计算属性
+// 是否有折叠的筛选条件
+const hasCollapsedOptions = computed(() => props.formConfig.some((item) => item.collapsed))
 // 是否设置了表单配置，且没有插槽，则显示搜索表单（插槽优先，不同时生效）
-const hasFormConfig = computed(() => props.formConfig.length > 0 && !slots['search-form'])
-// 是否有高级筛选配置
-const hasAdvancedOptions = computed(() => props.formConfig.some((item) => item.advanced))
+const hasFormConfig = computed(() => props.formConfig.length > 0)
 
-// 筛选出所有有效或者可见的【高级筛选】条件
+// 筛选出所有需要显示的筛选条件
 const effectiveConfig = computed(() =>
   props.formConfig.filter((item) => {
     if (typeof item.hidden === 'function') return !item.hidden()
-    return item.hidden !== true && internalState.value.showAdvanced
+    return item.hidden !== true
   })
 )
 
@@ -94,6 +87,14 @@ const getItemProps = (item: FormItem) => ({
   ...(isSelectComponent(item.component) && { options: item.props?.options || [] })
 })
 
+/**
+ * 检查操作是否禁用
+ * @param action 操作项
+ */
+const isActionDisabled = (action: ActionItem) => {
+  return !!(action.disabled || (action.permission && !hasPermission(action.permission)))
+}
+
 // 防抖操作
 const debouncedSearch = debounce(() => {
   emit('update:searchParams', { ...searchData.value }) // 发送 'update:searchParams' 事件，携带 searchData 作为参数
@@ -125,7 +126,7 @@ const toggleAdvanced = () => {
   internalState.value.showAdvanced = !internalState.value.showAdvanced
 }
 
-// 动作栏折叠
+// 操作栏事件提交
 const emitAction = (name: string) => {
   actionLoading.value[name] = true
   emit('action', name)
@@ -152,42 +153,39 @@ watchEffect(() => {
           '--item-span': 2
         }"
       >
-        <div class="form-grid">
+        <el-form class="form-grid">
           <template v-if="hasFormConfig">
-            <component
-              v-for="item in effectiveConfig"
-              :key="item.field"
-              :is="item.component"
-              v-model="searchData[item.field]"
-              v-bind="getItemProps(item)"
-              :loading="isSelectComponent(item.component) ? searchData[`${item.field}Loading`] : undefined"
-              :filter-method="item.props?.remoteMethod"
-            >
-              <template v-if="isSelectComponent(item.component)">
-                <el-option
-                  v-for="opt in item.props?.options || []"
-                  :key="opt.value"
-                  :label="opt.label"
-                  :value="opt.value"
-                />
-              </template>
-            </component>
+            <el-form-item v-for="item in effectiveConfig" :key="item.field" :prop="item.field" :label="item.label">
+              <component
+                :is="item.component"
+                v-model="searchData[item.field]"
+                v-bind="getItemProps(item)"
+                :loading="isSelectComponent(item.component) ? searchData[`${item.field}Loading`] : undefined"
+                :filter-method="item.props?.remoteMethod"
+              >
+                <template v-if="isSelectComponent(item.component)">
+                  <el-option
+                    v-for="opt in item.props?.options || []"
+                    :key="opt.value"
+                    :label="opt.label"
+                    :value="opt.value"
+                  />
+                </template>
+              </component>
+            </el-form-item>
           </template>
-
-          <slot v-else name="search-form" />
-        </div>
+        </el-form>
 
         <div class="action-row">
-          <el-button type="primary" @click="handleSearch" :loading="searchLoading">
-            <template #icon><Search /></template>
-            查询
-          </el-button>
-          <el-button @click="handleReset">重置</el-button>
-
+          <div>
+            <el-button type="primary" :icon="Search" @click="handleSearch" :loading="searchLoading">查询</el-button>
+            <el-button @click="handleReset" :icon="RefreshRight">重置</el-button>
+          </div>
           <el-link
             v-if="hasAdvancedOptions"
             type="primary"
             :icon="internalState.showAdvanced ? ArrowUp : ArrowDown"
+            :underline="false"
             @click="toggleAdvanced"
             class="advanced-toggle"
           >
@@ -199,20 +197,8 @@ watchEffect(() => {
 
     <!-- 操作栏 -->
     <div class="action-bar">
+      <!-- 主要操作选项 -->
       <div class="left-group">
-        <slot name="prepend-actions" />
-
-        <el-button
-          v-if="showToggleButton"
-          :icon="internalState.showSearch ? ArrowUp : ArrowDown"
-          @click="toggleSearch"
-          class="toggle-search-btn"
-        >
-          {{ internalState.showSearch ? '隐藏搜索' : '显示搜索' }}
-        </el-button>
-      </div>
-
-      <div class="right-group">
         <el-space :size="8" v-if="hasActions">
           <el-tooltip
             v-for="action in primaryActions"
@@ -224,12 +210,11 @@ watchEffect(() => {
               :type="action.type || 'default'"
               :icon="action.icon"
               @click="emitAction(action.name)"
-              :disabled="!!action.disabled"
+              :disabled="isActionDisabled(action)"
               :loading="actionLoading[action.name]"
             >
             </el-button>
           </el-tooltip>
-
           <el-dropdown v-if="secondaryActions.length > 0" trigger="click" class="more-actions-dropdown">
             <el-button type="primary" plain>
               更多<el-icon class="el-icon--right"><MoreFilled /></el-icon>
@@ -241,7 +226,7 @@ watchEffect(() => {
                   :key="action.name"
                   @click="emitAction(action.name)"
                   :divided="action.divided"
-                  :disabled="!!action.disabled"
+                  :disabled="isActionDisabled(action)"
                 >
                   <el-icon v-if="action.icon">
                     <component :is="action.icon" />
@@ -253,45 +238,48 @@ watchEffect(() => {
           </el-dropdown>
         </el-space>
       </div>
+      <div class="right-group">
+        <el-space :size="8">
+          <!-- 搜索折叠按钮 -->
+          <el-button v-if="showToggleButton" :icon="Search" @click="toggleSearch" />
+          <!-- 列表刷新按钮 -->
+          <el-button
+            v-if="showRefreshButton"
+            :loading="actionLoading['refresh']"
+            :icon="Refresh"
+            @click="emitAction('refresh')"
+          />
+          <!-- 表头显示隐藏设置按钮 -->
+          <el-button v-if="showSettingButton" :icon="Setting" @click="emitAction('setting')" />
+        </el-space>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped lang="scss">
-.smart-action-bar {
-  --form-gap: 16px;
-  --action-bar-height: 56px;
-  --border-radius: 4px;
-
-  &.is-mobile {
-    --form-gap: 12px;
-  }
-}
-
 .search-area {
-  background: var(--el-fill-color-light);
-  border-radius: var(--border-radius);
-  margin-bottom: var(--el-margin);
-  padding: var(--el-padding);
+  border-radius: 4px;
   border: 1px solid var(--el-border-color);
   box-shadow: var(--el-box-shadow-light);
 
   .form-grid {
+    padding: 10px;
     display: grid;
-    gap: var(--form-gap);
+    gap: 10px;
     grid-template-columns: repeat(var(--columns), 1fr);
     margin-bottom: var(--form-gap);
   }
 
   .action-row {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     justify-content: flex-end;
-    padding-top: 8px;
+    padding: 8px 10px;
     border-top: 1px dashed var(--el-border-color);
 
     .advanced-toggle {
-      margin-left: auto;
+      margin-left: 30px;
     }
   }
 }

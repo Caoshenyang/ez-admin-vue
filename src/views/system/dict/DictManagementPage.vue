@@ -58,8 +58,7 @@ const handleCurrentChange = (pageNum: number) => {
 
 // 操作栏配置
 const modelValue: SmartActionBarState = {
-  showSearch: true,
-  showAdvanced: true
+  showSearch: true
 }
 
 // 字典类型查询表单配置
@@ -68,10 +67,161 @@ const filterFormConfig: FormItem[] = [
     field: 'keyword',
     label: '关键词',
     component: ElInput, // 直接使用组件实例
+    props: { clearable: true }
+  },
+  {
+    field: 'dictName',
+    label: '字典名称',
+    component: ElInput,
     props: {
-      placeholder: '请输入关键词',
+      placeholder: '请输入字典名称',
       clearable: true
-    }
+    },
+    advanced: true,
+    span: 1
+  },
+  {
+    field: 'dictType',
+    label: '字典类型',
+    component: ElInput,
+    props: {
+      placeholder: '请输入字典类型',
+      clearable: true
+    },
+    advanced: true,
+    span: 1
+  },
+  {
+    field: 'dictName',
+    label: '字典名称',
+    component: ElInput,
+    props: {
+      placeholder: '请输入字典名称',
+      clearable: true
+    },
+    advanced: true,
+    span: 1
+  },
+  {
+    field: 'dictType',
+    label: '字典类型',
+    component: ElInput,
+    props: {
+      placeholder: '请输入字典类型',
+      clearable: true
+    },
+    advanced: true,
+    span: 1
+  },
+  {
+    field: 'dictName',
+    label: '字典名称',
+    component: ElInput,
+    props: {
+      placeholder: '请输入字典名称',
+      clearable: true
+    },
+    advanced: true,
+    span: 1
+  },
+  {
+    field: 'dictType',
+    label: '字典类型',
+    component: ElInput,
+    props: {
+      placeholder: '请输入字典类型',
+      clearable: true
+    },
+    advanced: true,
+    span: 1
+  },
+  {
+    field: 'dictName',
+    label: '字典名称',
+    component: ElInput,
+    props: {
+      placeholder: '请输入字典名称',
+      clearable: true
+    },
+    advanced: true,
+    span: 1
+  },
+  {
+    field: 'dictType',
+    label: '字典类型',
+    component: ElInput,
+    props: {
+      placeholder: '请输入字典类型',
+      clearable: true
+    },
+    advanced: true,
+    span: 1
+  },
+  {
+    field: 'dictName',
+    label: '字典名称',
+    component: ElInput,
+    props: {
+      placeholder: '请输入字典名称',
+      clearable: true
+    },
+    advanced: true,
+    span: 1
+  },
+  {
+    field: 'dictType',
+    label: '字典类型',
+    component: ElInput,
+    props: {
+      placeholder: '请输入字典类型',
+      clearable: true
+    },
+    advanced: true,
+    span: 1
+  },
+  {
+    field: 'dictName',
+    label: '字典名称',
+    component: ElInput,
+    props: {
+      placeholder: '请输入字典名称',
+      clearable: true
+    },
+    advanced: true,
+    span: 1
+  },
+  {
+    field: 'dictType',
+    label: '字典类型',
+    component: ElInput,
+    props: {
+      placeholder: '请输入字典类型',
+      clearable: true
+    },
+    advanced: true,
+    span: 1
+  },
+  {
+    field: 'dictName',
+    label: '字典名称',
+    component: ElInput,
+    props: {
+      placeholder: '请输入字典名称',
+      clearable: true
+    },
+    advanced: true,
+    span: 1
+  },
+  {
+    field: 'dictType',
+    label: '字典类型',
+    component: ElInput,
+    props: {
+      placeholder: '请输入字典类型',
+      clearable: true
+    },
+    advanced: true,
+    span: 1
   },
   {
     field: 'dictName',
