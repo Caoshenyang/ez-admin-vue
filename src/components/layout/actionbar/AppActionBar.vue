@@ -1,133 +1,151 @@
 <script setup lang="ts">
-import { computed, ref, watchEffect, useSlots } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { debounce } from 'lodash-es'
-import { Search, ArrowUp, ArrowDown, MoreFilled, Refresh, Setting, RefreshRight } from '@element-plus/icons-vue'
-import type { Component } from 'vue'
-import type { ActionItem, FormItem, SmartActionBarProps } from '@/types/common'
-import { hasPermission } from '@/utils/permission'
+import { Search, ArrowUp, ArrowDown, MoreFilled, Refresh, Setting } from '@element-plus/icons-vue'
+import { useLocalStorage } from '@vueuse/core'
+import { componentTypeMap, propsConfigMap, type FilterItem, type SmartActionBarProps } from '.'
+import 'element-plus/es/components/date-picker/style/css' // 手动引入样式, 动态组件日期选择会丢失样式
 
-// 默认props
+// 组件属性定义
 const props = withDefaults(defineProps<SmartActionBarProps>(), {
-  searchParams: () => ({}),
-  formConfig: () => [],
+  filters: () => [],
   actions: () => [],
-  maxPrimaryActions: 3, // 最多显示几个主按钮
-  showToggleButton: true, // 是否显示折叠按钮
-  showRefreshButton: true, // 是否显示刷新按钮
-  showSettingButton: true, // 是否显示列设置按钮
-  rememberState: true, // 是否记住状态
-  searchDebounce: 300 // 搜索防抖时间
+  maxPrimaryActions: 4,
+  debounceTime: 300,
+  persistState: true
 })
 
-// 控制全局折叠状态
-const globalCollapsed = ref(true)
-
-// 事件
-const emit = defineEmits<{
-  'update:searchParams': [value: Record<string, unknown>] // 更新搜索参数
-  search: [params: Record<string, unknown>] // 搜索
-  reset: [] // 重置
-  action: [name: string] // 操作
-}>()
+// 组件事件定义
+const emit = defineEmits(['search', 'reset', 'action'])
 
 // 响应式状态
-const searchLoading = ref(false)
-const actionLoading = ref<Record<string, boolean>>({})
-const searchData = ref<Record<string, unknown>>({ ...props.searchParams })
+const searchEnabled = ref(true) // 是否启用搜索
+const advancedVisible = ref(false) // 是否显示高级搜索
+const extendedCollapsed = ref(true) // 是否折叠扩展选项
+const quickSearch = ref('') // 快速搜索关键词
+const advancedFilters = ref<Record<string, unknown>>({}) // 高级筛选值
+const actionLoading = ref<Record<string, boolean>>({}) // 操作加载状态
 
-// 是否有折叠的筛选条件
-const hasCollapsedOptions = computed(() => props.formConfig.some((item) => item.collapsed))
-// 是否设置了表单配置，且没有插槽，则显示搜索表单（插槽优先，不同时生效）
-const hasFormConfig = computed(() => props.formConfig.length > 0)
+// 持久化状态（使用localStorage）
+const persistedState = useLocalStorage('smart-action-bar-state', {
+  searchEnabled: true,
+  advancedVisible: false,
+  extendedCollapsed: true,
+  quickSearch: '',
+  advancedFilters: {}
+})
 
-// 筛选出所有需要显示的筛选条件
-const effectiveConfig = computed(() =>
-  props.formConfig.filter((item) => {
-    if (typeof item.hidden === 'function') return !item.hidden()
-    return item.hidden !== true
-  })
-)
+// 计算属性：基础筛选字段（非隐藏、非折叠、非系统）
+const basicFilterItems = computed(() => {
+  return props.filters.filter((item) => !item.hidden && !item.collapsed && !item.system)
+})
 
-// 搜索表单操作项（按顺序返回 visible - 需要显示的）
+// 计算属性：扩展筛选字段（非隐藏、折叠、非系统）
+const extendedFilterItems = computed(() => {
+  return props.filters.filter((item) => !item.hidden && item.collapsed && !item.system)
+})
+
+// 计算属性：是否存在扩展筛选字段
+const hasExtendedFilters = computed(() => {
+  return extendedFilterItems.value.length > 0
+})
+
+// 计算属性：系统字段（不会显示在UI上）
+const systemFilterItems = computed(() => {
+  return props.filters.filter((item) => item.system)
+})
+
+// 计算属性：处理后的操作按钮（处理可见性和禁用状态）
 const processedActions = computed(() => {
   return props.actions
-    .map((action) => {
-      const visible = typeof action.visible === 'function' ? action.visible() : action.visible !== false
-      const disabled = typeof action.disabled === 'function' ? action.disabled() : action.disabled
-      return { ...action, visible, disabled }
-    })
-    .filter((action) => action.visible) // 只保留 visible 为 true 的 action
-    .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0)) // 使用 nullish coalescing 运算符来简化默认值处理
+    .map((action) => ({
+      ...action,
+      visible: typeof action.visible === 'function' ? action.visible() : action.visible !== false,
+      disabled: typeof action.disabled === 'function' ? action.disabled() : action.disabled
+    }))
+    .filter((action) => action.visible)
+    .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
 })
 
-// 根据 maxPrimaryActions 分割 primaryActions 和 secondaryActions 展示的按钮和更多按钮
-const computedActions = computed(() => [
-  processedActions.value.slice(0, props.maxPrimaryActions),
-  processedActions.value.slice(props.maxPrimaryActions)
-])
-
-// 使用 .value 来访问 computed 的结果，然后进行解构
-const [primaryActions, secondaryActions] = computedActions.value
-
-// 计算是否有操作按钮
-const hasActions = computed(() => processedActions.value.length > 0)
-
-// 是否为选择组件
-const isSelectComponent = (comp: string | Component) => {
-  const name = typeof comp === 'string' ? comp : comp.name
-  return name?.endsWith('Select')
-}
-
-// 获取表单项的属性
-const getItemProps = (item: FormItem) => ({
-  clearable: true,
-  placeholder: `请${item.component.name?.endsWith('Select') ? '选择' : '输入'}${item.label}`,
-  style: { width: '100%' },
-  ...item.props,
-  ...(isSelectComponent(item.component) && { options: item.props?.options || [] })
+// 计算属性：分组操作按钮（主操作和次级操作）
+const splitActions = computed(() => {
+  const actions = processedActions.value
+  return [actions.slice(0, props.maxPrimaryActions), actions.slice(props.maxPrimaryActions)]
 })
+
+const [primaryActions, secondaryActions] = splitActions.value
 
 /**
- * 检查操作是否禁用
- * @param action 操作项
+ * 获取对应类型的组件
+ * @param item 筛选字段配置
+ * @returns 组件名称或自定义组件
  */
-const isActionDisabled = (action: ActionItem) => {
-  return !!(action.disabled || (action.permission && !hasPermission(action.permission)))
+const getComponent = (item: FilterItem) => {
+  return item.component || componentTypeMap.get(item.type) || 'el-input'
 }
 
-// 防抖操作
-const debouncedSearch = debounce(() => {
-  emit('update:searchParams', { ...searchData.value }) // 发送 'update:searchParams' 事件，携带 searchData 作为参数
-  emit('search', { ...searchData.value }) // 发送 'search' 事件，携带 searchData 作为参数
-  searchLoading.value = false // 将搜索加载状态设置为 false，表示搜索操作完成
-}, props.searchDebounce) // 这里传入了防抖的时间间隔，来自组件的 props
+/**
+ * 获取组件的props
+ * @param item 筛选字段配置
+ * @returns 组件props对象
+ */
+const getComponentProps = (item: FilterItem) => {
+  const config = propsConfigMap.get(item.type) || { placeholder: (label: string) => `请输入${label}`, defaultProps: {} }
 
-// 搜索触发
-const handleSearch = () => {
-  searchLoading.value = true
-  debouncedSearch()
+  return {
+    clearable: true,
+    style: { width: '100%' },
+    placeholder: typeof config.placeholder === 'function' ? config.placeholder(item.label) : config.placeholder,
+    ...config.defaultProps,
+    ...item.props,
+    // 特殊处理options
+    ...(item.type === 'select' && item.options ? { options: item.options } : {})
+  }
 }
 
-// 重置触发
-const handleReset = () => {
-  searchData.value = { ...props.searchParams }
-  emit('update:searchParams', {})
-  emit('reset')
-  handleSearch()
+// 切换搜索开关
+const toggleSearchEnabled = () => {
+  searchEnabled.value = !searchEnabled.value
+  if (props.persistState) {
+    persistedState.value.searchEnabled = searchEnabled.value
+  }
 }
 
-// 搜索栏折叠
-const toggleSearch = () => {
-  internalState.value.showSearch = !internalState.value.showSearch
-}
-
-// 高级搜索栏折叠
+// 切换高级搜索面板
 const toggleAdvanced = () => {
-  internalState.value.showAdvanced = !internalState.value.showAdvanced
+  advancedVisible.value = !advancedVisible.value
+  if (props.persistState) {
+    persistedState.value.advancedVisible = advancedVisible.value
+  }
 }
 
-// 操作栏事件提交
-const emitAction = (name: string) => {
+// 切换扩展选项
+const toggleExtended = () => {
+  extendedCollapsed.value = !extendedCollapsed.value
+  if (props.persistState) {
+    persistedState.value.extendedCollapsed = extendedCollapsed.value
+  }
+}
+
+// 处理搜索（带防抖）
+const handleSearch = debounce(() => {
+  const params = {
+    keyword: quickSearch.value,
+    ...advancedFilters.value,
+    ...getSystemFilters()
+  }
+  emit('search', params)
+}, props.debounceTime)
+
+// 处理重置
+const handleReset = () => {
+  quickSearch.value = ''
+  advancedFilters.value = {}
+  emit('reset')
+}
+
+// 处理操作按钮点击
+const handleAction = (name: string) => {
   actionLoading.value[name] = true
   emit('action', name)
   setTimeout(() => {
@@ -135,87 +153,159 @@ const emitAction = (name: string) => {
   }, 1000)
 }
 
-// 监听props.searchParams变化
-watchEffect(() => {
-  searchData.value = { ...props.searchParams }
+/**
+ * 获取系统筛选参数（不会显示在UI上）
+ * @returns 系统参数对象
+ */
+const getSystemFilters = () => {
+  return systemFilterItems.value.reduce(
+    (acc, item) => {
+      if (advancedFilters.value[item.prop] !== undefined) {
+        acc[item.prop] = advancedFilters.value[item.prop]
+      }
+      return acc
+    },
+    {} as Record<string, unknown>
+  )
+}
+
+// 初始化状态
+const initState = () => {
+  if (props.persistState) {
+    searchEnabled.value = persistedState.value.searchEnabled
+    advancedVisible.value = persistedState.value.advancedVisible
+    extendedCollapsed.value = persistedState.value.extendedCollapsed
+    quickSearch.value = persistedState.value.quickSearch || ''
+    advancedFilters.value = persistedState.value.advancedFilters || {}
+  }
+
+  // 初始化高级筛选字段值
+  props.filters.forEach((item) => {
+    if (item.prop && !advancedFilters.value[item.prop]) {
+      advancedFilters.value[item.prop] = ''
+    }
+  })
+}
+
+// 监听搜索参数变化并持久化
+watch([quickSearch, advancedFilters], () => {
+  if (props.persistState) {
+    persistedState.value.quickSearch = quickSearch.value
+    persistedState.value.advancedFilters = advancedFilters.value
+  }
 })
+
+// 组件挂载时初始化
+onMounted(initState)
 </script>
 
 <template>
-  <div class="smart-action-bar">
-    <!-- 搜索区域 -->
-    <Transition name="smart-slide">
-      <div
-        v-show="internalState.showSearch"
-        class="search-area"
-        :style="{
-          '--columns': Math.min(effectiveConfig.length, 3),
-          '--item-span': 2
-        }"
-      >
-        <el-form class="form-grid">
-          <template v-if="hasFormConfig">
-            <el-form-item v-for="item in effectiveConfig" :key="item.field" :prop="item.field" :label="item.label">
-              <component
-                :is="item.component"
-                v-model="searchData[item.field]"
-                v-bind="getItemProps(item)"
-                :loading="isSelectComponent(item.component) ? searchData[`${item.field}Loading`] : undefined"
-                :filter-method="item.props?.remoteMethod"
-              >
-                <template v-if="isSelectComponent(item.component)">
-                  <el-option
-                    v-for="opt in item.props?.options || []"
-                    :key="opt.value"
-                    :label="opt.label"
-                    :value="opt.value"
-                  />
-                </template>
-              </component>
-            </el-form-item>
-          </template>
-        </el-form>
-
-        <div class="action-row">
-          <div>
-            <el-button type="primary" :icon="Search" @click="handleSearch" :loading="searchLoading">查询</el-button>
-            <el-button @click="handleReset" :icon="RefreshRight">重置</el-button>
-          </div>
-          <el-link
-            v-if="hasAdvancedOptions"
-            type="primary"
-            :icon="internalState.showAdvanced ? ArrowUp : ArrowDown"
-            :underline="false"
-            @click="toggleAdvanced"
-            class="advanced-toggle"
-          >
-            {{ internalState.showAdvanced ? '简化条件' : '高级搜索' }}
-          </el-link>
+  <!-- 主容器 -->
+  <div class="smart-action-container">
+    <!-- 搜索区域（带过渡动画） -->
+    <transition name="smart-transition">
+      <div v-show="searchEnabled" class="search-area">
+        <!-- 快速搜索栏 -->
+        <div class="quick-search-bar">
+          <el-input v-model="quickSearch" placeholder="输入关键词搜索..." clearable @keyup.enter="handleSearch">
+            <template #append>
+              <el-button :icon="Search" @click="handleSearch" />
+            </template>
+          </el-input>
+          <el-button @click="toggleAdvanced">
+            {{ advancedVisible ? '收起高级' : '展开高级' }}
+          </el-button>
         </div>
-      </div>
-    </Transition>
+        <!-- 高级筛选区域（带过渡动画） -->
+        <transition name="smart-transition">
+          <div v-show="advancedVisible" class="advanced-filters">
+            <el-form ref="advancedForm" :model="advancedFilters">
+              <!-- 基础筛选条件 -->
+              <div class="basic-filters">
+                <el-row :gutter="20">
+                  <!-- 遍历基础筛选字段 -->
+                  <el-col v-for="item in basicFilterItems" :key="item.prop" :span="item.span || 6">
+                    <el-form-item :label="item.label" :prop="item.prop">
+                      <!-- 动态组件渲染 -->
+                      <component
+                        :is="getComponent(item)"
+                        v-model="advancedFilters[item.prop]"
+                        v-bind="getComponentProps(item)"
+                      >
+                        <template v-if="item.type === 'select'">
+                          <el-option
+                            v-for="opt in item.options || []"
+                            :key="opt.value"
+                            :label="opt.label"
+                            :value="opt.value"
+                          />
+                        </template>
+                      </component>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+              </div>
 
-    <!-- 操作栏 -->
-    <div class="action-bar">
-      <!-- 主要操作选项 -->
-      <div class="left-group">
-        <el-space :size="8" v-if="hasActions">
-          <el-tooltip
-            v-for="action in primaryActions"
-            :key="action.name"
-            :content="action.tooltip || action.label"
-            placement="top"
-          >
+              <!-- 扩展筛选条件 -->
+              <template v-if="hasExtendedFilters">
+                <el-divider>
+                  <el-button link @click="toggleExtended">
+                    {{ extendedCollapsed ? '显示更多选项' : '隐藏扩展选项' }}
+                    <el-icon>
+                      <ArrowDown v-if="extendedCollapsed" />
+                      <ArrowUp v-else />
+                    </el-icon>
+                  </el-button>
+                </el-divider>
+
+                <!-- 扩展筛选条件（带过渡动画） -->
+                <transition name="smart-transition">
+                  <div v-show="!extendedCollapsed" class="extended-filters">
+                    <el-row :gutter="20">
+                      <!-- 遍历扩展筛选字段 -->
+                      <el-col v-for="item in extendedFilterItems" :key="item.prop" :span="item.span || 6">
+                        <el-form-item :label="item.label" :prop="item.prop">
+                          <component
+                            :is="getComponent(item)"
+                            v-model="advancedFilters[item.prop]"
+                            v-bind="getComponentProps(item)"
+                          />
+                        </el-form-item>
+                      </el-col>
+                    </el-row>
+                  </div>
+                </transition>
+              </template>
+
+              <!-- 筛选操作按钮 -->
+              <div class="filter-actions">
+                <el-button type="primary" @click="handleSearch"> 搜索 </el-button>
+                <el-button @click="handleReset">重置</el-button>
+              </div>
+            </el-form>
+          </div>
+        </transition>
+      </div>
+    </transition>
+
+    <!-- 控制栏：包含搜索开关和操作按钮 -->
+    <div class="control-bar">
+      <!-- 操作按钮组 -->
+      <div class="action-group">
+        <!-- 主操作按钮区 -->
+        <el-space :size="8">
+          <!-- 遍历主操作按钮 -->
+          <el-tooltip v-for="action in primaryActions" :key="action.name" :content="action.tooltip">
             <el-button
-              :type="action.type || 'default'"
+              :type="action.type"
               :icon="action.icon"
-              @click="emitAction(action.name)"
-              :disabled="isActionDisabled(action)"
               :loading="actionLoading[action.name]"
-            >
-            </el-button>
+              @click="handleAction(action.name)"
+            />
           </el-tooltip>
-          <el-dropdown v-if="secondaryActions.length > 0" trigger="click" class="more-actions-dropdown">
+
+          <!-- 更多操作下拉菜单 -->
+          <el-dropdown v-if="secondaryActions.length > 0">
             <el-button type="primary" plain>
               更多<el-icon class="el-icon--right"><MoreFilled /></el-icon>
             </el-button>
@@ -224,132 +314,121 @@ watchEffect(() => {
                 <el-dropdown-item
                   v-for="action in secondaryActions"
                   :key="action.name"
-                  @click="emitAction(action.name)"
-                  :divided="action.divided"
-                  :disabled="isActionDisabled(action)"
+                  @click="handleAction(action.name)"
                 >
-                  <el-icon v-if="action.icon">
-                    <component :is="action.icon" />
-                  </el-icon>
-                  {{ action.label || action.tooltip }}
+                  {{ action.label }}
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
         </el-space>
       </div>
-      <div class="right-group">
-        <el-space :size="8">
-          <!-- 搜索折叠按钮 -->
-          <el-button v-if="showToggleButton" :icon="Search" @click="toggleSearch" />
-          <!-- 列表刷新按钮 -->
-          <el-button
-            v-if="showRefreshButton"
-            :loading="actionLoading['refresh']"
-            :icon="Refresh"
-            @click="emitAction('refresh')"
-          />
-          <!-- 表头显示隐藏设置按钮 -->
-          <el-button v-if="showSettingButton" :icon="Setting" @click="emitAction('setting')" />
-        </el-space>
-      </div>
+      <!-- 工具按钮组 -->
+      <el-space :size="8" class="tool-buttons">
+        <!-- 搜索开关按钮 -->
+        <el-tooltip :content="searchEnabled ? '隐藏搜索' : '显示搜索'">
+          <el-button :icon="Search" circle @click="toggleSearchEnabled" />
+        </el-tooltip>
+        <el-tooltip content="刷新">
+          <el-button :icon="Refresh" circle @click="handleAction('refresh')" />
+        </el-tooltip>
+        <el-tooltip content="列设置">
+          <el-button :icon="Setting" circle @click="handleAction('settings')" />
+        </el-tooltip>
+      </el-space>
     </div>
   </div>
 </template>
 
 <style scoped lang="scss">
-.search-area {
-  border-radius: 4px;
-  border: 1px solid var(--el-border-color);
-  box-shadow: var(--el-box-shadow-light);
+.smart-action-container {
+  margin-bottom: 16px;
+}
 
-  .form-grid {
-    padding: 10px;
-    display: grid;
-    gap: 10px;
-    grid-template-columns: repeat(var(--columns), 1fr);
-    margin-bottom: var(--form-gap);
-  }
+.control-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
 
-  .action-row {
+  .action-group {
     display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    padding: 8px 10px;
-    border-top: 1px dashed var(--el-border-color);
+    align-items: center;
+    gap: 12px;
 
-    .advanced-toggle {
-      margin-left: 30px;
+    .tool-buttons {
+      margin-left: auto;
     }
   }
 }
 
-.action-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: var(--action-bar-height);
+.search-area {
+  background-color: var(--el-bg-color-page);
+  border-radius: 4px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid var(--el-border-color-light);
 
-  .left-group,
-  .right-group {
+  .quick-search-bar {
+    width: 60%;
     display: flex;
-    gap: 8px;
+    justify-content: center;
     align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    :deep(.el-input-group__append) {
+      padding: 0 12px;
+    }
+  }
+
+  .advanced-filters {
+    .filter-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
+  }
+}
+
+/* 智能过渡动画 */
+.smart-transition {
+  &-enter-active,
+  &-leave-active {
+    transition: all 0.3s ease;
+    overflow: hidden;
+  }
+
+  &-enter-from,
+  &-leave-to {
+    max-height: 0;
+    opacity: 0;
+    padding: 0;
+    margin: 0;
+  }
+
+  &-enter-to,
+  &-leave-from {
+    max-height: 1000px;
+    opacity: 1;
   }
 }
 
 /* 移动端适配 */
 @media (max-width: 768px) {
-  .search-area {
-    padding: 12px;
-
-    .form-grid {
-      grid-template-columns: 1fr !important;
-    }
-
-    .action-row {
-      flex-wrap: wrap;
-
-      > * {
-        flex: 1;
-        min-width: 45%;
-      }
-    }
-  }
-
-  .action-bar {
+  .control-bar {
     flex-direction: column;
-    height: auto;
-    gap: 12px;
+    align-items: flex-start;
+    gap: 8px;
 
-    .left-group,
-    .right-group {
+    .action-group {
       width: 100%;
       justify-content: space-between;
     }
   }
-}
 
-/* 过渡动画 */
-.smart-slide-enter-active,
-.smart-slide-leave-active {
-  transition: all 0.3s var(--el-transition-function-ease-in-out-bezier);
-  overflow: hidden;
-}
-
-.smart-slide-enter-from,
-.smart-slide-leave-to {
-  max-height: 0;
-  opacity: 0;
-  margin-bottom: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  border-width: 0;
-}
-
-.smart-slide-enter-to,
-.smart-slide-leave-from {
-  max-height: 500px;
-  opacity: 1;
+  .quick-search-bar {
+    flex-direction: column;
+  }
 }
 </style>

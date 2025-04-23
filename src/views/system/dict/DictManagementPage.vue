@@ -1,13 +1,16 @@
 <script lang="ts" setup>
 import { dictApi } from '@/api/system/dict'
-import type { FormItem, PageQuery, PageVO, SmartActionBarState } from '@/types/common'
+import type { ActionItem, FilterItem } from '@/components/layout/actionbar'
+import type { PageQuery, PageVO } from '@/types/common'
 import type { DictDataListVO, DictTypeListVO, DictTypeQuery } from '@/types/system'
-import { ElInput } from 'element-plus'
+import { Delete, Download, Plus } from '@element-plus/icons-vue'
 
 // 字典类型数据
 const dictTypeTableData = ref<PageVO<DictTypeListVO>>()
 // 字典类型对应详情数据
 const dictDataTableData = ref<DictDataListVO[]>()
+// 选中的字典类型
+const selectedDictType = ref<DictTypeListVO[]>([])
 
 // 字典类型查询参数
 const dictTypeQuery = reactive<PageQuery<DictTypeQuery>>({
@@ -57,199 +60,122 @@ const handleCurrentChange = (pageNum: number) => {
 }
 
 // 操作栏配置
-const modelValue: SmartActionBarState = {
-  showSearch: true
-}
+// 筛选字段配置
+const filters: FilterItem[] = [
+  // 基础筛选字段
+  {
+    prop: 'name',
+    label: '姓名',
+    type: 'input'
+  },
+  {
+    prop: 'gender',
+    label: '性别',
+    type: 'select',
+    options: [
+      { label: '男', value: 'male' },
+      { label: '女', value: 'female' }
+    ],
+    span: 4
+  },
+  {
+    prop: 'birthDate',
+    label: '出生日期',
+    type: 'date'
+  },
 
-// 字典类型查询表单配置
-const filterFormConfig: FormItem[] = [
+  // 扩展筛选字段（默认折叠）
   {
-    field: 'keyword',
-    label: '关键词',
-    component: ElInput, // 直接使用组件实例
-    props: { clearable: true }
+    prop: 'email',
+    label: '邮箱',
+    type: 'input',
+    collapsed: true
   },
   {
-    field: 'dictName',
-    label: '字典名称',
-    component: ElInput,
-    props: {
-      placeholder: '请输入字典名称',
-      clearable: true
-    },
-    advanced: true,
-    span: 1
+    prop: 'createTime',
+    label: '创建时间范围',
+    type: 'daterange',
+    collapsed: true
   },
+
+  // 系统字段（不会显示在UI上）
   {
-    field: 'dictType',
-    label: '字典类型',
-    component: ElInput,
-    props: {
-      placeholder: '请输入字典类型',
-      clearable: true
-    },
-    advanced: true,
-    span: 1
-  },
-  {
-    field: 'dictName',
-    label: '字典名称',
-    component: ElInput,
-    props: {
-      placeholder: '请输入字典名称',
-      clearable: true
-    },
-    advanced: true,
-    span: 1
-  },
-  {
-    field: 'dictType',
-    label: '字典类型',
-    component: ElInput,
-    props: {
-      placeholder: '请输入字典类型',
-      clearable: true
-    },
-    advanced: true,
-    span: 1
-  },
-  {
-    field: 'dictName',
-    label: '字典名称',
-    component: ElInput,
-    props: {
-      placeholder: '请输入字典名称',
-      clearable: true
-    },
-    advanced: true,
-    span: 1
-  },
-  {
-    field: 'dictType',
-    label: '字典类型',
-    component: ElInput,
-    props: {
-      placeholder: '请输入字典类型',
-      clearable: true
-    },
-    advanced: true,
-    span: 1
-  },
-  {
-    field: 'dictName',
-    label: '字典名称',
-    component: ElInput,
-    props: {
-      placeholder: '请输入字典名称',
-      clearable: true
-    },
-    advanced: true,
-    span: 1
-  },
-  {
-    field: 'dictType',
-    label: '字典类型',
-    component: ElInput,
-    props: {
-      placeholder: '请输入字典类型',
-      clearable: true
-    },
-    advanced: true,
-    span: 1
-  },
-  {
-    field: 'dictName',
-    label: '字典名称',
-    component: ElInput,
-    props: {
-      placeholder: '请输入字典名称',
-      clearable: true
-    },
-    advanced: true,
-    span: 1
-  },
-  {
-    field: 'dictType',
-    label: '字典类型',
-    component: ElInput,
-    props: {
-      placeholder: '请输入字典类型',
-      clearable: true
-    },
-    advanced: true,
-    span: 1
-  },
-  {
-    field: 'dictName',
-    label: '字典名称',
-    component: ElInput,
-    props: {
-      placeholder: '请输入字典名称',
-      clearable: true
-    },
-    advanced: true,
-    span: 1
-  },
-  {
-    field: 'dictType',
-    label: '字典类型',
-    component: ElInput,
-    props: {
-      placeholder: '请输入字典类型',
-      clearable: true
-    },
-    advanced: true,
-    span: 1
-  },
-  {
-    field: 'dictName',
-    label: '字典名称',
-    component: ElInput,
-    props: {
-      placeholder: '请输入字典名称',
-      clearable: true
-    },
-    advanced: true,
-    span: 1
-  },
-  {
-    field: 'dictType',
-    label: '字典类型',
-    component: ElInput,
-    props: {
-      placeholder: '请输入字典类型',
-      clearable: true
-    },
-    advanced: true,
-    span: 1
-  },
-  {
-    field: 'dictName',
-    label: '字典名称',
-    component: ElInput,
-    props: {
-      placeholder: '请输入字典名称',
-      clearable: true
-    },
-    advanced: true,
-    span: 1
-  },
-  {
-    field: 'dictType',
-    label: '字典类型',
-    component: ElInput,
-    props: {
-      placeholder: '请输入字典类型',
-      clearable: true
-    },
-    advanced: true,
-    span: 1
+    prop: 'isVip',
+    label: 'VIP用户',
+    type: 'select',
+    system: true,
+    options: [
+      { label: '是', value: 1 },
+      { label: '否', value: 0 }
+    ]
   }
 ]
+
+// 操作按钮配置
+const actions: ActionItem[] = [
+  {
+    name: 'add',
+    label: '新增',
+    type: 'primary',
+    icon: Plus,
+    tooltip: '添加新数据'
+  },
+  {
+    name: 'export',
+    label: '导出',
+    icon: Download,
+    tooltip: '导出数据'
+  },
+  {
+    name: 'batchDelete',
+    label: '批量删除',
+    type: 'danger',
+    icon: Delete,
+    tooltip: '删除选中数据',
+    disabled: () => selectedDictType.value.length === 0
+  },
+  {
+    name: 'print',
+    label: '打印',
+    tooltip: '打印当前视图'
+  }
+]
+
+// 处理搜索
+const handleSearch = (params: Record<string, unknown>) => {
+  console.log('搜索参数:', params)
+  // 调用API获取数据...
+}
+
+// 处理重置
+const handleReset = () => {
+  console.log('重置搜索')
+  // 重置数据...
+}
+
+// 处理操作按钮
+const handleAction = (actionName: string) => {
+  console.log('执行操作:', actionName)
+  switch (actionName) {
+    case 'add':
+      // 打开新增对话框
+      break
+    case 'export':
+      // 执行导出逻辑
+      break
+    // 其他操作处理...
+  }
+}
 </script>
 <template>
   <div class="dict-container">
-    <AppActionBar :model-value="modelValue" :form-config="filterFormConfig" />
+    <AppActionBar
+      :filters="filters"
+      :actions="actions"
+      @search="handleSearch"
+      @reset="handleReset"
+      @action="handleAction"
+    />
 
     <!-- 左右分栏布局 -->
     <el-row :gutter="20">
