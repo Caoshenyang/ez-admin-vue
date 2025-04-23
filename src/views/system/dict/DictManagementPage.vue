@@ -3,7 +3,7 @@ import { dictApi } from '@/api/system/dict'
 import type { ActionItem, FilterItem } from '@/components/layout/actionbar'
 import type { PageQuery, PageVO } from '@/types/common'
 import type { DictDataListVO, DictTypeListVO, DictTypeQuery } from '@/types/system'
-import { Delete, Download, Plus } from '@element-plus/icons-vue'
+import { Delete, Download, EditPen, Plus } from '@element-plus/icons-vue'
 
 // 字典类型数据
 const dictTypeTableData = ref<PageVO<DictTypeListVO>>()
@@ -121,10 +121,11 @@ const actions: ActionItem[] = [
     tooltip: '添加新数据'
   },
   {
-    name: 'export',
-    label: '导出',
-    icon: Download,
-    tooltip: '导出数据'
+    name: 'edit',
+    label: '编辑',
+    type: 'success',
+    icon: EditPen,
+    tooltip: '编辑'
   },
   {
     name: 'batchDelete',
@@ -136,8 +137,10 @@ const actions: ActionItem[] = [
   },
   {
     name: 'print',
-    label: '打印',
-    tooltip: '打印当前视图'
+    label: '导出',
+    type: 'warning',
+    icon: Download,
+    tooltip: '导出'
   }
 ]
 

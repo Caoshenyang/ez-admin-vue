@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { debounce } from 'lodash-es'
-import { Search, ArrowUp, ArrowDown, MoreFilled, Refresh, Setting } from '@element-plus/icons-vue'
+import { Search, ArrowUp, ArrowDown, MoreFilled, Refresh, Setting, Switch } from '@element-plus/icons-vue'
 import { useLocalStorage } from '@vueuse/core'
 import { componentTypeMap, propsConfigMap, type FilterItem, type SmartActionBarProps } from '.'
 import 'element-plus/es/components/date-picker/style/css' // 手动引入样式, 动态组件日期选择会丢失样式
@@ -206,15 +206,18 @@ onMounted(initState)
     <transition name="smart-transition">
       <div v-show="searchEnabled" class="search-area">
         <!-- 快速搜索栏 -->
-        <div class="quick-search-bar">
-          <el-input v-model="quickSearch" placeholder="输入关键词搜索..." clearable @keyup.enter="handleSearch">
+        <div class="quick-search-bar" v-if="!advancedVisible">
+          <el-input
+            v-model="quickSearch"
+            placeholder="输入关键词搜索..."
+            clearable
+            @keyup.enter="handleSearch"
+            size="large"
+          >
             <template #append>
               <el-button :icon="Search" @click="handleSearch" />
             </template>
           </el-input>
-          <el-button @click="toggleAdvanced">
-            {{ advancedVisible ? '收起高级' : '展开高级' }}
-          </el-button>
         </div>
         <!-- 高级筛选区域（带过渡动画） -->
         <transition name="smart-transition">
@@ -329,6 +332,10 @@ onMounted(initState)
         <el-tooltip :content="searchEnabled ? '隐藏搜索' : '显示搜索'">
           <el-button :icon="Search" circle @click="toggleSearchEnabled" />
         </el-tooltip>
+        <!-- 简易/高级 切换按钮，只有当搜索显示时显示 -->
+        <el-tooltip v-if="searchEnabled" :content="advancedVisible ? '简易' : '高级'">
+          <el-button :icon="Switch" circle @click="toggleAdvanced" />
+        </el-tooltip>
         <el-tooltip content="刷新">
           <el-button :icon="Refresh" circle @click="handleAction('refresh')" />
         </el-tooltip>
@@ -342,6 +349,7 @@ onMounted(initState)
 
 <style scoped lang="scss">
 .smart-action-container {
+  user-select: none;
   margin-bottom: 16px;
 }
 
@@ -363,26 +371,18 @@ onMounted(initState)
 }
 
 .search-area {
-  background-color: var(--el-bg-color-page);
-  border-radius: 4px;
   padding: 16px;
   margin-bottom: 16px;
-  border: 1px solid var(--el-border-color-light);
-
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   .quick-search-bar {
-    width: 60%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-
-    :deep(.el-input-group__append) {
-      padding: 0 12px;
-    }
+    width: 500px;
   }
 
   .advanced-filters {
+    width: 100%;
     .filter-actions {
       display: flex;
       justify-content: flex-end;
