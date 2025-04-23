@@ -246,21 +246,27 @@ onMounted(initState)
                       </component>
                     </el-form-item>
                   </el-col>
+                  <el-col :span="4">
+                    <!-- 筛选操作按钮 -->
+                    <div class="filter-actions">
+                      <el-button type="primary" @click="handleSearch"> 搜索 </el-button>
+                      <el-button @click="handleReset">重置</el-button>
+                      <el-button
+                        link
+                        type="primary"
+                        @click="toggleExtended"
+                        :icon="extendedCollapsed ? ArrowDown : ArrowUp"
+                        v-if="hasExtendedFilters"
+                      >
+                        {{ extendedCollapsed ? '显示更多' : '隐藏选项' }}
+                      </el-button>
+                    </div>
+                  </el-col>
                 </el-row>
               </div>
 
               <!-- 扩展筛选条件 -->
               <template v-if="hasExtendedFilters">
-                <el-divider>
-                  <el-button link @click="toggleExtended">
-                    {{ extendedCollapsed ? '显示更多选项' : '隐藏扩展选项' }}
-                    <el-icon>
-                      <ArrowDown v-if="extendedCollapsed" />
-                      <ArrowUp v-else />
-                    </el-icon>
-                  </el-button>
-                </el-divider>
-
                 <!-- 扩展筛选条件（带过渡动画） -->
                 <transition name="smart-transition">
                   <div v-show="!extendedCollapsed" class="extended-filters">
@@ -279,12 +285,6 @@ onMounted(initState)
                   </div>
                 </transition>
               </template>
-
-              <!-- 筛选操作按钮 -->
-              <div class="filter-actions">
-                <el-button type="primary" @click="handleSearch"> 搜索 </el-button>
-                <el-button @click="handleReset">重置</el-button>
-              </div>
             </el-form>
           </div>
         </transition>
@@ -298,7 +298,7 @@ onMounted(initState)
         <!-- 主操作按钮区 -->
         <el-space :size="8">
           <!-- 遍历主操作按钮 -->
-          <el-tooltip v-for="action in primaryActions" :key="action.name" :content="action.tooltip">
+          <el-tooltip :show-after="1000" v-for="action in primaryActions" :key="action.name" :content="action.tooltip">
             <el-button
               :type="action.type"
               :icon="action.icon"
@@ -329,17 +329,17 @@ onMounted(initState)
       <!-- 工具按钮组 -->
       <el-space :size="8" class="tool-buttons">
         <!-- 搜索开关按钮 -->
-        <el-tooltip :content="searchEnabled ? '隐藏搜索' : '显示搜索'">
+        <el-tooltip :show-after="1000" :content="searchEnabled ? '隐藏搜索' : '显示搜索'">
           <el-button :icon="Search" circle @click="toggleSearchEnabled" />
         </el-tooltip>
         <!-- 简易/高级 切换按钮，只有当搜索显示时显示 -->
-        <el-tooltip v-if="searchEnabled" :content="advancedVisible ? '简易' : '高级'">
+        <el-tooltip :show-after="1000" v-if="searchEnabled" :content="advancedVisible ? '简易' : '高级'">
           <el-button :icon="Switch" circle @click="toggleAdvanced" />
         </el-tooltip>
-        <el-tooltip content="刷新">
+        <el-tooltip :show-after="1000" content="刷新">
           <el-button :icon="Refresh" circle @click="handleAction('refresh')" />
         </el-tooltip>
-        <el-tooltip content="列设置">
+        <el-tooltip :show-after="1000" content="列设置">
           <el-button :icon="Setting" circle @click="handleAction('settings')" />
         </el-tooltip>
       </el-space>
@@ -385,8 +385,7 @@ onMounted(initState)
     width: 100%;
     .filter-actions {
       display: flex;
-      justify-content: flex-end;
-      margin-top: 16px;
+      align-items: center;
     }
   }
 }
