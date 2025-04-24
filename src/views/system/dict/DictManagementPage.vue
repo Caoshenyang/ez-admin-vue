@@ -2,8 +2,9 @@
 import { dictApi } from '@/api/system/dict'
 import type { ActionItem, FilterItem } from '@/components/layout/actionbar'
 import type { PageQuery, PageVO } from '@/types/common'
-import type { DictDataListVO, DictTypeListVO, DictTypeQuery } from '@/types/system'
+import type { DictDataListVO, DictTypeListVO, DictTypeQuery, RoleForm } from '@/types/system'
 import { Delete, Download, EditPen, Plus } from '@element-plus/icons-vue'
+import { roleFormSchema } from './dictForm'
 
 // 字典类型数据
 const dictTypeTableData = ref<PageVO<DictTypeListVO>>()
@@ -11,6 +12,10 @@ const dictTypeTableData = ref<PageVO<DictTypeListVO>>()
 const dictDataTableData = ref<DictDataListVO[]>()
 // 选中的字典类型
 const selectedDictType = ref<DictTypeListVO[]>([])
+
+const dialogVisible = ref(false)
+const loading = ref(false)
+const currentRoleId = ref<string | null>(null)
 
 // 字典类型查询参数
 const dictTypeQuery = reactive<PageQuery<DictTypeQuery>>({
@@ -161,12 +166,37 @@ const handleAction = (actionName: string) => {
   console.log('执行操作:', actionName)
   switch (actionName) {
     case 'add':
-      // 打开新增对话框
+      openForm()
       break
     case 'export':
       // 执行导出逻辑
       break
     // 其他操作处理...
+  }
+}
+
+// 打开表单
+const openForm = (roleData?: any) => {
+  console.log(111)
+
+  currentRoleId.value = roleData?.id || null
+  dialogVisible.value = true
+}
+
+// 提交表单
+const handleConfirm = async (formData: any) => {
+  loading.value = true
+  try {
+    if (currentRoleId.value) {
+    } else {
+    }
+    dialogVisible.value = false
+    // 刷新列表数据...
+    ElMessage.success('操作成功')
+  } catch (error) {
+    console.error('操作失败:', error)
+  } finally {
+    loading.value = false
   }
 }
 </script>
@@ -254,6 +284,15 @@ const handleAction = (actionName: string) => {
         </el-card>
       </el-col>
     </el-row>
+
+    <!-- 表单对话框 -->
+    <EZFormDialog
+      v-model:visible="dialogVisible"
+      :title="currentRoleId ? '编辑角色' : '新增角色'"
+      :schema="roleFormSchema"
+      :loading="loading"
+      @confirm="handleConfirm"
+    />
   </div>
 </template>
 

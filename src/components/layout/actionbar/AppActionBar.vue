@@ -3,7 +3,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { debounce } from 'lodash-es'
 import { Search, ArrowUp, ArrowDown, MoreFilled, Refresh, Setting, Switch } from '@element-plus/icons-vue'
 import { useLocalStorage } from '@vueuse/core'
-import { componentTypeMap, propsConfigMap, type FilterItem, type SmartActionBarProps } from '.'
+import { componentTypeMap, propsConfigMap, type FormField, type SmartActionBarProps } from '.'
 import 'element-plus/es/components/date-picker/style/css' // 手动引入样式, 动态组件日期选择会丢失样式
 
 // 组件属性定义
@@ -80,7 +80,7 @@ const [primaryActions, secondaryActions] = splitActions.value
  * @param item 筛选字段配置
  * @returns 组件名称或自定义组件
  */
-const getComponent = (item: FilterItem) => {
+const getComponent = (item: FormField) => {
   return item.component || componentTypeMap.get(item.type) || 'el-input'
 }
 
@@ -89,7 +89,7 @@ const getComponent = (item: FilterItem) => {
  * @param item 筛选字段配置
  * @returns 组件props对象
  */
-const getComponentProps = (item: FilterItem) => {
+const getComponentProps = (item: FormField) => {
   const config = propsConfigMap.get(item.type) || { placeholder: (label: string) => `请输入${label}`, defaultProps: {} }
 
   return {
@@ -195,6 +195,19 @@ watch([quickSearch, advancedFilters], () => {
   }
 })
 
+// 选项数据标准化
+const normalizeOptions = (options: unknown) =>
+  Array.isArray(options)
+    ? options.map((opt) => ({
+        label: String(opt.label || ''),
+        value: opt.value,
+        disabled: Boolean(opt.disabled)
+      }))
+    : []
+
+const getOptions = (field: FormField) =>
+  'options' in field ? (typeof field.options === 'function' ? [] : normalizeOptions(field.options)) : []
+
 // 组件挂载时初始化
 onMounted(initState)
 </script>
@@ -237,7 +250,7 @@ onMounted(initState)
                       >
                         <template v-if="item.type === 'select'">
                           <el-option
-                            v-for="opt in item.options || []"
+                            v-for="opt in getOptions(item) || []"
                             :key="opt.value"
                             :label="opt.label"
                             :value="opt.value"
