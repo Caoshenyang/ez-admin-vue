@@ -1,10 +1,8 @@
 <script lang="ts" setup>
 import { dictApi } from '@/api/system/dict'
-import type { ActionItem, FilterItem } from '@/components/layout/actionbar'
 import type { PageQuery, PageVO } from '@/types/common'
-import type { DictDataListVO, DictTypeListVO, DictTypeQuery, RoleForm } from '@/types/system'
-import { Delete, Download, EditPen, Plus } from '@element-plus/icons-vue'
-import { roleFormSchema } from './dictForm'
+import type { DictDataListVO, DictTypeListVO, DictTypeQuery } from '@/types/system'
+import { roleFormField, actions, filters } from './data'
 
 // 字典类型数据
 const dictTypeTableData = ref<PageVO<DictTypeListVO>>()
@@ -65,89 +63,6 @@ const handleCurrentChange = (pageNum: number) => {
 }
 
 // 操作栏配置
-// 筛选字段配置
-const filters: FilterItem[] = [
-  // 基础筛选字段
-  {
-    prop: 'name',
-    label: '姓名',
-    type: 'input'
-  },
-  {
-    prop: 'gender',
-    label: '性别',
-    type: 'select',
-    options: [
-      { label: '男', value: 'male' },
-      { label: '女', value: 'female' }
-    ],
-    span: 4
-  },
-  {
-    prop: 'birthDate',
-    label: '出生日期',
-    type: 'date'
-  },
-
-  // 扩展筛选字段（默认折叠）
-  {
-    prop: 'email',
-    label: '邮箱',
-    type: 'input',
-    collapsed: true
-  },
-  {
-    prop: 'createTime',
-    label: '创建时间范围',
-    type: 'daterange',
-    collapsed: true
-  },
-
-  // 系统字段（不会显示在UI上）
-  {
-    prop: 'isVip',
-    label: 'VIP用户',
-    type: 'select',
-    system: true,
-    options: [
-      { label: '是', value: 1 },
-      { label: '否', value: 0 }
-    ]
-  }
-]
-
-// 操作按钮配置
-const actions: ActionItem[] = [
-  {
-    name: 'add',
-    label: '新增',
-    type: 'primary',
-    icon: Plus,
-    tooltip: '添加新数据'
-  },
-  {
-    name: 'edit',
-    label: '编辑',
-    type: 'success',
-    icon: EditPen,
-    tooltip: '编辑'
-  },
-  {
-    name: 'batchDelete',
-    label: '批量删除',
-    type: 'danger',
-    icon: Delete,
-    tooltip: '删除选中数据',
-    disabled: () => selectedDictType.value.length === 0
-  },
-  {
-    name: 'print',
-    label: '导出',
-    type: 'warning',
-    icon: Download,
-    tooltip: '导出'
-  }
-]
 
 // 处理搜索
 const handleSearch = (params: Record<string, unknown>) => {
@@ -177,8 +92,6 @@ const handleAction = (actionName: string) => {
 
 // 打开表单
 const openForm = (roleData?: any) => {
-  console.log(111)
-
   currentRoleId.value = roleData?.id || null
   dialogVisible.value = true
 }
@@ -289,7 +202,7 @@ const handleConfirm = async (formData: any) => {
     <EZFormDialog
       v-model:visible="dialogVisible"
       :title="currentRoleId ? '编辑角色' : '新增角色'"
-      :schema="roleFormSchema"
+      :fields="roleFormField"
       :loading="loading"
       @confirm="handleConfirm"
     />

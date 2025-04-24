@@ -22,7 +22,7 @@ export interface FieldOption {
 export interface FormField {
   prop: string // 字段名
   label: string // 显示标签
-  type: 'input' | 'textarea' | 'number' | 'select' | 'radio' | 'checkbox' | 'switch' | 'date' | 'datetime' | 'custom' // 基础属性
+  type: 'input' | 'textarea' | 'number' | 'select' | 'radio' | 'checkbox' | 'switch' | 'date' | 'daterange' | 'custom' // 基础属性
   defaultValue?: unknown // 默认值
   required?: boolean // 是否必填
   component?: Component // 自定义组件 custom类型专用
@@ -61,15 +61,6 @@ export type ComponentConfig = {
   defaultProps: Record<string, any> // 默认属性
 }
 
-// 组件类型映射关系
-export const componentTypeMap = new Map<string, Component>([
-  ['input', ElInput], // 输入框
-  ['number', ElInputNumber], // 数字输入框
-  ['select', ElSelect], // 选择器
-  ['date', ElDatePicker], // 日期选择器
-  ['daterange', ElDatePicker] // 日期范围选择器
-])
-
 // 组件映射表
 const componentMap = {
   input: ElInput,
@@ -80,7 +71,7 @@ const componentMap = {
   checkbox: ElCheckboxGroup,
   switch: ElSwitch,
   date: ElDatePicker,
-  datetime: ElDatePicker
+  daterange: ElDatePicker
 }
 
 // 组件配置映射关系
@@ -104,7 +95,12 @@ export const propsConfigMap = new Map([
     }
   ]
 ])
-// 根据字段类型获取组件
-export const resolveComponent = (field: FormField) => {
+
+/**
+ * 获取对应类型的组件
+ * @param field 筛选字段配置
+ * @returns 组件名称或自定义组件
+ */
+export const resolveComponentByField = (field: FormField) => {
   return field.type === 'custom' ? field.component : componentMap[field.type] || ElInput
 }

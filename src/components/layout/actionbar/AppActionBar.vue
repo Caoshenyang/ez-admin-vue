@@ -3,7 +3,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { debounce } from 'lodash-es'
 import { Search, ArrowUp, ArrowDown, MoreFilled, Refresh, Setting, Switch } from '@element-plus/icons-vue'
 import { useLocalStorage } from '@vueuse/core'
-import { componentTypeMap, propsConfigMap, type FormField, type SmartActionBarProps } from '.'
+import { propsConfigMap, resolveComponentByField, type FormField, type SmartActionBarProps } from '.'
 import 'element-plus/es/components/date-picker/style/css' // 手动引入样式, 动态组件日期选择会丢失样式
 
 // 组件属性定义
@@ -76,15 +76,6 @@ const splitActions = computed(() => {
 const [primaryActions, secondaryActions] = splitActions.value
 
 /**
- * 获取对应类型的组件
- * @param item 筛选字段配置
- * @returns 组件名称或自定义组件
- */
-const getComponent = (item: FormField) => {
-  return item.component || componentTypeMap.get(item.type) || 'el-input'
-}
-
-/**
  * 获取组件的props
  * @param item 筛选字段配置
  * @returns 组件props对象
@@ -97,9 +88,7 @@ const getComponentProps = (item: FormField) => {
     style: { width: '100%' },
     placeholder: typeof config.placeholder === 'function' ? config.placeholder(item.label) : config.placeholder,
     ...config.defaultProps,
-    ...item.props,
-    // 特殊处理options
-    ...(item.type === 'select' && item.options ? { options: item.options } : {})
+    ...item.props
   }
 }
 
@@ -244,7 +233,7 @@ onMounted(initState)
                     <el-form-item :label="item.label" :prop="item.prop">
                       <!-- 动态组件渲染 -->
                       <component
-                        :is="getComponent(item)"
+                        :is="resolveComponentByField(item)"
                         v-model="advancedFilters[item.prop]"
                         v-bind="getComponentProps(item)"
                       >
@@ -288,7 +277,7 @@ onMounted(initState)
                       <el-col v-for="item in extendedFilterItems" :key="item.prop" :span="item.span || 6">
                         <el-form-item :label="item.label" :prop="item.prop">
                           <component
-                            :is="getComponent(item)"
+                            :is="resolveComponentByField(item)"
                             v-model="advancedFilters[item.prop]"
                             v-bind="getComponentProps(item)"
                           />

@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import type { FormInstance } from 'element-plus'
-import { type EZFormProps, type FormField } from '.'
+import { type EZFormProps } from '.'
+import { propsConfigMap, resolveComponentByField, type FormField } from '../layout/actionbar'
 
 const props = withDefaults(defineProps<EZFormProps>(), {
+  fields: () => [],
+  labelWidth: '80px',
+  columns: 2, // 表单列数
   submitOnEnter: true
 })
 
@@ -19,10 +23,16 @@ watch(
 
 // 动态props计算
 const getComponentProps = (field: FormField) => {
-  const disabled = typeof field.disabled === 'function' ? field.disabled() : field.disabled
+  const config = propsConfigMap.get(field.type) || {
+    placeholder: (label: string) => `请输入${label}`,
+    defaultProps: {}
+  }
 
   return {
-    disabled,
+    clearable: true,
+    style: { width: '100%' },
+    placeholder: typeof config.placeholder === 'function' ? config.placeholder(field.label) : config.placeholder,
+    ...config.defaultProps,
     ...field.props
   }
 }
@@ -38,14 +48,13 @@ const normalizeOptions = (options: unknown) =>
     : []
 
 // 动态选项获取
-const getOptions = (field: SelectableFieldConfig) =>
-  'options' in field ? (typeof field.options === 'function' ? [] : normalizeOptions(field.options)) : []
+const getOptions = (field: FormField) => {
+  return 'options' in field ? (typeof field.options === 'function' ? [] : normalizeOptions(field.options)) : []
+}
 
 // 可见字段过滤
 const visibleFields = computed(() =>
-  props.schema.fields.filter((field) =>
-    typeof field.hidden === 'function' ? !field.hidden(formModel.value) : !field.hidden
-  )
+  props.fields.filter((field) => (typeof field.hidden === 'function' ? !field.hidden() : !field.hidden))
 )
 
 // 表单操作API
@@ -70,39 +79,29 @@ const handleKeydown = (e: KeyboardEvent) => {
     emit('submit')
   }
 }
-
 defineExpose(formActions)
 </script>
 
 <template>
-  <el-form
-    ref="formRef"
-    :model="formModel"
-    :label-width="schema.labelWidth || (schema.layout === 'vertical' ? '0' : 'auto')"
-    @keydown.enter.prevent="handleKeydown"
-  >
+  <el-form ref="formRef" :model="formModel" :label-width="labelWidth" @keydown.enter.prevent="handleKeydown">
     <el-row :gutter="20">
-      <el-col v-for="field in visibleFields" :key="field.name" :span="field.span || 24 / (schema.columns || 1)">
-        <el-form-item
-          :label="schema.layout === 'vertical' ? undefined : field.label"
-          :prop="field.name"
-          :rules="field.rules"
-        >
+      <el-col v-for="field in visibleFields" :key="field.prop" :span="field.span || 24 / (columns || 1)">
+        <el-form-item :label="field.label" :prop="field.prop" :rules="field.rules">
+          <!-- 动态组件渲染 -->
           <component
-            :is="resolveComponent(field)"
-            v-model="formModel[field.name]"
+            :is="resolveComponentByField(field)"
+            v-model="formModel[field.prop]"
             v-bind="getComponentProps(field)"
-            v-on="field.events || {}"
           >
             <template v-if="['select', 'radio', 'checkbox'].includes(field.type)">
-              <template v-for="option in getOptions(field as SelectableFieldConfig)" :key="option.value">
+              <template v-for="option in getOptions(field)" :key="option.value">
                 <el-option
                   v-if="field.type === 'select'"
                   :label="option.label"
                   :value="option.value"
                   :disabled="option.disabled"
                 />
-                <el-radio v-else-if="field.type === 'radio'" :label="option.value" :disabled="option.disabled">
+                <el-radio v-else-if="field.type === 'radio'" :value="option.value" :disabled="option.disabled">
                   {{ option.label }}
                 </el-radio>
                 <el-checkbox v-else :label="option.value" :disabled="option.disabled">

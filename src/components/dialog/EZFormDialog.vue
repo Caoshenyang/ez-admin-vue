@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { FormSchema } from '../form'
 import type EZForm from '../form/EZForm.vue'
+import type { FormField } from '../layout/actionbar'
 
 const props = withDefaults(
   defineProps<{
     visible: boolean // 控制对话框显示隐藏
     title: string // 对话框标题
-    schema: FormSchema // 表单配置
+    fields: FormField[] // 表单配置
     width?: number // 对话框宽度
     initialData?: Record<string, unknown> // 初始数据
     loading?: boolean // 控制对话框加载状态
@@ -25,8 +25,8 @@ const formData = ref<Record<string, unknown>>({})
 // 初始化表单数据
 const initFormData = () => {
   const defaultValues: Record<string, unknown> = {}
-  props.schema.fields.forEach((field) => {
-    defaultValues[field.name] = field.defaultValue ?? ''
+  props.fields.forEach((field) => {
+    defaultValues[field.prop] = field.defaultValue ?? ''
   })
   formData.value = { ...defaultValues, ...props.initialData }
 }
@@ -72,7 +72,7 @@ const resetForm = () => {
     :before-close="handleClose"
     :close-on-click-modal="false"
   >
-    <EZForm ref="formRef" :schema="schema" :formData="formData" submit-on-enter />
+    <EZForm ref="formRef" :fields="fields" :formData="formData" submit-on-enter />
 
     <template #footer>
       <div class="dialog-footer">
