@@ -1,54 +1,28 @@
 <script lang="ts" setup>
 import type { DeptForm, DeptQuery, DeptTreeVO } from '@/types/system'
-import { INIT_DEPT_TREE_DATA, INIT_FORM_DATA, INIT_QUERY } from './data'
+import { INIT_DEPT_TREE_DATA, INIT_FORM_DATA, INIT_QUERY, FILTERS, ACTION_BUTTONS, FORM_FIELDS } from './data'
 import { deptApi } from '@/api/system/dept'
-import { msgErr, msgInfo, msgSuccess } from '@/utils/message'
+import { msgErr, msgSuccess } from '@/utils/message'
 
 const deptTableTreeData = ref<DeptTreeVO[]>([]) // 表格树形数据
-const deptFormDialogRef = ref() // 表单弹窗 ref
-const deptFormRef = ref() // 表单 ref
-const formTitle = ref('') // 表单弹窗标题
+
+const dialogVisible = ref(false) // 弹窗显示状态
+const currentId = ref<string>() // 当前操作行的 id
+const loading = ref(false) // 加载状态
+
 const selectedRows = ref<DeptTreeVO[]>([]) // 选中的行数据
 const formData = ref<DeptForm>({ ...INIT_FORM_DATA }) // 表单数据
 const deptSelectOptions = ref<DeptTreeVO[]>([{ ...INIT_DEPT_TREE_DATA }]) // 下拉树形数据
 
+// 初始化表单字段
+const formFields = ref([...FORM_FIELDS])
+
+// 查询对象
+const deptQuery = reactive<DeptQuery>({ ...INIT_QUERY })
+
 onMounted(() => {
   refreshList()
 })
-
-/** 查询对象 */
-const deptQuery = reactive<DeptQuery>({ ...INIT_QUERY })
-
-// 刷新列表
-const refreshList = async () => {
-  const data = await deptApi.getDeptList(deptQuery)
-  deptTableTreeData.value = data
-}
-
-// 新增
-const handleAdd = async () => {
-  initDeptForm()
-}
-/**
- * 新增子节点
- */
-const handleAddChildren = async (row: DeptTreeVO) => {
-  // 未开启的节点无法直接添加子节点
-  if (!row.status) {
-    msgErr('该节点未启用，无法添加子节点')
-    return
-  }
-
-  await initDeptForm({ parentId: row.deptId })
-}
-
-/**
- * 编辑
- * @param id menuId
- */
-const handleEdit = async (deptId: string) => {
-  initDeptForm({ deptId })
-}
 
 /**
  * 初始化表单
@@ -58,68 +32,109 @@ const handleEdit = async (deptId: string) => {
  * @param options { deptId?: string; parentId?: string }
  */
 const initDeptForm = async (options: { deptId?: string; parentId?: string } = {}) => {
-  // 设置表单标题  deptId存在则为编辑操作
-  formTitle.value = options.deptId ? '编辑部门' : '新增部门'
-
-  // 初始化表单数据，可覆盖parentId
+  // 有deptId则为编辑操作
   if (options.deptId) {
     const data = await deptApi.getDeptById(options.deptId)
     formData.value = { ...data }
   } else {
-    formData.value = {
-      ...INIT_FORM_DATA,
-      parentId: options.parentId || INIT_FORM_DATA.parentId
-    }
+    formData.value = { ...INIT_FORM_DATA, parentId: options.parentId || INIT_FORM_DATA.parentId }
   }
 
   // 加载部门树数据
   const deptTreeSelect = await deptApi.getDeptTreeList()
-  deptSelectOptions.value[0].children = deptTreeSelect
-
-  // 打开弹窗
-  deptFormDialogRef.value.open()
+  deptSelectOptions.value = [
+    {
+      ...deptSelectOptions.value[0], // 保留其他属性
+      children: [...deptTreeSelect] // 浅拷贝数组（避免引用共享）
+    }
+  ]
+  // 设置选择控件表单字段
+  formFields.value = formFields.value.map((field) =>
+    field.prop === 'parentId' ? { ...field, props: { ...field.props, data: [...deptSelectOptions.value] } } : field
+  )
+  dialogVisible.value = true
 }
 
-const handleConfirm = async () => {
-  await deptFormRef.value.validate()
-  const formData = deptFormRef.value.getData()
-  if (formData.deptId) {
+// 新增
+const handleAdd = () => {
+  initDeptForm()
+}
+
+const handleEdit = () => {
+  initDeptForm({ deptId: currentId.value })
+}
+
+const handleDelete = () => {
+  // 如果不是批量删除，给删除id赋值
+  // ElMessageBox.confirm(isBatch ? `确定要删除选中的部门吗？` : `确定要删除该部门吗？`, '删除提醒', {
+  //   confirmButtonText: '确定',
+  //   cancelButtonText: '取消',
+  //   type: 'warning'
+  // })
+  //   .then(async () => {
+  //     if (!isBatch && deptId) {
+  //       // 调用接口删除菜单
+  //       await deptApi.deleteDept(deptId)
+  //     } else {
+  //       // 获取所有选择menuId
+  //       const deleteDeptIdList = selectedRows.value.map((item) => item.deptId)
+  //       // 调用接口删除用户
+  //       await deptApi.deleteBatchDept(deleteDeptIdList)
+  //     }
+  //     msgSuccess('删除成功')
+  //     refreshList()
+  //   })
+  //   .catch(() => {
+  //     msgInfo('已取消删除')
+  //   })
+}
+
+/**
+ * 新增子节点
+ */
+const handleAddChildren = async (row: DeptTreeVO) => {
+  // 未开启的节点无法直接添加子节点
+  if (!row.status) {
+    msgErr('该节点未启用，无法添加子节点')
+    return
+  }
+  await initDeptForm({ parentId: row.deptId })
+}
+
+// 所有操作的处理函数
+const actionHandlers = {
+  add: handleAdd,
+  edit: handleEdit,
+  delete: handleDelete
+}
+
+// 调用方式
+const handleAction = (actionName: keyof typeof actionHandlers, payload?: DeptForm) => {
+  console.log(actionName, payload)
+
+  if (payload) {
+    currentId.value = payload.deptId
+  }
+  actionHandlers[actionName]?.()
+}
+
+// 刷新列表
+const refreshList = async () => {
+  // 重制一些状态
+  currentId.value = ''
+  selectedRows.value = []
+  const data = await deptApi.getDeptList(deptQuery)
+  deptTableTreeData.value = [...data]
+}
+
+const handleConfirm = async (formData: DeptForm) => {
+  if (currentId.value) {
     await deptApi.updateDept(formData)
   } else {
     await deptApi.createDept(formData)
   }
-  deptFormDialogRef.value.close()
+  dialogVisible.value = false
   refreshList()
-}
-
-/**
- * 删除
- * @param isBatch 是否批量删除
- * @param row 删除行
- */
-const handleDelete = (isBatch: boolean, deptId?: string) => {
-  // 如果不是批量删除，给删除id赋值
-  ElMessageBox.confirm(isBatch ? `确定要删除选中的部门吗？` : `确定要删除该部门吗？`, '删除提醒', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  })
-    .then(async () => {
-      if (!isBatch && deptId) {
-        // 调用接口删除菜单
-        await deptApi.deleteDept(deptId)
-      } else {
-        // 获取所有选择menuId
-        const deleteDeptIdList = selectedRows.value.map((item) => item.deptId)
-        // 调用接口删除用户
-        await deptApi.deleteBatchDept(deleteDeptIdList)
-      }
-      msgSuccess('删除成功')
-      refreshList()
-    })
-    .catch(() => {
-      msgInfo('已取消删除')
-    })
 }
 
 // 切换部门启动状态
@@ -128,43 +143,26 @@ const handleStatusChange = async (status: number, deptId: string) => {
   msgSuccess('操作成功')
 }
 
-const handleSelectionChange = (val: DeptTreeVO[]) => {
-  selectedRows.value = val
+const handleSearch = () => {
+  console.log('搜索')
+  refreshList()
+}
+
+// 处理重置
+const handleReset = () => {
+  console.log('重置搜索')
+  // 重置数据...
 }
 </script>
 <template>
   <div class="menu-container">
-    <div class="search-bar">搜索区域</div>
-    <div class="operation-bar">
-      <div class="operation-button">
-        <el-button type="primary" plain @click="handleAdd">
-          <template #icon>
-            <EZSvgIcon icon="ep:plus" />
-          </template>
-          新增
-        </el-button>
-      </div>
-      <div class="setting-button">
-        <!-- 搜索显示/隐藏 -->
-        <el-button circle>
-          <template #icon>
-            <EZSvgIcon icon="ep:search" />
-          </template>
-        </el-button>
-        <!-- 刷新列表数据 -->
-        <el-button circle @click="refreshList">
-          <template #icon>
-            <EZSvgIcon icon="ep:refresh" />
-          </template>
-        </el-button>
-        <!-- 展示列设置 -->
-        <el-button circle>
-          <template #icon>
-            <EZSvgIcon icon="ep:setting" />
-          </template>
-        </el-button>
-      </div>
-    </div>
+    <AppActionBar
+      :filters="FILTERS"
+      :actions="ACTION_BUTTONS"
+      @search="handleSearch"
+      @reset="handleReset"
+      @action="handleAction"
+    />
     <div class="table-container">
       <el-table
         stripe
@@ -172,7 +170,7 @@ const handleSelectionChange = (val: DeptTreeVO[]) => {
         :data="deptTableTreeData"
         row-key="deptId"
         default-expand-all
-        @selection-change="handleSelectionChange"
+        @selection-change="(val) => (selectedRows = val)"
       >
         <el-table-column type="selection" width="55" />
         <el-table-column prop="deptName" label="部门名称" />
@@ -189,6 +187,8 @@ const handleSelectionChange = (val: DeptTreeVO[]) => {
           </template>
         </el-table-column>
         <el-table-column prop="createTime" label="创建时间" />
+        <el-table-column prop="description" label="描述" />
+
         <el-table-column label="操作" fixed="right">
           <template #default="scope">
             <div class="table-option">
@@ -197,7 +197,7 @@ const handleSelectionChange = (val: DeptTreeVO[]) => {
                   <EZSvgIcon icon="ep:plus" />
                 </template>
               </el-button>
-              <el-button type="success" plain @click="handleEdit(scope.row.deptId)">
+              <el-button type="success" plain @click="handleAction('edit', scope.row)">
                 <template #icon>
                   <EZSvgIcon icon="ep:edit-pen" />
                 </template>
@@ -212,10 +212,16 @@ const handleSelectionChange = (val: DeptTreeVO[]) => {
         </el-table-column>
       </el-table>
     </div>
-    <!-- 表单弹框 -->
-    <EZFormDialog ref="deptFormDialogRef" :title="formTitle" width="30%" @confirm="handleConfirm">
-      <DeptForm ref="deptFormRef" :form-data="formData" :deptTree="deptSelectOptions" />
-    </EZFormDialog>
+
+    <!-- 表单对话框 -->
+    <EZFormDialog
+      v-model:visible="dialogVisible"
+      :initial-data="formData"
+      :title="currentId ? '编辑部门' : '新增部门'"
+      :fields="formFields"
+      :loading="loading"
+      @confirm="handleConfirm"
+    />
   </div>
 </template>
 

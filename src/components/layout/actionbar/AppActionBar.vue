@@ -300,7 +300,7 @@ onMounted(initState)
         <!-- 主操作按钮区 -->
         <el-space :size="8">
           <!-- 遍历主操作按钮 -->
-          <el-tooltip :show-after="1000" v-for="action in primaryActions" :key="action.name" :content="action.tooltip">
+          <el-tooltip :show-after="500" v-for="action in primaryActions" :key="action.name" :content="action.tooltip">
             <el-button
               :type="action.type"
               :icon="action.icon"

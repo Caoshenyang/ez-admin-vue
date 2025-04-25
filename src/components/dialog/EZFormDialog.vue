@@ -9,7 +9,6 @@ const props = withDefaults(
     fields: FormField[] // 表单配置
     width?: number // 对话框宽度
     initialData?: Record<string, unknown> // 初始数据
-    loading?: boolean // 控制对话框加载状态
   }>(),
   {
     width: 500
@@ -49,9 +48,7 @@ const handleConfirm = async () => {
   // 表单验证逻辑
   const result = await formRef.value?.submit()
   if (!result?.valid) return
-
-  emit('confirm')
-  dialogVisible.value = false
+  emit('confirm', formRef.value?.getData())
 }
 
 const handleClose = () => {
@@ -65,20 +62,28 @@ const resetForm = () => {
 </script>
 
 <template>
-  <el-dialog
-    v-model="dialogVisible"
-    :title="title"
-    :width="width"
-    :before-close="handleClose"
-    :close-on-click-modal="false"
-  >
-    <EZForm ref="formRef" :fields="fields" :formData="formData" submit-on-enter />
+  <div class="dialog-container">
+    <el-dialog v-model="dialogVisible" :width="width" :before-close="handleClose" :close-on-click-modal="false">
+      <template #header>{{ title }}</template>
 
-    <template #footer>
-      <div class="dialog-footer">
-        <el-button @click="handleClose">取消</el-button>
-        <el-button type="primary" @click="handleConfirm"> 确定 </el-button>
-      </div>
-    </template>
-  </el-dialog>
+      <EZForm class="dialog-body" ref="formRef" :fields="fields" :formData="formData" submit-on-enter />
+
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="handleClose">取消</el-button>
+          <el-button type="primary" @click="handleConfirm"> 确定 </el-button>
+        </div>
+      </template>
+    </el-dialog>
+  </div>
 </template>
+
+<style lang="scss" scoped>
+.dialog-container {
+  // 禁止光标选择
+  user-select: none;
+}
+.dialog-body {
+  padding: 20px 10px;
+}
+</style>

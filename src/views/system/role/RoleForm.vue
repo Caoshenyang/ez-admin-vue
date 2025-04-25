@@ -128,6 +128,6 @@ defineExpose({ open })
   width: 540px;
 }
 .dialog-body {
-  padding: 20px 20px;
+  padding: 20px;
 }
 </style>

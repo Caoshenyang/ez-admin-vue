@@ -3,6 +3,9 @@ import { ref, computed, watch } from 'vue'
 import type { FormInstance } from 'element-plus'
 import { type EZFormProps } from '.'
 import { propsConfigMap, resolveComponentByField, type FormField } from '../layout/actionbar'
+import 'element-plus/es/components/input-number/style/css' // 手动引入样式, 动态组件这里样式不会生效
+import 'element-plus/es/components/date-picker/style/css' // 手动引入样式, 动态组件这里样式不会生效
+import 'element-plus/es/components/tree-select/style/css' // 手动引入样式, 动态组件这里样式不会生效
 
 const props = withDefaults(defineProps<EZFormProps>(), {
   fields: () => [],
@@ -86,7 +89,7 @@ defineExpose(formActions)
   <el-form ref="formRef" :model="formModel" :label-width="labelWidth" @keydown.enter.prevent="handleKeydown">
     <el-row :gutter="20">
       <el-col v-for="field in visibleFields" :key="field.prop" :span="field.span || 24 / (columns || 1)">
-        <el-form-item :label="field.label" :prop="field.prop" :rules="field.rules">
+        <el-form-item :label="field.label" :label-width="field.labelWidth" :prop="field.prop" :rules="field.rules">
           <!-- 动态组件渲染 -->
           <component
             :is="resolveComponentByField(field)"
@@ -115,3 +118,5 @@ defineExpose(formActions)
     </el-row>
   </el-form>
 </template>
+
+<style lang="scss" scoped></style>

@@ -6,7 +6,6 @@ export const roleFormField: FormField[] = [
     prop: 'roleName',
     label: '角色名称',
     type: 'input',
-    required: true,
     rules: [
       { required: true, message: '请输入角色名称', trigger: 'blur' },
       { min: 2, max: 10, message: '长度在2到10个字符', trigger: 'blur' }
@@ -20,7 +19,6 @@ export const roleFormField: FormField[] = [
     prop: 'roleCode',
     label: '角色编码',
     type: 'input',
-    required: true,
     rules: [
       { required: true, message: '请输入角色编码' },
       { pattern: /^[A-Z_]+$/, message: '只能包含大写字母和下划线' }
@@ -29,8 +27,8 @@ export const roleFormField: FormField[] = [
   {
     prop: 'status',
     label: '状态',
+    labelWidth: '50px',
     type: 'radio',
-    defaultValue: 1,
     options: [
       { label: '启用', value: 1 },
       { label: '禁用', value: 0 }
@@ -51,6 +49,7 @@ export const roleFormField: FormField[] = [
     label: '备注',
     type: 'textarea',
     span: 24,
+    labelWidth: '50px',
     props: {
       type: 'textarea',
       rows: 3,

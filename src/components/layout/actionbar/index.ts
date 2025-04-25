@@ -8,7 +8,8 @@ import {
   ElCheckboxGroup,
   ElSwitch,
   ElDatePicker,
-  type FormItemRule
+  type FormItemRule,
+  ElTreeSelect
 } from 'element-plus'
 
 // 选项类型
@@ -22,9 +23,20 @@ export interface FieldOption {
 export interface FormField {
   prop: string // 字段名
   label: string // 显示标签
-  type: 'input' | 'textarea' | 'number' | 'select' | 'radio' | 'checkbox' | 'switch' | 'date' | 'daterange' | 'custom' // 基础属性
+  labelWidth?: string // 标签宽度
+  type:
+    | 'input'
+    | 'textarea'
+    | 'number'
+    | 'select'
+    | 'treeSelect'
+    | 'radio'
+    | 'checkbox'
+    | 'switch'
+    | 'date'
+    | 'daterange'
+    | 'custom' // 基础属性
   defaultValue?: unknown // 默认值
-  required?: boolean // 是否必填
   component?: Component // 自定义组件 custom类型专用
   props?: Record<string, any> // 组件额外属性
   options?: FieldOption[] | (() => Promise<FieldOption[]>) // select/radio/checkbox专用
@@ -67,6 +79,7 @@ const componentMap = {
   textarea: ElInput,
   number: ElInputNumber,
   select: ElSelect,
+  treeSelect: ElTreeSelect,
   radio: ElRadioGroup,
   checkbox: ElCheckboxGroup,
   switch: ElSwitch,
