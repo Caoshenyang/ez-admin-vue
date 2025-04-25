@@ -5,10 +5,10 @@ import { deptApi } from '@/api/system/dept'
 import { msgErr, msgSuccess } from '@/utils/message'
 
 const deptTableTreeData = ref<DeptTreeVO[]>([]) // 表格树形数据
+const loading = ref(false) // 列表加载状态
 
 const dialogVisible = ref(false) // 弹窗显示状态
 const currentId = ref<string>() // 当前操作行的 id
-const loading = ref(false) // 加载状态
 
 const selectedRows = ref<DeptTreeVO[]>([]) // 选中的行数据
 const formData = ref<DeptForm>({ ...INIT_FORM_DATA }) // 表单数据
@@ -18,7 +18,18 @@ const deptSelectOptions = ref<DeptTreeVO[]>([{ ...INIT_DEPT_TREE_DATA }]) // 下
 const formFields = ref([...FORM_FIELDS])
 
 // 查询对象
-const deptQuery = reactive<DeptQuery>({ ...INIT_QUERY })
+const deptQuery = ref<DeptQuery>({ ...INIT_QUERY })
+
+// 刷新列表
+const refreshList = async () => {
+  loading.value = true
+  // 重制一些状态
+  currentId.value = ''
+  selectedRows.value = []
+  const data = await deptApi.getDeptList(deptQuery.value)
+  deptTableTreeData.value = [...data]
+  loading.value = false
+}
 
 onMounted(() => {
   refreshList()
@@ -103,6 +114,7 @@ const handleAddChildren = async (row: DeptTreeVO) => {
 
 // 所有操作的处理函数
 const actionHandlers = {
+  refresh: refreshList,
   add: handleAdd,
   edit: handleEdit,
   delete: handleDelete
@@ -110,21 +122,10 @@ const actionHandlers = {
 
 // 调用方式
 const handleAction = (actionName: keyof typeof actionHandlers, payload?: DeptForm) => {
-  console.log(actionName, payload)
-
   if (payload) {
     currentId.value = payload.deptId
   }
   actionHandlers[actionName]?.()
-}
-
-// 刷新列表
-const refreshList = async () => {
-  // 重制一些状态
-  currentId.value = ''
-  selectedRows.value = []
-  const data = await deptApi.getDeptList(deptQuery)
-  deptTableTreeData.value = [...data]
 }
 
 const handleConfirm = async (formData: DeptForm) => {
@@ -143,8 +144,8 @@ const handleStatusChange = async (status: number, deptId: string) => {
   msgSuccess('操作成功')
 }
 
-const handleSearch = () => {
-  console.log('搜索')
+const handleSearch = (params: DeptQuery) => {
+  deptQuery.value = { ...params }
   refreshList()
 }
 
@@ -165,6 +166,7 @@ const handleReset = () => {
     />
     <div class="table-container">
       <el-table
+        v-loading="loading"
         stripe
         highlight-current-row
         :data="deptTableTreeData"
@@ -202,7 +204,7 @@ const handleReset = () => {
                   <EZSvgIcon icon="ep:edit-pen" />
                 </template>
               </el-button>
-              <el-button type="danger" plain @click="handleDelete(false, scope.row.deptId)">
+              <el-button type="danger" plain @click="handleDelete()">
                 <template #icon>
                   <EZSvgIcon icon="ep:delete" />
                 </template>
@@ -219,7 +221,6 @@ const handleReset = () => {
       :initial-data="formData"
       :title="currentId ? '编辑部门' : '新增部门'"
       :fields="formFields"
-      :loading="loading"
       @confirm="handleConfirm"
     />
   </div>
