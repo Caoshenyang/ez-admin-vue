@@ -6,7 +6,7 @@ import { msgErr, msgSuccess } from '@/utils/message'
 
 const deptTableTreeData = ref<DeptTreeVO[]>([]) // 表格树形数据
 const loading = ref(false) // 列表加载状态
-
+const actionBarRef = ref() // 操作栏 ref
 const dialogVisible = ref(false) // 弹窗显示状态
 const currentId = ref<string>() // 当前操作行的 id
 
@@ -16,7 +16,6 @@ const deptSelectOptions = ref<DeptTreeVO[]>([{ ...INIT_DEPT_TREE_DATA }]) // 下
 
 // 初始化表单字段
 const formFields = ref([...FORM_FIELDS])
-
 // 查询对象
 const deptQuery = ref<DeptQuery>({ ...INIT_QUERY })
 
@@ -26,14 +25,13 @@ const refreshList = async () => {
   // 重制一些状态
   currentId.value = ''
   selectedRows.value = []
-  const data = await deptApi.getDeptList(deptQuery.value)
-  deptTableTreeData.value = [...data]
+  deptQuery.value = { ...INIT_QUERY }
+  actionBarRef.value.handleReset()
+  await handleSearch(deptQuery.value)
   loading.value = false
 }
 
-onMounted(() => {
-  refreshList()
-})
+refreshList()
 
 /**
  * 初始化表单
@@ -66,6 +64,28 @@ const initDeptForm = async (options: { deptId?: string; parentId?: string } = {}
   dialogVisible.value = true
 }
 
+// 使用计算属性或函数扩展按钮配置
+const actionButtons = computed(() => {
+  // 根据按钮名称获取按钮禁用状态
+  return ACTION_BUTTONS.map((button) => ({
+    ...button,
+    disabled: getButtonDisabledState(button.name)
+  }))
+})
+
+function getButtonDisabledState(name: string): boolean {
+  switch (name) {
+    case 'add':
+      return true
+    case 'edit':
+      return selectedRows.value.length !== 1
+    case 'delete':
+      return selectedRows.value.length === 0
+    default:
+      return false
+  }
+}
+
 // 新增
 const handleAdd = () => {
   initDeptForm()
@@ -76,7 +96,10 @@ const handleEdit = () => {
 }
 
 const handleDelete = () => {
-  // 如果不是批量删除，给删除id赋值
+  console.log('handleDelete', selectedRows.value)
+  console.log('currentId', currentId.value)
+
+  // // 如果不是批量删除，给删除id赋值
   // ElMessageBox.confirm(isBatch ? `确定要删除选中的部门吗？` : `确定要删除该部门吗？`, '删除提醒', {
   //   confirmButtonText: '确定',
   //   cancelButtonText: '取消',
@@ -144,24 +167,20 @@ const handleStatusChange = async (status: number, deptId: string) => {
   msgSuccess('操作成功')
 }
 
-const handleSearch = (params: DeptQuery) => {
+const handleSearch = async (params: DeptQuery) => {
   deptQuery.value = { ...params }
-  refreshList()
-}
-
-// 处理重置
-const handleReset = () => {
-  console.log('重置搜索')
-  // 重置数据...
+  const data = await deptApi.getDeptList(deptQuery.value)
+  deptTableTreeData.value = [...data]
 }
 </script>
 <template>
   <div class="menu-container">
     <AppActionBar
+      ref="actionBarRef"
       :filters="FILTERS"
-      :actions="ACTION_BUTTONS"
+      :actions="actionButtons"
+      :selectedRows="selectedRows"
       @search="handleSearch"
-      @reset="handleReset"
       @action="handleAction"
     />
     <div class="table-container">

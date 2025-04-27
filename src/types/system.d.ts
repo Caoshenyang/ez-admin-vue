@@ -80,7 +80,7 @@ export interface DeptTreeVO extends BaseDept {
   children?: DeptTreeVO[]
 }
 
-export interface DeptQuery {
+export interface DeptQuery extends BaseQuery {
   deptName?: string
 }
 

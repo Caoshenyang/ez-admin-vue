@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // =============== 统一结果 类型定义 =============== //
 // 分页结果类型
 export interface PageVO<T> {
@@ -13,6 +12,10 @@ export interface PageQuery<T> {
   pageSize: number // 每页记录数
   orderItems?: OrderItem[] // 排序字段
   search?: T // 查询参数
+}
+
+export interface BaseQuery {
+  keyword?: string // 关键字
 }
 
 // 排序字段类型

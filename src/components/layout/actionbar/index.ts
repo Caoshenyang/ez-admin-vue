@@ -54,8 +54,8 @@ export interface ActionItem {
   type?: 'primary' | 'success' | 'warning' | 'danger' | 'info' // 按钮类型
   icon?: Component // 按钮图标
   tooltip?: string // 提示文本
-  visible?: boolean | (() => boolean) // 是否显示
-  disabled?: boolean | (() => boolean) // 是否禁用
+  visible?: boolean // 是否显示
+  disabled?: boolean // 是否禁用
   sort?: number // 排序权重
 }
 

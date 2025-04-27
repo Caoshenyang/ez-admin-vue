@@ -1,22 +1,19 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { debounce } from 'lodash-es'
 import { Search, ArrowUp, ArrowDown, MoreFilled, Refresh, Setting, Switch } from '@element-plus/icons-vue'
-import { useLocalStorage } from '@vueuse/core'
 import { propsConfigMap, resolveComponentByField, type FormField, type SmartActionBarProps } from '.'
-import 'element-plus/es/components/date-picker/style/css' // 手动引入样式, 动态组件日期选择会丢失样式
 
 // 组件属性定义
 const props = withDefaults(defineProps<SmartActionBarProps>(), {
   filters: () => [],
   actions: () => [],
   maxPrimaryActions: 4,
-  debounceTime: 300,
-  persistState: true
+  debounceTime: 300
 })
 
 // 组件事件定义
-const emit = defineEmits(['search', 'reset', 'action'])
+const emit = defineEmits(['search', 'action'])
 
 // 响应式状态
 const searchEnabled = ref(true) // 是否启用搜索
@@ -25,15 +22,6 @@ const extendedCollapsed = ref(true) // 是否折叠扩展选项
 const quickSearch = ref('') // 快速搜索关键词
 const advancedFilters = ref<Record<string, unknown>>({}) // 高级筛选值
 const actionLoading = ref<Record<string, boolean>>({}) // 操作加载状态
-
-// 持久化状态（使用localStorage）
-const persistedState = useLocalStorage('smart-action-bar-state', {
-  searchEnabled: true,
-  advancedVisible: false,
-  extendedCollapsed: true,
-  quickSearch: '',
-  advancedFilters: {}
-})
 
 // 计算属性：基础筛选字段（非隐藏、非折叠、非系统）
 const basicFilterItems = computed(() => {
@@ -55,25 +43,11 @@ const systemFilterItems = computed(() => {
   return props.filters.filter((item) => item.system)
 })
 
-// 计算属性：处理后的操作按钮（处理可见性和禁用状态）
-const processedActions = computed(() => {
-  return props.actions
-    .map((action) => ({
-      ...action,
-      visible: typeof action.visible === 'function' ? action.visible() : action.visible !== false,
-      disabled: typeof action.disabled === 'function' ? action.disabled() : action.disabled
-    }))
-    .filter((action) => action.visible)
-    .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
-})
-
-// 计算属性：分组操作按钮（主操作和次级操作）
-const splitActions = computed(() => {
-  const actions = processedActions.value
-  return [actions.slice(0, props.maxPrimaryActions), actions.slice(props.maxPrimaryActions)]
-})
-
-const [primaryActions, secondaryActions] = splitActions.value
+// 计算属性：分组操作按钮（主操作和次级操作）根据设置默认显示的数量进行分割
+// 计算属性：主操作按钮（默认显示的数量）
+const primaryActions = computed(() => props.actions.slice(0, props.maxPrimaryActions))
+// 计算属性：次级操作按钮（超出默认显示数量的部分）
+const secondaryActions = computed(() => props.actions.slice(props.maxPrimaryActions))
 
 /**
  * 获取组件的props
@@ -95,25 +69,16 @@ const getComponentProps = (item: FormField) => {
 // 切换搜索开关
 const toggleSearchEnabled = () => {
   searchEnabled.value = !searchEnabled.value
-  if (props.persistState) {
-    persistedState.value.searchEnabled = searchEnabled.value
-  }
 }
 
 // 切换高级搜索面板
 const toggleAdvanced = () => {
   advancedVisible.value = !advancedVisible.value
-  if (props.persistState) {
-    persistedState.value.advancedVisible = advancedVisible.value
-  }
 }
 
 // 切换扩展选项
 const toggleExtended = () => {
   extendedCollapsed.value = !extendedCollapsed.value
-  if (props.persistState) {
-    persistedState.value.extendedCollapsed = extendedCollapsed.value
-  }
 }
 
 // 处理搜索（带防抖）
@@ -130,7 +95,6 @@ const handleSearch = debounce(() => {
 const handleReset = () => {
   quickSearch.value = ''
   advancedFilters.value = {}
-  emit('reset')
 }
 
 // 处理操作按钮点击
@@ -160,14 +124,6 @@ const getSystemFilters = () => {
 
 // 初始化状态
 const initState = () => {
-  if (props.persistState) {
-    searchEnabled.value = persistedState.value.searchEnabled
-    advancedVisible.value = persistedState.value.advancedVisible
-    extendedCollapsed.value = persistedState.value.extendedCollapsed
-    quickSearch.value = persistedState.value.quickSearch || ''
-    advancedFilters.value = persistedState.value.advancedFilters || {}
-  }
-
   // 初始化高级筛选字段值
   props.filters.forEach((item) => {
     if (item.prop && !advancedFilters.value[item.prop]) {
@@ -175,14 +131,6 @@ const initState = () => {
     }
   })
 }
-
-// 监听搜索参数变化并持久化
-watch([quickSearch, advancedFilters], () => {
-  if (props.persistState) {
-    persistedState.value.quickSearch = quickSearch.value
-    persistedState.value.advancedFilters = advancedFilters.value
-  }
-})
 
 // 选项数据标准化
 const normalizeOptions = (options: unknown) =>
@@ -199,6 +147,8 @@ const getOptions = (field: FormField) =>
 
 // 组件挂载时初始化
 onMounted(initState)
+
+defineExpose({ handleReset })
 </script>
 
 <template>
@@ -304,6 +254,7 @@ onMounted(initState)
             <el-button
               :type="action.type"
               :icon="action.icon"
+              :disabled="action.disabled"
               :loading="actionLoading[action.name]"
               @click="handleAction(action.name)"
             />
@@ -319,6 +270,7 @@ onMounted(initState)
                 <el-dropdown-item
                   v-for="action in secondaryActions"
                   :key="action.name"
+                  :disabled="action.disabled"
                   @click="handleAction(action.name)"
                 >
                   {{ action.label }}
