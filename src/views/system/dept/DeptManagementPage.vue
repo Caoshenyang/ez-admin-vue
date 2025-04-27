@@ -2,7 +2,8 @@
 import type { DeptForm, DeptQuery, DeptTreeVO } from '@/types/system'
 import { INIT_DEPT_TREE_DATA, INIT_FORM_DATA, INIT_QUERY, FILTERS, ACTION_BUTTONS, FORM_FIELDS } from './data'
 import { deptApi } from '@/api/system/dept'
-import { msgErr, msgSuccess } from '@/utils/message'
+import { msgErr, msgInfo, msgSuccess } from '@/utils/message'
+import { useButtonActions } from '@/composables/useButtonActions'
 
 const deptTableTreeData = ref<DeptTreeVO[]>([]) // 表格树形数据
 const loading = ref(false) // 列表加载状态
@@ -31,7 +32,9 @@ const refreshList = async () => {
   loading.value = false
 }
 
-refreshList()
+onMounted(() => {
+  refreshList()
+})
 
 /**
  * 初始化表单
@@ -66,25 +69,8 @@ const initDeptForm = async (options: { deptId?: string; parentId?: string } = {}
 
 // 使用计算属性或函数扩展按钮配置
 const actionButtons = computed(() => {
-  // 根据按钮名称获取按钮禁用状态
-  return ACTION_BUTTONS.map((button) => ({
-    ...button,
-    disabled: getButtonDisabledState(button.name)
-  }))
+  return useButtonActions(ACTION_BUTTONS, selectedRows)
 })
-
-function getButtonDisabledState(name: string): boolean {
-  switch (name) {
-    case 'add':
-      return true
-    case 'edit':
-      return selectedRows.value.length !== 1
-    case 'delete':
-      return selectedRows.value.length === 0
-    default:
-      return false
-  }
-}
 
 // 新增
 const handleAdd = () => {
@@ -95,32 +81,35 @@ const handleEdit = () => {
   initDeptForm({ deptId: currentId.value })
 }
 
+// 操作栏删除按钮使用批量删除接口
 const handleDelete = () => {
-  console.log('handleDelete', selectedRows.value)
-  console.log('currentId', currentId.value)
+  if (selectedRows.value.length === 0) {
+    msgErr('请选择要删除的部门')
+  }
+  // 如果不是批量删除，给删除id赋值
+  ElMessageBox.confirm(`确定要删除选中的部门吗？`, '删除提醒', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+    .then(async () => {
+      // 获取所有选择menuId
+      const deleteDeptIdList = selectedRows.value.map((item) => item.deptId)
+      // 调用接口删除用户
+      await deptApi.deleteBatchDept(deleteDeptIdList)
+      msgSuccess('删除成功')
+      refreshList()
+    })
+    .catch(() => {
+      msgInfo('已取消删除')
+    })
+}
 
-  // // 如果不是批量删除，给删除id赋值
-  // ElMessageBox.confirm(isBatch ? `确定要删除选中的部门吗？` : `确定要删除该部门吗？`, '删除提醒', {
-  //   confirmButtonText: '确定',
-  //   cancelButtonText: '取消',
-  //   type: 'warning'
-  // })
-  //   .then(async () => {
-  //     if (!isBatch && deptId) {
-  //       // 调用接口删除菜单
-  //       await deptApi.deleteDept(deptId)
-  //     } else {
-  //       // 获取所有选择menuId
-  //       const deleteDeptIdList = selectedRows.value.map((item) => item.deptId)
-  //       // 调用接口删除用户
-  //       await deptApi.deleteBatchDept(deleteDeptIdList)
-  //     }
-  //     msgSuccess('删除成功')
-  //     refreshList()
-  //   })
-  //   .catch(() => {
-  //     msgInfo('已取消删除')
-  //   })
+// 删除指定节点
+const handleDeleteNode = async (row: DeptTreeVO) => {
+  await deptApi.deleteDept(row.deptId)
+  msgSuccess('删除成功')
+  refreshList()
 }
 
 /**
@@ -223,7 +212,7 @@ const handleSearch = async (params: DeptQuery) => {
                   <EZSvgIcon icon="ep:edit-pen" />
                 </template>
               </el-button>
-              <el-button type="danger" plain @click="handleDelete()">
+              <el-button type="danger" plain @click="handleDeleteNode(scope.row)">
                 <template #icon>
                   <EZSvgIcon icon="ep:delete" />
                 </template>

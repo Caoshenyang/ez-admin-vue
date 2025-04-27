@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, defineExpose } from 'vue'
 import { debounce } from 'lodash-es'
 import { Search, ArrowUp, ArrowDown, MoreFilled, Refresh, Setting, Switch } from '@element-plus/icons-vue'
 import { propsConfigMap, resolveComponentByField, type FormField, type SmartActionBarProps } from '.'
@@ -148,7 +148,10 @@ const getOptions = (field: FormField) =>
 // 组件挂载时初始化
 onMounted(initState)
 
-defineExpose({ handleReset })
+// 暴露重置表单的方法，供父组件调用
+defineExpose({
+  handleReset
+})
 </script>
 
 <template>

@@ -110,7 +110,7 @@ class Request {
   }
 
   public delete<T = unknown>(url: string, data?: unknown, config?: RequestConfig<T>): Promise<T> {
-    return this.request({ ...config, method: 'DELETE', url })
+    return this.request({ ...config, method: 'DELETE', url, data })
   }
 }
 

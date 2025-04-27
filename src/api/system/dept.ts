@@ -21,5 +21,5 @@ export const deptApi = {
   deleteDept: (deptId: string) => http.delete(`/system/dept/delete/${deptId}`),
 
   // 批量删除部门
-  deleteBatchDept: (deptIds: string[]) => http.delete(`/system/dept/deleteBatch`, deptIds)
+  deleteBatchDept: (deptIds: string[]) => http.delete(`/system/dept/delete/batch`, deptIds)
 }
