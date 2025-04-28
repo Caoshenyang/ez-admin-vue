@@ -2,13 +2,6 @@ import type { ActionItem, FormField } from '@/components/layout/actionbar'
 import type { DeptForm, DeptQuery, DeptTreeVO } from '@/types/system'
 import { Delete, EditPen, Plus } from '@element-plus/icons-vue'
 
-// 树型节点类型
-export const treeProps = {
-  children: 'children',
-  label: 'deptName',
-  value: 'deptId'
-}
-
 export const INIT_QUERY: DeptQuery = {
   deptName: ''
 }
@@ -28,9 +21,6 @@ export const INIT_DEPT_TREE_DATA: DeptTreeVO = {
   parentId: '0',
   deptName: '顶级部门',
   ancestors: '0',
-  deptSort: 999,
-  status: 0,
-  description: '',
   children: []
 }
 

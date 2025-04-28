@@ -64,11 +64,11 @@ export interface RoleMenuRelation {
 export interface BaseDept {
   deptId: string
   deptName: string
-  deptSort: number
-  ancestors: string
+  deptSort?: number
+  ancestors?: string
   parentId: string
-  description: string
-  status: number
+  description?: string
+  status?: number
 }
 
 /** 表单 */

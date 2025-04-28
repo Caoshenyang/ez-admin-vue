@@ -252,16 +252,15 @@ defineExpose({
       <div class="action-group">
         <!-- 主操作按钮区 -->
         <el-space :size="8">
-          <!-- 遍历主操作按钮 -->
-          <el-tooltip :show-after="500" v-for="action in primaryActions" :key="action.name" :content="action.tooltip">
-            <el-button
-              :type="action.type"
-              :icon="action.icon"
-              :disabled="action.disabled"
-              :loading="actionLoading[action.name]"
-              @click="handleAction(action.name)"
-            />
-          </el-tooltip>
+          <el-button
+            v-for="action in primaryActions"
+            :key="action.name"
+            :type="action.type"
+            :icon="action.icon"
+            :disabled="action.disabled"
+            :loading="actionLoading[action.name]"
+            @click="handleAction(action.name)"
+          />
 
           <!-- 更多操作下拉菜单 -->
           <el-dropdown v-if="secondaryActions.length > 0">
@@ -328,7 +327,6 @@ defineExpose({
 }
 
 .search-area {
-  padding: 16px;
   margin-bottom: 16px;
   display: flex;
   flex-direction: column;

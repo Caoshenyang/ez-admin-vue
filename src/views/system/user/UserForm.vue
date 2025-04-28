@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { DeptTreeVO, RoleListVO, UserForm } from '@/types/system'
-import { treeProps } from '../dept/data'
+import { treeProps } from '../dept/config'
 import type { FormRules } from 'element-plus'
 
 const props = defineProps({

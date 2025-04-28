@@ -1,24 +1,26 @@
 <script lang="ts" setup>
 import type { DeptForm, DeptQuery, DeptTreeVO } from '@/types/system'
-import { INIT_DEPT_TREE_DATA, INIT_FORM_DATA, INIT_QUERY, FILTERS, ACTION_BUTTONS, FORM_FIELDS } from './data'
+import { INIT_DEPT_TREE_DATA, INIT_FORM_DATA, INIT_QUERY, FILTERS, ACTION_BUTTONS, FORM_FIELDS } from './config'
 import { deptApi } from '@/api/system/dept'
 import { msgErr, msgInfo, msgSuccess } from '@/utils/message'
 import { useButtonActions } from '@/composables/useButtonActions'
+import { Plus, EditPen, Delete } from '@element-plus/icons-vue'
 
 const deptTableTreeData = ref<DeptTreeVO[]>([]) // 表格树形数据
 const loading = ref(false) // 列表加载状态
 const actionBarRef = ref() // 操作栏 ref
 const dialogVisible = ref(false) // 弹窗显示状态
 const currentId = ref<string>() // 当前操作行的 id
-
 const selectedRows = ref<DeptTreeVO[]>([]) // 选中的行数据
 const formData = ref<DeptForm>({ ...INIT_FORM_DATA }) // 表单数据
 const deptSelectOptions = ref<DeptTreeVO[]>([{ ...INIT_DEPT_TREE_DATA }]) // 下拉树形数据
+const formFields = ref([...FORM_FIELDS]) // 初始化表单字段
+const deptQuery = ref<DeptQuery>({ ...INIT_QUERY }) // 初始化查询对象
 
-// 初始化表单字段
-const formFields = ref([...FORM_FIELDS])
-// 查询对象
-const deptQuery = ref<DeptQuery>({ ...INIT_QUERY })
+// 动态计算按钮状态
+const actionButtons = computed(() => {
+  return useButtonActions(ACTION_BUTTONS, selectedRows)
+})
 
 // 刷新列表
 const refreshList = async () => {
@@ -37,48 +39,65 @@ onMounted(() => {
 })
 
 /**
- * 初始化表单
- * deptId: 部门id parentId: 父部门id
- * 有deptId则为编辑操作
- * 有parentId则为新增子节点操作
- * @param options { deptId?: string; parentId?: string }
+ * 加载部门树选择数据
  */
-const initDeptForm = async (options: { deptId?: string; parentId?: string } = {}) => {
-  // 有deptId则为编辑操作
-  if (options.deptId) {
-    const data = await deptApi.getDeptById(options.deptId)
-    formData.value = { ...data }
-  } else {
-    formData.value = { ...INIT_FORM_DATA, parentId: options.parentId || INIT_FORM_DATA.parentId }
-  }
-
-  // 加载部门树数据
+const loadDeptTreeSelect = async () => {
   const deptTreeSelect = await deptApi.getDeptTreeList()
   deptSelectOptions.value = [
     {
-      ...deptSelectOptions.value[0], // 保留其他属性
-      children: [...deptTreeSelect] // 浅拷贝数组（避免引用共享）
+      ...deptSelectOptions.value[0],
+      children: [...deptTreeSelect]
     }
   ]
-  // 设置选择控件表单字段
+  // 动态表单中的部门选择数据赋值
   formFields.value = formFields.value.map((field) =>
     field.prop === 'parentId' ? { ...field, props: { ...field.props, data: [...deptSelectOptions.value] } } : field
   )
+}
+
+/**
+ * 初始化新增表单
+ * @param parentId 父部门ID
+ */
+const initAddForm = async (parentId?: string) => {
+  formData.value = { ...INIT_FORM_DATA, parentId: parentId || INIT_FORM_DATA.parentId }
+  await loadDeptTreeSelect()
   dialogVisible.value = true
 }
 
-// 使用计算属性或函数扩展按钮配置
-const actionButtons = computed(() => {
-  return useButtonActions(ACTION_BUTTONS, selectedRows)
-})
-
-// 新增
-const handleAdd = () => {
-  initDeptForm()
+/**
+ * 初始化编辑表单
+ * @param deptId 部门ID
+ */
+const initEditForm = async (deptId: string) => {
+  const data = await deptApi.getDeptById(deptId)
+  formData.value = { ...data }
+  await loadDeptTreeSelect()
+  dialogVisible.value = true
 }
 
+// 新增顶级部门
+const handleAdd = () => {
+  currentId.value = ''
+  initAddForm()
+}
+
+// 新增子部门
+const handleAddChildren = async (row: DeptTreeVO) => {
+  if (!row.status) {
+    msgErr('该节点未启用，无法添加子部门')
+    return
+  }
+  currentId.value = ''
+  await initAddForm(row.deptId)
+}
+
+// 编辑部门
 const handleEdit = () => {
-  initDeptForm({ deptId: currentId.value })
+  if (selectedRows.value.length === 1) {
+    currentId.value = selectedRows.value[0].deptId
+    initEditForm(currentId.value)
+  }
 }
 
 // 操作栏删除按钮使用批量删除接口
@@ -112,34 +131,20 @@ const handleDeleteNode = async (row: DeptTreeVO) => {
   refreshList()
 }
 
-/**
- * 新增子节点
- */
-const handleAddChildren = async (row: DeptTreeVO) => {
-  // 未开启的节点无法直接添加子节点
-  if (!row.status) {
-    msgErr('该节点未启用，无法添加子节点')
-    return
-  }
-  await initDeptForm({ parentId: row.deptId })
+// 切换部门状态
+const handleStatusChange = async (status: number, deptId: string) => {
+  await deptApi.updateDept({ deptId, status })
+  msgSuccess('操作成功')
 }
 
-// 所有操作的处理函数
-const actionHandlers = {
-  refresh: refreshList,
-  add: handleAdd,
-  edit: handleEdit,
-  delete: handleDelete
+// 搜索部门
+const handleSearch = async (params: DeptQuery) => {
+  deptQuery.value = { ...params }
+  const data = await deptApi.getDeptList(deptQuery.value)
+  deptTableTreeData.value = [...data]
 }
 
-// 调用方式
-const handleAction = (actionName: keyof typeof actionHandlers, payload?: DeptForm) => {
-  if (payload) {
-    currentId.value = payload.deptId
-  }
-  actionHandlers[actionName]?.()
-}
-
+// 表单确认提交
 const handleConfirm = async (formData: DeptForm) => {
   if (currentId.value) {
     await deptApi.updateDept(formData)
@@ -150,16 +155,17 @@ const handleConfirm = async (formData: DeptForm) => {
   refreshList()
 }
 
-// 切换部门启动状态
-const handleStatusChange = async (status: number, deptId: string) => {
-  await deptApi.updateDept({ deptId, status })
-  msgSuccess('操作成功')
+// 所有操作的处理函数
+const actionHandlers = {
+  refresh: refreshList,
+  add: handleAdd,
+  edit: handleEdit,
+  delete: () => handleDelete()
 }
 
-const handleSearch = async (params: DeptQuery) => {
-  deptQuery.value = { ...params }
-  const data = await deptApi.getDeptList(deptQuery.value)
-  deptTableTreeData.value = [...data]
+// 调用方式
+const handleAction = (actionName: keyof typeof actionHandlers) => {
+  actionHandlers[actionName]?.()
 }
 </script>
 <template>
@@ -174,6 +180,7 @@ const handleSearch = async (params: DeptQuery) => {
     />
     <div class="table-container">
       <el-table
+        max-height="580px"
         v-loading="loading"
         stripe
         highlight-current-row
@@ -202,21 +209,9 @@ const handleSearch = async (params: DeptQuery) => {
         <el-table-column label="操作" fixed="right">
           <template #default="scope">
             <div class="table-option">
-              <el-button type="primary" plain @click="handleAddChildren(scope.row)">
-                <template #icon>
-                  <EZSvgIcon icon="ep:plus" />
-                </template>
-              </el-button>
-              <el-button type="success" plain @click="handleAction('edit', scope.row)">
-                <template #icon>
-                  <EZSvgIcon icon="ep:edit-pen" />
-                </template>
-              </el-button>
-              <el-button type="danger" plain @click="handleDeleteNode(scope.row)">
-                <template #icon>
-                  <EZSvgIcon icon="ep:delete" />
-                </template>
-              </el-button>
+              <el-button type="primary" :icon="Plus" plain @click="handleAddChildren(scope.row)" />
+              <el-button type="success" :icon="EditPen" plain @click="initEditForm(scope.row.deptId)" />
+              <el-button type="danger" :icon="Delete" plain @click="handleDeleteNode(scope.row)" />
             </div>
           </template>
         </el-table-column>

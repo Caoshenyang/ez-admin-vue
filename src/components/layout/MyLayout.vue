@@ -53,10 +53,32 @@ const settingStore = useSettingStore()
 }
 
 .app-main {
+  height: calc(100vh - 60px - 34px);
   margin: 15px 15px;
   background-color: white;
   border: 1px solid #ebeef5;
   border-radius: 10px;
+  // 隐藏滚动条
+  overflow: hidden;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.3s;
+}
+
+.fade-enter-active {
+  transition-delay: 0.3;
 }
 
 .fade-enter-from,
