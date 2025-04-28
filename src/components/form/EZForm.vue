@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import type { FormInstance } from 'element-plus'
-import { type EZFormProps } from '.'
-import { propsConfigMap, resolveComponentByField, type FormField } from '../layout/actionbar'
+import { propsConfigMap, resolveComponentByField, type EZFormProps } from '.'
 import 'element-plus/es/components/input-number/style/css' // 手动引入样式, 动态组件这里样式不会生效
 import 'element-plus/es/components/date-picker/style/css' // 手动引入样式, 动态组件这里样式不会生效
 import 'element-plus/es/components/tree-select/style/css' // 手动引入样式, 动态组件这里样式不会生效
+import { type FormField } from '@/types/crud'
 
 const props = withDefaults(defineProps<EZFormProps>(), {
   fields: () => [],

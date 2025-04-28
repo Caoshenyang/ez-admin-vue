@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import type { FormField } from '@/types/crud'
 import type EZForm from '../form/EZForm.vue'
-import type { FormField } from '../layout/actionbar'
 
 const props = withDefaults(
   defineProps<{

@@ -2,7 +2,9 @@
 import { ref, computed, onMounted, defineExpose } from 'vue'
 import { debounce } from 'lodash-es'
 import { Search, ArrowUp, ArrowDown, MoreFilled, Refresh, Setting, Switch } from '@element-plus/icons-vue'
-import { propsConfigMap, resolveComponentByField, type FormField, type SmartActionBarProps } from '.'
+import type { SmartActionBarProps } from '.'
+import type { FormField } from '@/types/crud'
+import { propsConfigMap, resolveComponentByField } from '@/components/form'
 
 // 组件属性定义
 const props = withDefaults(defineProps<SmartActionBarProps>(), {
@@ -131,7 +133,6 @@ const initState = () => {
     }
   })
 }
-
 // 选项数据标准化
 const normalizeOptions = (options: unknown) =>
   Array.isArray(options)

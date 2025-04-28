@@ -67,6 +67,7 @@ declare module 'vue' {
     EZForm: typeof import('./src/components/form/EZForm.vue')['default']
     EZFormDialog: typeof import('./src/components/dialog/EZFormDialog.vue')['default']
     EZSvgIcon: typeof import('./src/components/icons/EZSvgIcon.vue')['default']
+    GenericCrud: typeof import('./src/components/crud/GenericCrud.vue')['default']
     LoginPage: typeof import('./src/views/login/LoginPage.vue')['default']
     MenuForm: typeof import('./src/views/system/menu/MenuForm.vue')['default']
     MenuManagementPage: typeof import('./src/views/system/menu/MenuManagementPage.vue')['default']
