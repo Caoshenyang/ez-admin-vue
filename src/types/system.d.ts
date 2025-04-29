@@ -64,15 +64,15 @@ export interface RoleMenuRelation {
 export interface BaseDept {
   deptId: string
   deptName: string
-  deptSort?: number
-  ancestors?: string
+  deptSort: number
+  ancestors: string
   parentId: string
-  description?: string
-  status?: number
+  description: string
+  status: number
 }
 
 /** 表单 */
-export type DeptForm = Partial<BaseDept>
+export type DeptForm = BaseDept
 /** 详情 */
 export type DeptDetailVO = BaseDept
 /** 查询列表 */

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="F extends Record<string, unknown>">
 import { ref, computed, watch } from 'vue'
 import type { FormInstance } from 'element-plus'
 import { propsConfigMap, resolveComponentByField, type EZFormProps } from '.'
@@ -7,7 +7,7 @@ import 'element-plus/es/components/date-picker/style/css' // 手动引入样式,
 import 'element-plus/es/components/tree-select/style/css' // 手动引入样式, 动态组件这里样式不会生效
 import { type FormField } from '@/types/crud'
 
-const props = withDefaults(defineProps<EZFormProps>(), {
+const props = withDefaults(defineProps<EZFormProps<F>>(), {
   fields: () => [],
   labelWidth: '80px',
   columns: 2, // 表单列数
@@ -16,7 +16,7 @@ const props = withDefaults(defineProps<EZFormProps>(), {
 
 const emit = defineEmits(['submit'])
 const formRef = ref<FormInstance>()
-const formModel = ref({ ...props.formData }) // 更语义化的命名
+const formModel = ref({ ...props.formData })
 
 // 监听props变化同步数据 父组件 -> 子组件
 watch(

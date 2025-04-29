@@ -1,25 +1,26 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="F extends Record<string, unknown>">
 import type { FormField } from '@/types/crud'
-import type EZForm from '../form/EZForm.vue'
+import { cloneDeep } from 'lodash-es'
 
-const props = withDefaults(
-  defineProps<{
-    visible: boolean // 控制对话框显示隐藏
-    title: string // 对话框标题
-    fields: FormField[] // 表单配置
-    width?: number // 对话框宽度
-    initialData?: Record<string, unknown> // 初始数据
-  }>(),
-  {
-    width: 500
-  }
-)
+interface FormDialogProps<F> {
+  visible: boolean // 控制对话框显示隐藏
+  title: string // 对话框标题
+  fields: FormField[] // 表单配置
+  width?: number // 对话框宽度
+  initialData: F // 使用泛型类型F
+}
+
+const props = withDefaults(defineProps<FormDialogProps<F>>(), {
+  width: 500
+})
 
 // 定义事件
 const emit = defineEmits(['update:visible', 'confirm'])
 
-const formRef = ref<InstanceType<typeof EZForm>>()
-const formData = ref<Record<string, unknown>>({})
+const formRef = ref()
+
+// 内部表单数据
+const formData = ref<F>(cloneDeep(props.initialData))
 
 // 初始化表单数据
 const initFormData = () => {

@@ -3,11 +3,12 @@ import { msgSuccess } from '@/utils/message'
 import { cloneDeep } from 'lodash-es'
 
 export const useCrud = <F, Q, T>(config: CrudConfig<F, Q, T>) => {
+  // 使用 ref 定义所有状态
   const loading = ref(false)
-  const data = ref<T>() as Ref<T> // 显式声明 Ref<T[]>
-  const selectedRows = ref<T[]>([]) as Ref<T[]>
+  const data = ref<T | null>(null)
+  const selectedRows = ref<T[]>([])
   const queryParams = ref<Q>({} as Q)
-  const formData = ref(cloneDeep(config.form.initialData)) as Ref<F>
+  const formData = ref<F>(cloneDeep(config.form.initialData))
   const dialog = ref({
     visible: false,
     title: '',
@@ -18,7 +19,11 @@ export const useCrud = <F, Q, T>(config: CrudConfig<F, Q, T>) => {
   const loadData = async () => {
     loading.value = true
     try {
-      data.value = await config.apis.list(queryParams.value)
+      const params = { ...queryParams.value }
+      data.value = await config.apis.list(params)
+    } catch (error) {
+      console.error('加载数据失败:', error)
+      throw error
     } finally {
       loading.value = false
     }
@@ -26,43 +31,69 @@ export const useCrud = <F, Q, T>(config: CrudConfig<F, Q, T>) => {
 
   // 新增
   const handleCreate = () => {
-    formData.value = cloneDeep(config.form.initialData)
-    dialog.value = { visible: true, title: `新增${config.name}`, mode: 'create' }
+    resetForm()
+    dialog.value = {
+      visible: true,
+      title: `新增${config.name}`,
+      mode: 'create'
+    }
   }
 
-  // 编辑
-  const handleEdit = (row: F) => {
-    formData.value = cloneDeep(row)
-    dialog.value = { visible: true, title: `编辑${config.name}`, mode: 'edit' }
+  // 编辑 - 现在类型安全了
+  const handleEdit = (row: Partial<F>) => {
+    const initialData = cloneDeep(config.form.initialData)
+    formData.value = { ...initialData, ...row } as F
+    dialog.value = {
+      visible: true,
+      title: `编辑${config.name}`,
+      mode: 'edit'
+    }
   }
 
   // 删除
   const handleDelete = async (ids: string[]) => {
-    await ElMessageBox.confirm(`确定删除选中的${config.name}吗？`, '删除确认')
-    await config.apis.delete(ids)
-    msgSuccess('删除成功')
-    await loadData()
+    try {
+      await ElMessageBox.confirm(`确定删除选中的${config.name}吗？`, '删除确认')
+      await config.apis.delete(ids)
+      msgSuccess('删除成功')
+      await loadData()
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除失败:', error)
+      }
+    }
   }
 
   // 提交
   const handleSubmit = async () => {
-    let data = cloneDeep(formData.value)
+    try {
+      let submitData = cloneDeep(formData.value)
 
-    if (config.hooks?.beforeCreate && dialog.value.mode === 'create') {
-      data = await config.hooks.beforeCreate(data)
+      // 预处理钩子
+      if (dialog.value.mode === 'create' && config.hooks?.beforeCreate) {
+        submitData = await config.hooks.beforeCreate(submitData)
+      } else if (dialog.value.mode === 'edit' && config.hooks?.beforeUpdate) {
+        submitData = await config.hooks.beforeUpdate(submitData)
+      }
+
+      // 执行API调用
+      const api = dialog.value.mode === 'create' ? config.apis.create : config.apis.update
+      await api(submitData)
+
+      msgSuccess('操作成功')
+      dialog.value.visible = false
+      await loadData()
+
+      config.hooks?.afterSubmit?.()
+    } catch (error) {
+      console.error('提交失败:', error)
+      throw error
     }
+  }
 
-    if (config.hooks?.beforeUpdate && dialog.value.mode === 'edit') {
-      data = await config.hooks.beforeUpdate(data)
-    }
-
-    const api = dialog.value.mode === 'create' ? config.apis.create : config.apis.update
-
-    await api(data)
-    msgSuccess('删除成功')
-    dialog.value.visible = false
-    await loadData()
-    config.hooks?.afterSubmit?.()
+  // 重置表单
+  const resetForm = () => {
+    formData.value = cloneDeep(config.form.initialData)
   }
 
   return {
@@ -76,6 +107,7 @@ export const useCrud = <F, Q, T>(config: CrudConfig<F, Q, T>) => {
     handleCreate,
     handleEdit,
     handleDelete,
-    handleSubmit
+    handleSubmit,
+    resetForm
   }
 }

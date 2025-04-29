@@ -9,9 +9,10 @@ import {
   ElDatePicker,
   ElTreeSelect
 } from 'element-plus'
-export interface EZFormProps {
+
+export interface EZFormProps<F> {
   fields: FormField[] // 表单字段
-  formData: Record<string, unknown> // 表单数据
+  formData: F // 表单数据
   columns?: number // 表单列数
   labelWidth?: string | number // 表单标签宽度
   submitOnEnter?: boolean // 是否在按下回车键时提交表单

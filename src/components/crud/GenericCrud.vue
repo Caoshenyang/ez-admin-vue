@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="F, T, Q">
+<script setup lang="ts" generic="F extends Record<string, unknown>, T, Q">
 import { useCrud } from '@/composables/useCrud'
 import type { CrudConfig } from '@/types/crud'
 
@@ -6,19 +6,9 @@ const props = defineProps<{
   config: CrudConfig<F, Q, T>
 }>()
 
-const {
-  loading,
-  data,
-  selectedRows,
-  queryParams,
-  formData,
-  dialog,
-  loadData,
-  handleCreate,
-  handleEdit,
-  handleDelete,
-  handleSubmit
-} = useCrud(props.config)
+const { loading, data, selectedRows, formData, dialog, loadData, handleEdit, handleDelete, handleSubmit } = useCrud(
+  props.config
+)
 
 // 初始化加载数据
 onMounted(() => loadData())
@@ -72,7 +62,7 @@ const componentMap = new Map([
     <!-- 表单对话框 -->
     <EZFormDialog
       v-model:visible="dialog.visible"
-      :initial-data="config.form.initialData"
+      :initial-data="formData"
       :title="dialog.title"
       :fields="config.form.fields"
       @confirm="handleSubmit"
