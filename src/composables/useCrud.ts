@@ -5,7 +5,7 @@ import { cloneDeep } from 'lodash-es'
 export const useCrud = <F, Q, T>(config: CrudConfig<F, Q, T>) => {
   // 使用 ref 定义所有状态
   const loading = ref(false)
-  const data = ref<T | null>(null)
+  const data = ref<T[] | T>()
   const selectedRows = ref<T[]>([])
   const queryParams = ref<Q>({} as Q)
   const formData = ref<F>(cloneDeep(config.form.initialData))

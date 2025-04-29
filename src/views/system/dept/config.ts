@@ -89,7 +89,7 @@ export const deptConfig: CrudConfig<DeptForm, DeptQuery, DeptTreeVO> = {
     treeProps: { children: 'children', hasChildren: 'hasChild' }
   },
   apis: {
-    list: deptApi.getDeptTreeList,
+    list: deptApi.getDeptList,
     create: deptApi.createDept,
     update: deptApi.updateDept,
     delete: deptApi.deleteBatchDept

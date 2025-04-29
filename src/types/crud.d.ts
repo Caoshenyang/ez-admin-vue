@@ -20,7 +20,7 @@ export interface CrudConfig<F, Q, T> {
   }
   query?: QueryField[] // 查询条件
   apis: {
-    list: (query: Q) => Promise<T>
+    list: (query: Q) => Promise<T | T[]> // 列表数据接口, 如果是分页则返回对象 { total: number, list: T[] } ， 不分页则返回 T[]
     create: (data: F) => Promise<any>
     update: (data: F) => Promise<any>
     delete: (ids: string[]) => Promise<any>

@@ -1,6 +1,8 @@
 <script setup lang="ts" generic="F extends Record<string, unknown>, T, Q">
 import { useCrud } from '@/composables/useCrud'
+import { useUserStore } from '@/stores/modules/userStore'
 import type { CrudConfig } from '@/types/crud'
+import { useRoute } from 'vue-router'
 
 const props = defineProps<{
   config: CrudConfig<F, Q, T>
@@ -9,6 +11,12 @@ const props = defineProps<{
 const { loading, data, selectedRows, formData, dialog, loadData, handleEdit, handleDelete, handleSubmit } = useCrud(
   props.config
 )
+
+const userStore = useUserStore()
+
+// 从路由参数中获取当前用户的按钮相关信息
+const route = useRoute()
+console.log(route)
 
 // 初始化加载数据
 onMounted(() => loadData())
@@ -29,7 +37,7 @@ const componentMap = new Map([
     <!-- 数据表格 -->
     <el-table
       v-loading="loading"
-      :data="data"
+      :data="data as T[]"
       :row-key="config.table.rowKey || 'id'"
       @selection-change="(rows) => (selectedRows = rows)"
     >
@@ -42,7 +50,7 @@ const componentMap = new Map([
             <component
               v-if="col.component"
               :is="componentMap.get(col.component as string)"
-              v-bind="col.props"
+              v-bind="col"
               :model-value="row[col.prop]"
             />
             <template v-else>
