@@ -10,12 +10,12 @@ import MyLayout from '@/components/layout/MyLayout.vue'
  */
 function transformMenuToRoute(menu: MenuTreeVO, parentPath = ''): RouteRecordRaw | null {
   // 处理路径，确保不以/开头且父路径正确拼接
-  let path = menu.routePath
+  let path = menu.routePath!
   if (path.startsWith('/')) {
     path = path.substring(1)
   }
 
-  let componentPath = menu.componentPath
+  let componentPath = menu.componentPath!
   if (componentPath.startsWith('/')) {
     componentPath = componentPath.substring(1)
   }
