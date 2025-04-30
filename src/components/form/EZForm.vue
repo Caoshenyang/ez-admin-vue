@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="F extends Record<string, unknown>">
+<script setup lang="ts" generic="F">
 import { ref, computed, watch } from 'vue'
 import type { FormInstance } from 'element-plus'
 import { propsConfigMap, resolveComponentByField, type EZFormProps } from '.'
@@ -16,7 +16,7 @@ const props = withDefaults(defineProps<EZFormProps<F>>(), {
 
 const emit = defineEmits(['submit'])
 const formRef = ref<FormInstance>()
-const formModel = ref({ ...props.formData })
+const formModel = ref<Record<string, unknown>>({ ...props.formData })
 
 // 监听props变化同步数据 父组件 -> 子组件
 watch(

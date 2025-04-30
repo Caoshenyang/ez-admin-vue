@@ -194,6 +194,9 @@ defineExpose({ open, addChildren, close })
             <el-form-item prop="componentPath" label="组件路径" v-if="menuFormData.menuType == 2">
               <el-input v-model="menuFormData.componentPath" placeholder="组件路径" />
             </el-form-item>
+            <el-form-item v-if="menuFormData.menuType === 3" prop="menuLabel" label="按钮标志">
+              <el-input v-model="menuFormData.menuLabel" placeholder="按钮标志" />
+            </el-form-item>
           </el-col>
         </el-row>
       </el-form>

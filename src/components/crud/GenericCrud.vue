@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="F extends Record<string, unknown>, T, Q">
+<script setup lang="ts" generic="F, T, Q">
 import { useCrud } from '@/composables/useCrud'
 import { useUserStore } from '@/stores/modules/userStore'
 import type { CrudConfig } from '@/types/crud'
@@ -8,15 +8,23 @@ const props = defineProps<{
   config: CrudConfig<F, Q, T>
 }>()
 
-const { loading, data, selectedRows, formData, dialog, loadData, handleEdit, handleDelete, handleSubmit } = useCrud(
-  props.config
-)
+const {
+  loading,
+  data,
+  selectedRows,
+  formData,
+  dialog,
+  loadData,
+  handleCreate,
+  handleEdit,
+  handleDelete,
+  handleSubmit
+} = useCrud(props.config)
 
 const userStore = useUserStore()
-
 // 从路由参数中获取当前用户的按钮相关信息
 const route = useRoute()
-console.log(route)
+const actions = userStore.buttonRecords[route.fullPath as string]
 
 // 初始化加载数据
 onMounted(() => loadData())
@@ -28,11 +36,26 @@ const componentMap = new Map([
   ['tree-select', resolveComponent('el-tree-select')]
   // 添加更多组件映射
 ])
+
+// 所有操作的处理函数
+const actionHandlers = {
+  refresh: loadData,
+  add: handleCreate,
+  edit: handleEdit,
+  delete: handleDelete
+}
+
+// 调用方式
+const handleAction = (actionName: keyof typeof actionHandlers) => {
+  console.log(actionName)
+
+  actionHandlers[actionName]?.()
+}
 </script>
 
 <template>
   <div class="crud-container">
-    <AppActionBar />
+    <AppActionBar ref="actionBarRef" :actions="actions" @search="loadData" @action="handleAction" />
 
     <!-- 数据表格 -->
     <el-table

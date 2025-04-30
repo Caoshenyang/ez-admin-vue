@@ -1,5 +1,6 @@
 // composables/useButtonActions.ts
 import type { ActionItem } from '@/components/layout/actionbar'
+import type { MenuTreeVO } from '@/types/auth'
 
 /**
  * 根据选择的行，设置按钮禁用状态
@@ -18,4 +19,17 @@ export function useButtonActions(buttonDefinitions: ActionItem[], selectedRows: 
     ...button,
     disabled: defaultStrategies[button.name] || button.disabled
   }))
+}
+
+/**
+ * 将 MenuTreeVO 类型的按钮转成 ActionItem 类型
+ */
+export function useMenuTreeToActionItem(menu: MenuTreeVO): ActionItem {
+  return {
+    name: menu.menuName,
+    label: menu.menuLabel,
+    icon: menu.menuIcon,
+    disabled: false,
+    visible: true
+  }
 }

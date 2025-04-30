@@ -13,7 +13,7 @@ export interface ActionItem {
   name: string // 操作唯一标识
   label: string // 显示文本
   type?: 'primary' | 'success' | 'warning' | 'danger' | 'info' // 按钮类型
-  icon?: Component // 按钮图标
+  icon?: string | Component // 按钮图标
   tooltip?: string // 提示文本
   visible?: boolean // 是否显示
   disabled?: boolean // 是否禁用

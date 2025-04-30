@@ -1,8 +1,7 @@
-import { provideAuth } from '@/composables/useAuth'
 import nprogress from '../plugins/nprogress'
 import router from '@/router'
 import { useUserStore } from '@/stores/modules/userStore'
-import { generateDynamicRoutes } from '@/utils/dynamicRoutes'
+import { generateDynamicRoutes } from '@/utils/routeGenerator'
 import { ref } from 'vue'
 
 /**  白名单，用户不登录也可以进入 */

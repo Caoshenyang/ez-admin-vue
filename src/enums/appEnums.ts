@@ -27,3 +27,10 @@ export enum StatusEnum {
   '禁用' = 0,
   '启用' = 1
 }
+
+// 菜单类型枚举
+export enum MenuType {
+  DIRECTORY = 1, // 目录
+  MENU = 2, // 菜单
+  BUTTON = 3 // 按钮
+}

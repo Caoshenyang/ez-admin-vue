@@ -1,7 +1,8 @@
 import type { MenuTreeVO } from '@/types/auth'
 import type { RouteRecordRaw } from 'vue-router'
 import MyLayout from '@/components/layout/MyLayout.vue'
-import { useAuth } from '@/composables/useAuth'
+import { MenuType } from '@/enums/appEnums'
+import { useUserStore } from '@/stores/modules/userStore'
 
 /**
  * 获取组件导入函数
@@ -12,16 +13,7 @@ function getComponentImporter(component?: string) {
   // 处理动态导入路径
   const normalizedPath = component.startsWith('/') ? component.slice(1) : component
 
-  return () => import(/* @vite-ignore */ `@/views/${normalizedPath}.vue`)
-}
-
-/**
- * 收集当前菜单下的所有按钮keys
- */
-function collectButtonKeys(menu?: MenuTreeVO[]): string[] {
-  if (!menu) return []
-
-  return menu.flatMap((item) => (item.menuType === 3 ? [item.menuId] : collectButtonKeys(item.children)))
+  return () => import(/* @vite-ignore */ `../views/${normalizedPath}`)
 }
 
 /**
@@ -29,22 +21,25 @@ function collectButtonKeys(menu?: MenuTreeVO[]): string[] {
  */
 function transformMenuToRoute(menu: MenuTreeVO, parentPath = ''): RouteRecordRaw | null {
   // 忽略按钮类型
-  if (menu.menuType === 3) return null
+  if (menu.menuType === MenuType.BUTTON) return null
 
   // 处理路径，确保不以/开头且父路径正确拼接
   const path = menu.routePath?.startsWith('/') ? menu.routePath.slice(1) : menu.routePath || ''
   const fullPath = parentPath ? `${parentPath}/${path}` : `/${path}`
 
+  // 初始化 Pinia 缓存（无需等待）
+  const userStore = useUserStore()
+  userStore.cacheButtons(fullPath, menu)
+
   // 路由配置基础结构
   const route: RouteRecordRaw = {
     path: fullPath,
     name: menu.routeName || menu.menuId, // 使用菜单ID作为路由name
-    component: menu.menuType === 1 ? MyLayout : getComponentImporter(menu.componentPath),
+    component: menu.menuType === MenuType.DIRECTORY ? MyLayout : getComponentImporter(menu.componentPath),
     meta: {
       auth: true, // 默认需要鉴权
       title: menu.menuName,
-      icon: menu.menuIcon,
-      buttonKeys: collectButtonKeys(menu.children)
+      icon: menu.menuIcon
     },
     children: []
   }
@@ -59,7 +54,7 @@ function transformMenuToRoute(menu: MenuTreeVO, parentPath = ''): RouteRecordRaw
       })
 
     // 设置重定向到第一个子路由（如果有子路由）
-    if (route.children?.length && menu.menuType === 1) {
+    if (route.children?.length && menu.menuType === MenuType.DIRECTORY) {
       route.redirect = route.children[0].path
     }
   }
@@ -73,11 +68,6 @@ function transformMenuToRoute(menu: MenuTreeVO, parentPath = ''): RouteRecordRaw
  * @returns 动态路由配置
  */
 export async function generateDynamicRoutes(menuData: MenuTreeVO[]) {
-  const { init } = useAuth()
-
-  // 初始化权限数据
-  init(menuData)
-
   // 过滤出顶级菜单（parentId为空或为0）
   const topLevelMenus = menuData.filter((menu) => !menu.parentId || menu.parentId === '0')
 

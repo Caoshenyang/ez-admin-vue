@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="F extends Record<string, unknown>">
+<script setup lang="ts" generic="F">
 import type { FormField } from '@/types/crud'
 import { cloneDeep } from 'lodash-es'
 
