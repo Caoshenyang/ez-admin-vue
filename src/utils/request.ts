@@ -5,7 +5,7 @@ import axios, {
   type InternalAxiosRequestConfig
 } from 'axios'
 import { msgErr } from './message'
-import { getToken } from './auth'
+import { getToken } from './cookie'
 
 type RequestConfig<T = unknown> = AxiosRequestConfig & {
   // 可以在这里扩展自定义配置

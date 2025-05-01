@@ -5,7 +5,7 @@ import { MenuType } from '@/enums/appEnums'
 import { HOME_PAGE } from '@/router'
 import type { LoginDTO, MenuTreeVO, UserInfoVO } from '@/types/auth'
 import type { WorkTab } from '@/types/theme'
-import { getToken, removeToken, setToken } from '@/utils/auth'
+import { getToken, removeToken, setToken } from '@/utils/cookie'
 import { defineStore } from 'pinia'
 
 // 你可以对 `defineStore()` 的返回值进行任意命名，但最好使用 store 的名字，同时以 `use` 开头且以 `Store` 结尾。(比如 `useUserStore`，`useCartStore`，`useProductStore`)
