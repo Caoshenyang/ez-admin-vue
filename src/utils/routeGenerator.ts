@@ -18,6 +18,9 @@ function getComponentImporter(component?: string) {
 
 /**
  * 转换菜单为路由配置
+ * @param menu 菜单对象
+ * @param parentPath 父级组件路径
+ * @returns 路由信息
  */
 function transformMenuToRoute(menu: MenuTreeVO, parentPath = ''): RouteRecordRaw | null {
   // 忽略按钮类型
