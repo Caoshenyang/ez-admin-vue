@@ -26,13 +26,12 @@ export interface MenuTreeVO {
   parentId: string
   menuType: 1 | 2 | 3 // 1:目录 2:菜单 3:按钮
   menuName: string
-  menuLabel: string
-  menuIcon?: string
-  menuPerm?: string
+  menuIcon: string
+  menuPerm: string
   menuSort: number
-  routePath?: string
-  routeName?: string
-  componentPath?: string
+  routePath: string
+  routeName: string
+  componentPath: string
   status: number
   children?: MenuTreeVO[]
 }

@@ -41,15 +41,13 @@ const componentMap = new Map([
 const actionHandlers = {
   refresh: loadData,
   add: handleCreate,
-  edit: handleEdit,
-  delete: handleDelete
+  edit: (row: unknown) => handleEdit(row as Partial<F>),
+  delete: (ids: unknown) => handleDelete(ids as string[])
 }
 
 // 调用方式
-const handleAction = (actionName: keyof typeof actionHandlers) => {
-  console.log(actionName)
-
-  actionHandlers[actionName]?.()
+const handleAction = (actionName: keyof typeof actionHandlers, payload?: unknown) => {
+  actionHandlers[actionName]?.(payload)
 }
 </script>
 

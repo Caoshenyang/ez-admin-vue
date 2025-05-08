@@ -80,3 +80,12 @@ export async function generateDynamicRoutes(menuData: MenuTreeVO[]) {
     .map((menu) => transformMenuToRoute(menu))
     .filter((route): route is RouteRecordRaw => route !== null)
 }
+
+export const filterMenuTree = (menuTree: MenuTreeVO[]): MenuTreeVO[] => {
+  return menuTree
+    .filter((node) => node.menuType !== MenuType.BUTTON)
+    .map((node) => ({
+      ...node,
+      children: node.children ? filterMenuTree(node.children) : []
+    }))
+}

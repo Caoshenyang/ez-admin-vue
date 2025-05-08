@@ -16,7 +16,10 @@ const props = withDefaults(defineProps<EZFormProps<F>>(), {
 
 const emit = defineEmits(['submit'])
 const formRef = ref<FormInstance>()
-const formModel = ref<Record<string, unknown>>({ ...props.formData })
+
+// 明确类型处理
+type FormModelType = F extends Record<string, unknown> ? F : Record<string, unknown>
+const formModel = ref<FormModelType>({ ...props.formData } as FormModelType)
 
 // 监听props变化同步数据 父组件 -> 子组件
 watch(

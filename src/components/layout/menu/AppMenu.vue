@@ -6,6 +6,7 @@ import SubMenu from './SubMenu.vue'
 import type { MenuTreeVO } from '@/types/auth'
 import { useSettingStore } from '@/stores/modules/settingStore'
 import { useUserStore } from '@/stores/modules/userStore'
+import { filterMenuTree } from '@/utils/routeGenerator'
 
 /***************************** 数据源 ******************************************/
 
@@ -13,12 +14,13 @@ const settingStore = useSettingStore()
 const userStore = useUserStore()
 
 // 菜单数据
-const menus = ref<MenuTreeVO[]>(userStore.userInfo.menus)
+const menus = ref<MenuTreeVO[]>(filterMenuTree(userStore.userInfo.menus))
 const route = useRoute()
 // 默认选中
 const defaultActive = ref(route.path)
 
 /***************************** 方法区 ******************************************/
+
 // 监听路由变化
 watch(
   () => route.path,
