@@ -257,16 +257,21 @@ defineExpose({
             v-for="action in primaryActions"
             :key="action.name"
             :type="action.type"
-            :icon="action.icon"
             :disabled="action.disabled"
             :loading="actionLoading[action.name]"
             @click="handleAction(action.name)"
-          />
+          >
+            <template #icon>
+              <EZSvgIcon :icon="action.icon!" />
+            </template>
+          </el-button>
 
           <!-- 更多操作下拉菜单 -->
+
           <el-dropdown v-if="secondaryActions.length > 0">
             <el-button type="primary" plain>
-              更多<el-icon class="el-icon--right"><MoreFilled /></el-icon>
+              更多
+              <el-icon class="el-icon--right"><MoreFilled /></el-icon>
             </el-button>
             <template #dropdown>
               <el-dropdown-menu>
@@ -276,7 +281,7 @@ defineExpose({
                   :disabled="action.disabled"
                   @click="handleAction(action.name)"
                 >
-                  {{ action.label }}
+                  {{ action.name }}
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>

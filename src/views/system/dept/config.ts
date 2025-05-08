@@ -75,6 +75,7 @@ export const deptConfig: CrudConfig<DeptForm, DeptQuery, DeptTreeVO> = {
     ]
   },
   table: {
+    showSelection: true,
     columns: [
       { prop: 'deptName', label: '部门名称' },
       { prop: 'orderNum', label: '排序' },

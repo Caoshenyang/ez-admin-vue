@@ -27,7 +27,6 @@ export function useButtonActions(buttonDefinitions: ActionItem[], selectedRows: 
 export function useMenuTreeToActionItem(menu: MenuTreeVO): ActionItem {
   return {
     name: menu.menuName,
-    label: menu.menuLabel,
     icon: menu.menuIcon,
     disabled: false,
     visible: true

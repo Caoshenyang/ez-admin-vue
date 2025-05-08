@@ -54,7 +54,6 @@ const handleAction = (actionName: keyof typeof actionHandlers, payload?: unknown
 <template>
   <div class="crud-container">
     <AppActionBar ref="actionBarRef" :actions="actions" @search="loadData" @action="handleAction" />
-
     <!-- 数据表格 -->
     <el-table
       v-loading="loading"
@@ -80,13 +79,6 @@ const handleAction = (actionName: keyof typeof actionHandlers, payload?: unknown
           </template>
         </el-table-column>
       </template>
-
-      <el-table-column label="操作" width="180">
-        <template #default="{ row }">
-          <el-button size="small" @click="handleEdit(row)">编辑</el-button>
-          <el-button size="small" type="danger" @click="handleDelete([row[config.idKey]])"> 删除 </el-button>
-        </template>
-      </el-table-column>
     </el-table>
     <!-- 表单对话框 -->
     <EZFormDialog
