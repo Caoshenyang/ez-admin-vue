@@ -6,7 +6,6 @@ export const useCrud = <F, Q, T>(config: CrudConfig<F, Q, T>) => {
   // 使用 ref 定义所有状态
   const loading = ref(false)
   const data = ref<T[] | T>()
-  const selectedRows = ref<T[]>([])
   const queryParams = ref<Q>({} as Q)
   const formData = ref<F>(cloneDeep(config.form.initialData))
   const dialog = ref({
@@ -39,7 +38,7 @@ export const useCrud = <F, Q, T>(config: CrudConfig<F, Q, T>) => {
     }
   }
 
-  // 编辑 - 现在类型安全了
+  // 编辑
   const handleEdit = (row: Partial<F>) => {
     const initialData = cloneDeep(config.form.initialData)
     formData.value = { ...initialData, ...row } as F
@@ -99,7 +98,6 @@ export const useCrud = <F, Q, T>(config: CrudConfig<F, Q, T>) => {
   return {
     loading,
     data,
-    selectedRows,
     queryParams,
     formData,
     dialog,

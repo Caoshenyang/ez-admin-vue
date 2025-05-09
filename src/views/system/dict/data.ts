@@ -1,4 +1,5 @@
-import type { ActionItem, FormField } from '@/components/layout/actionbar'
+import type { ActionItem } from '@/components/layout/actionbar'
+import type { FormField } from '@/types/crud'
 import { Delete, Download, EditPen, Plus } from '@element-plus/icons-vue'
 
 export const roleFormField: FormField[] = [
