@@ -2,14 +2,13 @@
 import { ref, computed, onMounted, defineExpose } from 'vue'
 import { debounce } from 'lodash-es'
 import { Search, ArrowUp, ArrowDown, MoreFilled, Refresh, Setting, Switch } from '@element-plus/icons-vue'
-import type { SmartActionBarProps } from '.'
-import type { FormField } from '@/types/crud'
-import { propsConfigMap, resolveComponentByField } from '@/components/form'
+import type { FormField, SmartActionBarProps } from '@/types/common'
+import { propsConfigMap, resolveComponentByFieldType } from '@/utils/dynamicComponent'
 
 // 组件属性定义
 const props = withDefaults(defineProps<SmartActionBarProps>(), {
-  filters: () => [],
-  actions: () => [],
+  queryParams: () => [],
+  buttons: () => [],
   maxPrimaryActions: 4,
   debounceTime: 300
 })
@@ -27,12 +26,12 @@ const actionLoading = ref<Record<string, boolean>>({}) // 操作加载状态
 
 // 计算属性：基础筛选字段（非隐藏、非折叠、非系统）
 const basicFilterItems = computed(() => {
-  return props.filters.filter((item) => !item.hidden && !item.collapsed && !item.system)
+  return props.queryParams.filter((item) => !item.hidden && !item.collapsed && !item.system)
 })
 
 // 计算属性：扩展筛选字段（非隐藏、折叠、非系统）
 const extendedFilterItems = computed(() => {
-  return props.filters.filter((item) => !item.hidden && item.collapsed && !item.system)
+  return props.queryParams.filter((item) => !item.hidden && item.collapsed && !item.system)
 })
 
 // 计算属性：是否存在扩展筛选字段
@@ -42,14 +41,14 @@ const hasExtendedFilters = computed(() => {
 
 // 计算属性：系统字段（不会显示在UI上）
 const systemFilterItems = computed(() => {
-  return props.filters.filter((item) => item.system)
+  return props.queryParams.filter((item) => item.system)
 })
 
 // 计算属性：分组操作按钮（主操作和次级操作）根据设置默认显示的数量进行分割
 // 计算属性：主操作按钮（默认显示的数量）
-const primaryActions = computed(() => props.actions.slice(0, props.maxPrimaryActions))
+const primaryActions = computed(() => props.buttons.slice(0, props.maxPrimaryActions))
 // 计算属性：次级操作按钮（超出默认显示数量的部分）
-const secondaryActions = computed(() => props.actions.slice(props.maxPrimaryActions))
+const secondaryActions = computed(() => props.buttons.slice(props.maxPrimaryActions))
 
 /**
  * 获取组件的props
@@ -127,7 +126,7 @@ const getSystemFilters = () => {
 // 初始化状态
 const initState = () => {
   // 初始化高级筛选字段值
-  props.filters.forEach((item) => {
+  props.queryParams.forEach((item) => {
     if (item.prop && !advancedFilters.value[item.prop]) {
       advancedFilters.value[item.prop] = ''
     }
@@ -187,7 +186,7 @@ defineExpose({
                     <el-form-item :label="item.label" :prop="item.prop">
                       <!-- 动态组件渲染 -->
                       <component
-                        :is="resolveComponentByField(item)"
+                        :is="resolveComponentByFieldType(item.type)"
                         v-model="advancedFilters[item.prop]"
                         v-bind="getComponentProps(item)"
                       >
@@ -231,7 +230,7 @@ defineExpose({
                       <el-col v-for="item in extendedFilterItems" :key="item.prop" :span="item.span || 6">
                         <el-form-item :label="item.label" :prop="item.prop">
                           <component
-                            :is="resolveComponentByField(item)"
+                            :is="resolveComponentByFieldType(item.type)"
                             v-model="advancedFilters[item.prop]"
                             v-bind="getComponentProps(item)"
                           />

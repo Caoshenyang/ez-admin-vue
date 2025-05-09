@@ -1,39 +1,48 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-
-interface User {
-  id: number
-  name: string
-  age: number
-  status: 'active' | 'inactive'
-}
-
-const tableData = ref<User[]>([
-  { id: 1, name: '张三', age: 25, status: 'active' },
-  { id: 2, name: '李四', age: 30, status: 'inactive' }
-])
-
-const tableConfig = {
-  showSelection: true,
-  showIndex: true,
-  columns: [
-    { prop: 'name', label: '姓名', width: 120 },
-    { prop: 'age', label: '年龄', align: 'center' },
-    {
-      prop: 'status',
-      label: '状态',
-      component: 'el-tag',
-      formatter: (row: User) => (row.status === 'active' ? '活跃' : '非活跃')
-    }
-  ]
-}
+import type { DeptQuery, DeptTreeVO } from '@/types/system'
+import { tableConfig, actionsConfig } from './config'
+import { deptApi } from '@/api/system/dept'
+import { useUserStore } from '@/stores/modules/userStore'
+import router from '@/router'
+import { useButtonActions } from '@/composables/useButtonActions'
 
 const loading = ref(false)
-const handleSelectionChange = (rows: User[]) => {
-  console.log('选中行:', rows)
+const selectRows = ref<DeptTreeVO[]>([])
+const tableData = ref<DeptTreeVO[]>([])
+const queryParams = ref<DeptQuery>({
+  deptName: ''
+})
+const userStore = useUserStore()
+
+const buttons = userStore.getButtons(router.currentRoute.value.path)
+const actions = useButtonActions(buttons, selectRows)
+console.log(buttons)
+
+const loadData = async () => {
+  loading.value = true
+  try {
+    tableData.value = await deptApi.getDeptList({ ...queryParams.value })
+  } catch (error) {
+    console.error('加载数据失败:', error)
+    throw error
+  } finally {
+    loading.value = false
+  }
 }
+onMounted(() => {
+  loadData()
+})
+
+const handleSelectionChange = (rows: DeptTreeVO[]) => {
+  selectRows.value = rows
+}
+
+// 加载列表数据
 </script>
 
 <template>
-  <EZTable :data="tableData" :config="tableConfig" :loading="loading" @selection-change="handleSelectionChange" />
+  <div class="dept-container">
+    <AppActionBar :query-params="actionsConfig.queryParams" :buttons="actions" />
+    <EZTable :loading="loading" :config="tableConfig" :data="tableData" @selection-change="handleSelectionChange" />
+  </div>
 </template>

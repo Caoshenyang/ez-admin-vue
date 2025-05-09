@@ -1,50 +1,21 @@
 <script lang="ts" setup generic="T extends Record<string, any>">
-import { ElTag } from 'element-plus'
+import type { TableProps } from '@/types/common'
+import { resolveComponentByFieldType } from '@/utils/dynamicComponent'
 import { computed } from 'vue'
-
-interface TableColumn {
-  prop: string
-  label: string
-  width?: number | string
-  minWidth?: number | string
-  align?: 'left' | 'center' | 'right'
-  fixed?: boolean | 'left' | 'right'
-  component?: string
-  formatter?: (row: T) => string
-  [key: string]: unknown
-}
-
-interface TableConfig {
-  showSelection?: boolean
-  showIndex?: boolean
-  rowKey?: string
-  columns: TableColumn[]
-}
 
 const props = withDefaults(
   defineProps<{
     data: T[]
-    config: TableConfig
+    config: TableProps
     loading?: boolean
   }>(),
   {
     loading: false
   }
 )
-
 const emit = defineEmits<{
   (e: 'selection-change', rows: T[]): void
 }>()
-
-const componentMap = new Map<string, unknown>(
-  Object.entries({
-    'el-link': 'el-link',
-    'el-button': 'el-button',
-    'el-switch': 'el-switch',
-    'el-tag': ElTag,
-    'el-image': 'el-image'
-  })
-)
 
 const handleSelectionChange = (rows: T[]) => {
   emit('selection-change', rows)
@@ -69,7 +40,7 @@ const tableConfig = computed(() => ({
         <template #default="{ row }">
           <component
             v-if="col.component"
-            :is="componentMap.get(col.component)"
+            :is="resolveComponentByFieldType(col.component)"
             v-bind="col"
             :model-value="row[col.prop]"
           >

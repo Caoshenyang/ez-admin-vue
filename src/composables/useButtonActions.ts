@@ -1,6 +1,6 @@
 // composables/useButtonActions.ts
-import type { ActionItem } from '@/components/layout/actionbar'
 import type { MenuTreeVO } from '@/types/auth'
+import type { ActionItem } from '@/types/common'
 
 /**
  * 根据选择的行，设置按钮禁用状态
