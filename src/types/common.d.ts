@@ -86,17 +86,19 @@ export interface FieldOption {
 
 export interface ActionItem {
   name: string // 操作唯一标识
+  emit: string // 触发事件
+  permission: string | string[] // 权限标识
   type?: 'primary' | 'success' | 'warning' | 'danger' | 'info' // 按钮类型
   icon?: string // 按钮图标
   tooltip?: string // 提示文本
-  visible?: boolean // 是否显示
+  visible: boolean // 是否显示
   disabled?: boolean // 是否禁用
   sort?: number // 排序权重
 }
 
 export interface SmartActionBarProps {
   queryParams?: FormField[] // 搜索表单配置
-  buttons?: ActionItem[] // 操作按钮
+  actions?: ActionItem[] // 操作按钮
   maxPrimaryActions?: number // 最大主操作按钮数量
   debounceTime?: number // 搜索防抖时间(ms)
   persistState?: boolean // 是否记住状态

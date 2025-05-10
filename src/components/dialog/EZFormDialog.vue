@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="F">
-import type { FormField } from '@/types/crud'
+import type { FormField } from '@/types/common'
 import { cloneDeep } from 'lodash-es'
 
 interface FormDialogProps<F> {

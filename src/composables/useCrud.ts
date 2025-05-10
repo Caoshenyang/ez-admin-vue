@@ -33,7 +33,7 @@ export const useCrud = <F, Q, T>(config: CrudConfig<F, Q, T>) => {
     resetForm()
     dialog.value = {
       visible: true,
-      title: `新增${config.name}`,
+      title: `新增${name}`,
       mode: 'create'
     }
   }

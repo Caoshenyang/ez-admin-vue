@@ -35,7 +35,6 @@ const INIT_FORM: MenuForm = {
   menuId: '',
   menuName: '',
   menuIcon: '',
-  menuLabel: '',
   parentId: '0',
   menuSort: 0,
   menuType: 1,
@@ -43,7 +42,10 @@ const INIT_FORM: MenuForm = {
   routePath: '',
   routeName: '',
   componentPath: '',
-  status: 0
+  buttonEvent: '',
+  buttonStyle: '',
+  status: 0,
+  visible: 1
 }
 
 const emits = defineEmits(['confirm'])
@@ -182,11 +184,14 @@ defineExpose({ open, addChildren, close })
             <el-form-item v-if="menuFormData.menuType !== 1" prop="menuPerm" label="权限标识">
               <el-input v-model="menuFormData.menuPerm" placeholder="权限标识" />
             </el-form-item>
+            <el-form-item v-if="menuFormData.menuType === 3" prop="buttonStyle" label="按钮类型">
+              <el-input v-model="menuFormData.buttonStyle" placeholder="按钮类型" />
+            </el-form-item>
           </el-col>
           <!-- 右边列 -->
           <el-col :span="12">
-            <el-form-item prop="menuSort" label="菜单排序">
-              <el-input-number style="width: 100%" v-model="menuFormData.menuSort" controls-position="right" />
+            <el-form-item v-if="menuFormData.menuType === 3" prop="buttonEvent" label="按钮事件">
+              <el-input v-model="menuFormData.buttonEvent" placeholder="按钮事件" />
             </el-form-item>
             <el-form-item prop="routeName" label="路由名称" v-if="menuFormData.menuType != 3">
               <el-input v-model="menuFormData.routeName" placeholder="路由名称" />
@@ -194,8 +199,14 @@ defineExpose({ open, addChildren, close })
             <el-form-item prop="componentPath" label="组件路径" v-if="menuFormData.menuType == 2">
               <el-input v-model="menuFormData.componentPath" placeholder="组件路径" />
             </el-form-item>
-            <el-form-item v-if="menuFormData.menuType === 3" prop="menuLabel" label="按钮标志">
-              <el-input v-model="menuFormData.menuLabel" placeholder="按钮标志" />
+            <el-form-item prop="menuSort" label="菜单排序">
+              <el-input-number style="width: 100%" v-model="menuFormData.menuSort" controls-position="right" />
+            </el-form-item>
+            <el-form-item v-if="menuFormData.menuType === 3" prop="visible" label="是否显示">
+              <el-radio-group v-model="menuFormData.visible">
+                <el-radio :value="1">显示</el-radio>
+                <el-radio :value="2">隐藏</el-radio>
+              </el-radio-group>
             </el-form-item>
           </el-col>
         </el-row>

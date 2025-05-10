@@ -5,7 +5,6 @@ interface BaseMenu {
   menuId?: string
   menuName: string
   menuIcon: string
-  menuLabel: string
   parentId: string
   menuSort: number
   menuType: number
@@ -13,7 +12,10 @@ interface BaseMenu {
   routePath: string
   routeName: string
   componentPath: string
+  buttonEvent: string
+  buttonStyle: string
   status: number
+  visible: number
 }
 
 /** 表单 */

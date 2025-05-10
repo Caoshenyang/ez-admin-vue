@@ -1,9 +1,9 @@
 import { authApi } from '@/api/system/auth'
-import type { ActionItem } from '@/components/layout/actionbar'
 import { useMenuTreeToActionItem } from '@/composables/useButtonActions'
 import { MenuType } from '@/enums/appEnums'
 import { HOME_PAGE } from '@/router'
 import type { LoginDTO, MenuTreeVO, UserInfoVO } from '@/types/auth'
+import type { ActionItem } from '@/types/common'
 import type { WorkTab } from '@/types/theme'
 import { getToken, removeToken, setToken } from '@/utils/cookie'
 import { defineStore } from 'pinia'
@@ -19,6 +19,12 @@ export const useUserStore = defineStore('userInfo', {
   getters: {
     avatar: (state) => {
       return state.userInfo.avatar || '/images/avatar_boy.jpeg'
+    },
+    hasPermission: (state) => (value: string | string[]) => {
+      if (typeof value === 'string') {
+        return state.userInfo.permissions.includes(value)
+      }
+      return value.some((permission) => state.userInfo.permissions.includes(permission))
     }
   },
   actions: {
@@ -58,7 +64,6 @@ export const useUserStore = defineStore('userInfo', {
       removeToken()
       this.$reset()
     },
-
     // 获取当前路由的按钮
     getButtons(routePath: string): ActionItem[] {
       return this.buttonRecords[routePath] || []

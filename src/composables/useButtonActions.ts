@@ -8,16 +8,16 @@ import type { ActionItem } from '@/types/common'
  * @param selectedRows  选中的行
  * @returns 根据选择的行，设置按钮禁用状态，返回按钮定义
  */
-export function useButtonActions(buttonDefinitions: ActionItem[], selectedRows: Ref<unknown[]>): ActionItem[] {
+export function useButtonActions(buttonDefinitions: ActionItem[], selectedRows: unknown[]): ActionItem[] {
   const defaultStrategies: Record<string, boolean> = {
     add: false,
-    edit: selectedRows.value.length !== 1,
-    delete: selectedRows.value.length === 0
+    edit: selectedRows.length !== 1,
+    delete: selectedRows.length === 0
   }
 
   return buttonDefinitions.map((button) => ({
     ...button,
-    disabled: defaultStrategies[button.name] || button.disabled
+    disabled: defaultStrategies[button.emit] || button.disabled
   }))
 }
 
@@ -27,8 +27,11 @@ export function useButtonActions(buttonDefinitions: ActionItem[], selectedRows: 
 export function useMenuTreeToActionItem(menu: MenuTreeVO): ActionItem {
   return {
     name: menu.menuName,
+    emit: menu.buttonEvent,
+    type: menu.buttonStyle,
+    permission: menu.menuPerm,
     icon: menu.menuIcon,
     disabled: false,
-    visible: true
+    visible: menu.visible === 1
   }
 }

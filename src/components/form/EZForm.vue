@@ -1,11 +1,11 @@
 <script setup lang="ts" generic="F">
 import { ref, computed, watch } from 'vue'
 import type { FormInstance } from 'element-plus'
-import { propsConfigMap, resolveComponentByField, type EZFormProps } from '.'
 import 'element-plus/es/components/input-number/style/css' // 手动引入样式, 动态组件这里样式不会生效
 import 'element-plus/es/components/date-picker/style/css' // 手动引入样式, 动态组件这里样式不会生效
 import 'element-plus/es/components/tree-select/style/css' // 手动引入样式, 动态组件这里样式不会生效
-import { type FormField } from '@/types/crud'
+import type { EZFormProps, FormField } from '@/types/common'
+import { propsConfigMap, resolveComponentByFieldType } from '@/utils/dynamicComponent'
 
 const props = withDefaults(defineProps<EZFormProps<F>>(), {
   fields: () => [],
@@ -95,7 +95,7 @@ defineExpose(formActions)
         <el-form-item :label="field.label" :label-width="field.labelWidth" :prop="field.prop" :rules="field.rules">
           <!-- 动态组件渲染 -->
           <component
-            :is="resolveComponentByField(field)"
+            :is="resolveComponentByFieldType(field.type)"
             v-model="formModel[field.prop]"
             v-bind="getComponentProps(field)"
           >

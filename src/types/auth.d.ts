@@ -32,25 +32,15 @@ export interface MenuTreeVO {
   routePath: string
   routeName: string
   componentPath: string
+  buttonEvent: string
+  buttonStyle: 'primary' | 'success' | 'warning' | 'danger' | 'info'
   status: number
+  visible: number
   children?: MenuTreeVO[]
 }
 
-// 按钮配置类型
-export interface ButtonConfig {
-  id: string // 按钮ID
-  name: string // 按钮名称
-  permission: string // 权限标识
-  icon?: string // 图标类名
-  visible?: boolean // 是否可见
-  action?: () => void // 点击动作
-}
+export type PermissionType = string | string[]
 
-// 扩展路由meta类型
-declare module 'vue-router' {
-  interface RouteMeta {
-    auth?: boolean // 是否需要鉴权
-    buttonKeys?: string[] // 关联的按钮keys
-    // 其他自定义meta字段...
-  }
+export interface UserPermission {
+  permissions: string[]
 }

@@ -8,7 +8,7 @@ import { propsConfigMap, resolveComponentByFieldType } from '@/utils/dynamicComp
 // 组件属性定义
 const props = withDefaults(defineProps<SmartActionBarProps>(), {
   queryParams: () => [],
-  buttons: () => [],
+  actions: () => [],
   maxPrimaryActions: 4,
   debounceTime: 300
 })
@@ -46,9 +46,9 @@ const systemFilterItems = computed(() => {
 
 // 计算属性：分组操作按钮（主操作和次级操作）根据设置默认显示的数量进行分割
 // 计算属性：主操作按钮（默认显示的数量）
-const primaryActions = computed(() => props.buttons.slice(0, props.maxPrimaryActions))
+const primaryActions = computed(() => props.actions.slice(0, props.maxPrimaryActions))
 // 计算属性：次级操作按钮（超出默认显示数量的部分）
-const secondaryActions = computed(() => props.buttons.slice(props.maxPrimaryActions))
+const secondaryActions = computed(() => props.actions.slice(props.maxPrimaryActions))
 
 /**
  * 获取组件的props
@@ -254,12 +254,14 @@ defineExpose({
         <el-space :size="8">
           <el-button
             v-for="action in primaryActions"
+            v-permission="action.permission"
             :key="action.name"
             :type="action.type"
             :disabled="action.disabled"
             :loading="actionLoading[action.name]"
-            @click="handleAction(action.name)"
+            @click="handleAction(action.emit)"
           >
+            {{ action.name }}
             <template #icon>
               <EZSvgIcon :icon="action.icon!" />
             </template>

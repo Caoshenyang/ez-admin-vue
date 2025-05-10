@@ -1,4 +1,3 @@
-import { deptApi } from '@/api/system/dept'
 import type { EZFormProps, SmartActionBarProps, TableProps } from '@/types/common'
 import type { DeptForm } from '@/types/system'
 
@@ -12,7 +11,7 @@ export const actionsConfig: SmartActionBarProps = {
       type: 'input'
     }
   ],
-  buttons: []
+  actions: []
 }
 
 export const formConfig: EZFormProps<DeptForm> = {
