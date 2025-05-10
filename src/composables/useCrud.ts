@@ -1,4 +1,3 @@
-import type { CrudConfig } from '@/types/crud'
 import { msgSuccess } from '@/utils/message'
 import { cloneDeep } from 'lodash-es'
 
