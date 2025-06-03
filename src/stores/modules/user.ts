@@ -1,3 +1,6 @@
+import { HOME_PAGE } from '@/router'
+import type { WorkTab } from '@/types/theme'
+import type { UserInfoVO } from '@/types/user'
 import { defineStore } from 'pinia'
 
 // 你可以对 `defineStore()` 的返回值进行任意命名，但最好使用 store 的名字，同时以 `use` 开头且以 `Store` 结尾。(比如 `useUserStore`，`useCartStore`，`useProductStore`)
@@ -6,17 +9,10 @@ export const useUserStore = defineStore('userInfo', {
   state: () => ({
     userInfo: {} as UserInfoVO,
     workTabList: [{ title: '工作台', path: HOME_PAGE }] as WorkTab[],
-    buttonRecords: {} as Record<string, ActionItem[]>,
   }),
   getters: {
     avatar: (state) => {
       return state.userInfo.avatar || '/images/avatar_boy.jpeg'
-    },
-    hasPermission: (state) => (value: string | string[]) => {
-      if (typeof value === 'string') {
-        return state.userInfo.permissions.includes(value)
-      }
-      return value.some((permission) => state.userInfo.permissions.includes(permission))
     },
   },
   actions: {
