@@ -1,4 +1,6 @@
+import { authApi } from '@/api/auth'
 import { HOME_PAGE } from '@/router'
+import type { LoginDTO } from '@/types/auth'
 import type { WorkTab } from '@/types/theme'
 import type { UserInfoVO } from '@/types/user'
 import { defineStore } from 'pinia'
@@ -10,27 +12,15 @@ export const useUserStore = defineStore('userInfo', {
     userInfo: {} as UserInfoVO,
     workTabList: [{ title: '工作台', path: HOME_PAGE }] as WorkTab[],
   }),
-  getters: {
-    avatar: (state) => {
-      return state.userInfo.avatar || '/images/avatar_boy.jpeg'
-    },
-  },
+  getters: {},
   actions: {
-    /** 是否登录 */
-    isLogin() {
-      return !!getToken()
-    },
-
     /**
      * 登录
      *
      * @param loginDTO 登录参数
      */
     async login(loginDTO: LoginDTO) {
-      const token = await authApi.login(loginDTO)
-      console.log(token)
-
-      setToken(token)
+      await authApi.login(loginDTO)
     },
 
     /** 获取用户信息 */
@@ -49,31 +39,8 @@ export const useUserStore = defineStore('userInfo', {
       // await logout()
 
       // 清除数据和状态
-      removeToken()
+      // removeToken()
       this.$reset()
-    },
-    // 获取当前路由的按钮
-    getButtons(routePath: string): ActionItem[] {
-      return this.buttonRecords[routePath] || []
-    },
-    // 收集按钮并存入缓存
-    cacheButtons(fullPath: string, menu: MenuTreeVO) {
-      if (menu.menuType === MenuType.BUTTON) return
-      // 存入当前路由的按钮
-      if (menu.children?.length) {
-        const buttons = this.collectButton(menu.children)
-        if (buttons.length) {
-          this.buttonRecords[fullPath] = buttons
-        }
-      }
-    },
-    // 辅助方法：收集按钮
-    collectButton(menuList: MenuTreeVO[]): ActionItem[] {
-      return menuList.flatMap((item) =>
-        item.menuType === MenuType.BUTTON
-          ? [useMenuTreeToActionItem(item)]
-          : this.collectButton(item.children || []),
-      )
     },
   },
   persist: true,

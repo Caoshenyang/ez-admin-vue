@@ -1,24 +1,25 @@
 <script lang="ts" setup>
 import router from '@/router'
-// import { useUserStore } from '@/stores/modules/userStore'
-import type { FormInstance, FormRules } from 'element-plus'
+import { useUserStore } from '@/stores/modules/user'
+import type { LoginDTO } from '@/types/auth'
+import type { FormRules } from 'element-plus'
 import { ref } from 'vue'
 
 // 登录表单数据
-const userLoginForm = ref({
+const userLoginForm = ref<LoginDTO>({
   username: 'admin',
   password: 'admin123456',
 })
 
 // 登录表单ref
-const loginFormRef = ref<FormInstance>()
+const loginFormRef = ref()
 // 加载动画
 const loading = ref(false)
 // 获取用户信息缓存仓库
 const userStore = useUserStore()
 
 // 表单验证规则
-const rules = ref<FormRules>({
+const rules = ref<FormRules<LoginDTO>>({
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
 })
@@ -64,13 +65,8 @@ const handleLogin = async () => {
         <span>账号密码登录</span>
         <span class="line"></span>
       </div>
-      <el-form
-        class="login-form"
-        ref="loginFormRef"
-        :rules="rules"
-        :model="userLoginForm"
-        size="large"
-      >
+
+      <el-form class="login-form" ref="loginFormRef" :rules="rules" :model="userLoginForm" size="large">
         <el-form-item prop="username">
           <el-input v-model="userLoginForm.username" placeholder="请输入用户名">
             <template #prefix>
@@ -81,21 +77,14 @@ const handleLogin = async () => {
           </el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input
-            type="password"
-            v-model="userLoginForm.password"
-            placeholder="请输入密码"
-            show-password
-          >
+          <el-input type="password" v-model="userLoginForm.password" placeholder="请输入密码" show-password>
             <template #prefix>
               <EZSvgIcon icon="ep:lock" />
             </template>
           </el-input>
         </el-form-item>
         <el-form-item>
-          <el-button class="login-button" color="#3b82f6" @click="handleLogin" :loading="loading">
-            登 录
-          </el-button>
+          <el-button class="login-button" color="#3b82f6" @click="handleLogin" :loading="loading"> 登 录 </el-button>
         </el-form-item>
         <el-link type="primary">忘记密码</el-link>
       </el-form>

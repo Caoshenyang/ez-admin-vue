@@ -18,6 +18,8 @@ declare module 'vue' {
     ElRow: typeof import('element-plus/es')['ElRow']
     ElText: typeof import('element-plus/es')['ElText']
     EZLayout: typeof import('./src/components/layout/EZLayout.vue')['default']
+    LoginPage: typeof import('./src/views/login/LoginPage.vue')['default']
+    NotFountPage: typeof import('./src/views/errors/NotFountPage.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }
