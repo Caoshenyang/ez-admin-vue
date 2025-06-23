@@ -55,6 +55,8 @@ const handleLogin = async () => {
 <template>
   <el-row class="login-container">
     <el-col :span="14" class="left-body">
+      <SvgIcon name="home" size="24" color="#42b883" class="icon-home" />
+
       <el-text class="title">EZ-ADMIN</el-text>
       <el-text class="subtitle">相信自己我能行， 老天不会辜负你所付出的努力！</el-text>
     </el-col>

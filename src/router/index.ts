@@ -13,7 +13,7 @@ const staticRoutes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'main',
-    redirect: HOME_PAGE,
+    // redirect: HOME_PAGE,
     component: EZLayout,
     children: [
       // {

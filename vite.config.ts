@@ -7,12 +7,20 @@ import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import Inspect from 'vite-plugin-inspect'
-import UnoCSS from 'unocss/vite'
+import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
-    UnoCSS(),
+    createSvgIconsPlugin({
+      // 指定图标文件夹路径
+      iconDirs: [fileURLToPath(new URL('src/assets/icons', import.meta.url))],
+      // 指定symbolId格式
+      symbolId: 'icon-[dir]-[name]',
+      // 自定义插入位置
+      inject: 'body-last',
+    }),
     vueDevTools(),
     AutoImport({
       // 自动导入 Vue 相关函数，如：ref, reactive, toRef 等

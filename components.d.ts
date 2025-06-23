@@ -22,5 +22,7 @@ declare module 'vue' {
     NotFountPage: typeof import('./src/views/errors/NotFountPage.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SvgIcon: typeof import('./src/components/svg/SvgIcon.vue')['default']
+    SvgIconPicker: typeof import('./src/components/svg/SvgIconPicker.vue')['default']
   }
 }
