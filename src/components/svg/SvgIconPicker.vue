@@ -2,84 +2,106 @@
   <div class="icon-picker">
     <!-- 触发按钮 -->
     <div class="trigger" @click="showModal = true">
-      <div v-if="selectedIcon" class="selected-icon">
-        <SvgIcon :name="selectedIcon" :size="triggerSize" :color="triggerColor" />
+      <div v-if="currentSelectedIcon" class="selected-icon">
+        <SvgIcon :name="currentSelectedIcon" :size="triggerSize" :color="triggerColor" />
+        <span class="icon-name">{{ getSimpleIconName(currentSelectedIcon) }}</span>
       </div>
       <div v-else class="placeholder">
         {{ placeholder }}
       </div>
-      <SvgIcon name="chevron-down" size="16" color="#999" class="arrow-icon" />
+      <div v-if="currentSelectedIcon" class="delete-icon" @click.stop="clearSelection">
+        <SvgIcon name="delete" size="24" color="#999" />
+      </div>
+      <SvgIcon v-else name="chevron-down" size="16" color="#999" class="arrow-icon" />
     </div>
 
     <!-- 图标选择模态框 -->
-    <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
-      <div class="modal">
-        <div class="modal-header">
-          <h3>选择图标</h3>
-          <button class="close-btn" @click="showModal = false">
-            <SvgIcon name="close" size="20" color="#999" />
-          </button>
-        </div>
-
-        <div class="search-container">
-          <div class="search-icon-container">
-            <SvgIcon name="search" size="18" color="#999" />
+    <Transition name="modal">
+      <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
+        <div class="modal">
+          <div class="modal-header">
+            <h3>选择图标</h3>
+            <div class="count">已加载图标: {{ icons.length }} 个</div>
+            <button class="close-btn" @click="closeModal">
+              <SvgIcon name="close" size="20" color="#999" />
+            </button>
           </div>
-          <input v-model="searchTerm" type="text" placeholder="搜索图标..." class="search-input" />
-          <button class="clear-btn" v-if="searchTerm" @click="searchTerm = ''">
-            <SvgIcon name="close" size="14" color="#999" />
-          </button>
-        </div>
 
-        <div class="filters">
-          <div class="color-filters">
-            <button
-              v-for="(color, index) in colorFilters"
-              :key="index"
-              :class="['color-btn', { active: currentColor === color }]"
-              :style="{ backgroundColor: color }"
-              @click="currentColor = color"
-            ></button>
+          <div class="search-container">
+            <div class="search-icon-container">
+              <SvgIcon name="search" size="18" color="#999" />
+            </div>
+            <input
+              v-model="searchTerm"
+              type="text"
+              placeholder="搜索图标名称..."
+              class="search-input"
+              ref="searchInput"
+            />
+            <button class="clear-btn" v-if="searchTerm" @click="searchTerm = ''">
+              <SvgIcon name="close" size="14" color="#999" />
+            </button>
           </div>
-          <div class="size-slider">
-            <label class="slider-label">预览大小</label>
-            <input type="range" v-model="previewSize" min="16" max="72" class="slider" />
-            <span class="size-value">{{ previewSize }}px</span>
+
+          <div v-if="isLoading" class="loading">
+            <SvgIcon name="loading" size="32" color="#42b883" class="spinner" />
+            <span>加载图标中...</span>
           </div>
-        </div>
 
-        <div class="icon-grid">
-          <div
-            v-for="(icon, index) in filteredIcons"
-            :key="index"
-            :class="['icon-item', { selected: selectedIcon === icon }]"
-            @click="selectIcon(icon)"
-          >
-            <SvgIcon :name="icon" :size="previewSize" :color="currentColor" />
-            <div class="icon-name">{{ icon }}</div>
+          <div v-else class="icon-container">
+            <div v-if="filteredIcons.length === 0" class="no-results">
+              <SvgIcon name="file-search" size="48" color="#999" />
+              <p>没有找到匹配的图标</p>
+              <button class="show-all-btn" @click="searchTerm = ''">查看全部图标</button>
+            </div>
+
+            <div v-else class="icon-grid">
+              <div
+                v-for="(icon, index) in filteredIcons"
+                :key="index"
+                :class="['icon-item', { selected: tempSelectedIcon === icon }]"
+                @click="tempSelectIcon(icon)"
+                :title="getSimpleIconName(icon)"
+              >
+                <div class="icon-preview">
+                  <SvgIcon :name="icon" size="40" color="#495057" />
+                </div>
+                <div class="icon-name">{{ getSimpleIconName(icon) }}</div>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div v-if="filteredIcons.length === 0" class="no-results">没有找到匹配的图标</div>
-
-        <div class="modal-footer">
-          <button class="cancel-btn" @click="showModal = false">取消</button>
-          <button class="confirm-btn" @click="confirmSelection" v-if="selectedIcon">确认选择</button>
+          <div class="preview-footer">
+            <div v-if="tempSelectedIcon" class="preview-selected">
+              <div class="icon-preview-large">
+                <SvgIcon :name="tempSelectedIcon" size="48" color="#495057" />
+              </div>
+              <div class="icon-name-large">{{ tempSelectedIcon }}</div>
+            </div>
+            <div v-else class="no-selection">
+              <SvgIcon name="mouse-pointer" size="20" color="#999" />
+              <span>请选择一个图标</span>
+            </div>
+            <div class="actions">
+              <button class="cancel-btn" @click="closeModal">取消</button>
+              <button class="confirm-btn" :disabled="!tempSelectedIcon" @click="confirmSelection">确认选择</button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </Transition>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 
 const props = withDefaults(
   defineProps<{
-    modelValue?: string | null // v-model绑定的图标名称
-    placeholder?: string // 未选择时的占位文本
-    triggerColor?: string // 触发按钮的颜色
-    triggerSize?: number // 触发按钮的图标大小
+    modelValue?: string | null
+    placeholder?: string
+    triggerColor?: string
+    triggerSize?: number
   }>(),
   {
     modelValue: null,
@@ -94,143 +116,208 @@ const emit = defineEmits<{
   (e: 'change', value: string | null): void
 }>()
 
-// 假设这是从全局导入的图标列表（实际项目中应从文件系统或API获取）
-const iconList = ref([
-  'home',
-  'search',
-  'user',
-  'settings',
-  'heart',
-  'star',
-  'lock',
-  'bell',
-  'camera',
-  'message',
-  'phone',
-  'mail',
-  'location',
-  'calendar',
-  'bookmark',
-  'download',
-  'upload',
-  'share',
-  'reset',
-  'info',
-  'close',
-  'menu',
-  'arrow-left',
-  'arrow-right',
-  'plus',
-  'check',
-  'delete',
-  'edit',
-  'filter',
-  'download-cloud',
-  'upload-cloud',
-  'image',
-  'video',
-  'music',
-  'file',
-  'folder',
-  'trash-2',
-  'book-open',
-  'user-plus',
-  'users',
-  'activity',
-  'compass',
-  'map-pin',
-  'navigation',
-  'crop',
-  'layers',
-  'copy',
-  'external-link',
-  'help-circle',
-  'link',
-])
-
 // 状态管理
 const showModal = ref(false)
 const searchTerm = ref('')
-const currentColor = ref('#42b883')
-const previewSize = ref(48)
-const selectedIcon = ref<string | null>(props.modelValue || null)
+const currentSelectedIcon = ref<string | null>(props.modelValue || null)
+const tempSelectedIcon = ref<string | null>(null) // 临时选择的图标
+const isLoading = ref(true)
+const icons = ref<string[]>([])
+const searchInput = ref<HTMLInputElement | null>(null)
 
-// 颜色筛选选项
-const colorFilters = ref([
-  '#42b883', // 主题绿色
-  '#ff6b6b', // 红色
-  '#4dabf7', // 蓝色
-  '#ffd43b', // 黄色
-  '#7950f2', // 紫色
-  '#212529', // 黑色
-])
+// 获取所有SVG图标名称
+const fetchIcons = async () => {
+  try {
+    // 使用Vite的import.meta.glob加载所有SVG文件
+    const svgModules = import.meta.glob('/src/assets/icons/*.svg', { eager: true })
+    icons.value = Object.keys(svgModules)
+      .map((path) => {
+        const filename = path.split('/').pop() || ''
+        return filename.replace('.svg', '')
+      })
+      .sort()
+
+    isLoading.value = false
+  } catch (error) {
+    console.error('加载图标失败:', error)
+    isLoading.value = false
+  }
+}
+
+// 格式化图标名称（去掉前缀）
+const getSimpleIconName = (fullName: string) => {
+  if (!fullName) return ''
+  const names = fullName.split('-')
+  return names.length > 1 ? names.slice(1).join('-') : fullName
+}
 
 // 过滤后的图标列表
 const filteredIcons = computed(() => {
-  if (!searchTerm.value) {
-    return iconList.value
-  }
+  if (!searchTerm.value) return icons.value
 
-  return iconList.value.filter((icon) => icon.toLowerCase().includes(searchTerm.value.toLowerCase()))
+  const term = searchTerm.value.toLowerCase()
+  return icons.value.filter(
+    (icon) => icon.toLowerCase().includes(term) || getSimpleIconName(icon).toLowerCase().includes(term),
+  )
 })
 
-// 选择图标
-function selectIcon(icon: string) {
-  selectedIcon.value = icon
+// 临时选择图标（未确认）
+function tempSelectIcon(icon: string) {
+  tempSelectedIcon.value = icon
+}
+
+// 清除选择
+function clearSelection(e: Event) {
+  e.stopPropagation()
+  currentSelectedIcon.value = null
+  tempSelectedIcon.value = null
+  emit('update:modelValue', null)
+  emit('change', null)
 }
 
 // 确认选择
 function confirmSelection() {
-  if (selectedIcon.value) {
-    emit('update:modelValue', selectedIcon.value)
-    emit('change', selectedIcon.value)
+  if (tempSelectedIcon.value) {
+    currentSelectedIcon.value = tempSelectedIcon.value
+    emit('update:modelValue', currentSelectedIcon.value)
+    emit('change', currentSelectedIcon.value)
+    showModal.value = false
   }
+}
+
+// 关闭模态框
+function closeModal() {
+  // 重置临时选择状态
+  tempSelectedIcon.value = null
+  searchTerm.value = ''
   showModal.value = false
 }
 
-// 监听外部变化
+// 当模态框显示时自动聚焦搜索框
+watch(showModal, async (val) => {
+  if (val) {
+    if (icons.value.length === 0) {
+      await fetchIcons()
+    }
+
+    // 初始化临时选择状态
+    tempSelectedIcon.value = currentSelectedIcon.value
+
+    await nextTick()
+    if (searchInput.value) {
+      searchInput.value.focus()
+    }
+  }
+})
+
+// 监听外部模型值变化
 watch(
   () => props.modelValue,
   (val) => {
-    selectedIcon.value = val || null
+    currentSelectedIcon.value = val || null
   },
 )
+
+// 初始化时预加载图标
+onMounted(fetchIcons)
 </script>
 
 <style scoped>
+/* 样式部分保持不变，与之前相同 */
 .icon-picker {
   position: relative;
+  width: 100%;
+  height: 100%;
+  font-family: 'Inter', system-ui, sans-serif;
+  --primary-color: #42b883;
+  --primary-light: rgba(66, 184, 131, 0.15);
+  --gray-100: #f8f9fa;
+  --gray-200: #e9ecef;
+  --gray-300: #dee2e6;
+  --gray-500: #adb5bd;
+  --gray-600: #6c757d;
+  --gray-700: #495057;
+  --gray-800: #343a40;
+  --border-radius: 12px;
+  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .trigger {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: 1px solid #dcdfe6;
-  border-radius: 6px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--border-radius);
   padding: 8px 16px;
-  background-color: #fff;
+  background-color: white;
   cursor: pointer;
-  transition: all 0.3s;
-  min-height: 42px;
+  transition: var(--transition);
+  height: 100%; /* 设置高度为100% */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .trigger:hover {
-  border-color: #c0c4cc;
+  border-color: var(--gray-500);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .selected-icon {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  flex: 1;
+}
+
+.icon-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-800);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
 }
 
 .placeholder {
-  color: #999;
+  color: var(--gray-500);
+  font-size: 14px;
+  flex: 1;
+}
+
+.delete-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 24px;
+  transition: var(--transition);
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.delete-icon:hover {
+  background-color: var(--gray-200);
+  color: var(--gray-700);
 }
 
 .arrow-icon {
-  margin-left: 10px;
+  margin-left: 8px;
+  transition: transform 0.3s;
+}
+
+.trigger:hover .arrow-icon {
+  transform: translateY(2px);
+}
+
+/* Modal transition */
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.2s ease-out;
 }
 
 .modal-overlay {
@@ -244,12 +331,13 @@ watch(
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  backdrop-filter: blur(2px);
 }
 
 .modal {
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  border-radius: var(--border-radius);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
   width: 90%;
   max-width: 800px;
   max-height: 80vh;
@@ -263,134 +351,170 @@ watch(
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;
-  border-bottom: 1px solid #eee;
+  background-color: var(--gray-100);
+  border-bottom: 1px solid var(--gray-200);
 }
 
 .modal-header h3 {
   margin: 0;
   font-weight: 600;
-  color: #333;
+  color: var(--gray-800);
+  font-size: 1.25rem;
+}
+
+.count {
+  font-size: 0.875rem;
+  color: var(--gray-600);
+  margin: 0 16px 0 auto;
 }
 
 .close-btn {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 5px;
+  padding: 6px;
   border-radius: 50%;
   width: 36px;
   height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.3s;
+  transition: var(--transition);
 }
 
 .close-btn:hover {
-  background-color: #f5f5f5;
+  background-color: var(--gray-200);
 }
 
 .search-container {
   position: relative;
-  padding: 16px 24px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  background-color: white;
+  border-bottom: 1px solid var(--gray-200);
 }
 
 .search-icon-container {
   position: absolute;
-  left: 36px;
+  left: 32px;
   top: 50%;
   transform: translateY(-50%);
   display: flex;
   align-items: center;
+  pointer-events: none;
 }
 
 .search-input {
   width: 100%;
-  padding: 12px 20px 12px 40px;
-  border: 1px solid #dcdfe6;
-  border-radius: 30px;
-  font-size: 16px;
+  padding: 10px 16px 10px 40px;
+  border: 1px solid var(--gray-300);
+  border-radius: 8px;
+  font-size: 15px;
   outline: none;
-  transition: all 0.3s;
+  transition: var(--transition);
+  font-family: inherit;
+  background-color: var(--gray-100);
 }
 
 .search-input:focus {
-  border-color: #42b883;
+  border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(66, 184, 131, 0.2);
 }
 
 .clear-btn {
   position: absolute;
-  right: 36px;
+  right: 32px;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
   cursor: pointer;
   padding: 5px;
-}
-
-.filters {
-  display: flex;
-  justify-content: space-between;
-  padding: 16px 24px;
-  background-color: #fff;
-  border-bottom: 1px solid #eee;
-}
-
-.color-filters {
-  display: flex;
-  gap: 8px;
-}
-
-.color-btn {
-  width: 24px;
-  height: 24px;
   border-radius: 50%;
-  border: 2px solid #fff;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.color-btn:hover {
-  transform: scale(1.1);
-}
-
-.color-btn.active {
-  border-color: #42b883;
-  box-shadow: 0 0 0 2px #42b883;
-}
-
-.size-slider {
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  transition: background-color 0.2s;
 }
 
-.slider-label {
-  font-size: 14px;
-  color: #666;
+.clear-btn:hover {
+  background-color: var(--gray-200);
 }
 
-.slider {
-  width: 100px;
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  color: var(--gray-600);
+  gap: 16px;
 }
 
-.size-value {
-  min-width: 40px;
-  font-size: 14px;
-  color: #666;
+.loading span {
+  margin-top: 12px;
+}
+
+.spinner {
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  color: var(--gray-600);
+  gap: 16px;
+}
+
+.no-results p {
+  margin: 8px 0;
+  line-height: 1.5;
+}
+
+.show-all-btn {
+  margin-top: 16px;
+  padding: 8px 20px;
+  background-color: var(--gray-200);
+  border: none;
+  border-radius: 6px;
+  color: var(--gray-800);
+  cursor: pointer;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.show-all-btn:hover {
+  background-color: var(--gray-300);
+}
+
+.icon-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 24px;
+  scrollbar-width: thin;
 }
 
 .icon-grid {
-  flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: 16px;
-  padding: 24px;
-  overflow-y: auto;
+  padding: 8px 0 24px;
 }
 
 .icon-item {
@@ -398,78 +522,144 @@ watch(
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 16px 8px;
-  border-radius: 8px;
+  padding: 18px 10px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: var(--transition);
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  border: 1px solid transparent;
 }
 
 .icon-item:hover {
-  background-color: rgba(66, 184, 131, 0.1);
+  background-color: rgba(66, 184, 131, 0.06);
   transform: translateY(-3px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  border-color: rgba(66, 184, 131, 0.1);
 }
 
 .icon-item.selected {
-  background-color: rgba(66, 184, 131, 0.15);
-  border: 1px solid rgba(66, 184, 131, 0.5);
+  background-color: rgba(66, 184, 131, 0.12);
+  border: 1px solid rgba(66, 184, 131, 0.2);
+  position: relative;
+}
+
+.icon-item.selected::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 12px;
+  height: 12px;
+  background-color: var(--primary-color);
+  border-radius: 50%;
+}
+
+.icon-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  background-color: var(--gray-100);
+  width: 48px;
+  height: 48px;
 }
 
 .icon-name {
-  font-size: 12px;
-  margin-top: 12px;
+  font-size: 13px;
   text-align: center;
-  color: #555;
+  color: var(--gray-700);
+  font-weight: 500;
+  line-height: 1.3;
   word-break: break-word;
-  line-height: 1.4;
+  max-width: 100%;
+  padding: 0 4px;
 }
 
-.no-results {
-  padding: 40px 20px;
-  text-align: center;
-  color: #999;
-  font-size: 16px;
-}
-
-.modal-footer {
+.preview-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   padding: 16px 24px;
-  background-color: #f8f9fa;
-  border-top: 1px solid #eee;
+  background-color: var(--gray-100);
+  border-top: 1px solid var(--gray-200);
+  align-items: center;
+  gap: 16px;
+}
+
+.preview-selected {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.icon-preview-large {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.icon-name-large {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary-color);
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.no-selection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--gray-500);
+  font-size: 15px;
+}
+
+.actions {
+  display: flex;
   gap: 12px;
 }
 
 .cancel-btn {
-  padding: 10px 20px;
-  background-color: #fff;
-  border: 1px solid #dcdfe6;
-  border-radius: 6px;
+  padding: 10px 24px;
+  background-color: white;
+  border: 1px solid var(--gray-300);
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: var(--transition);
+  font-weight: 500;
+  color: var(--gray-700);
 }
 
 .cancel-btn:hover {
-  background-color: #f5f7fa;
+  background-color: var(--gray-100);
+  border-color: var(--gray-400);
 }
 
 .confirm-btn {
-  padding: 10px 20px;
-  background-color: #42b883;
+  padding: 10px 24px;
+  background-color: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: 500;
-  transition: all 0.3s;
+  transition: var(--transition);
+  min-width: 120px;
 }
 
-.confirm-btn:hover {
+.confirm-btn:hover:not(:disabled) {
   background-color: #3aa776;
 }
 
 .confirm-btn:disabled {
-  background-color: #a0d9be;
+  background-color: var(--gray-300);
   cursor: not-allowed;
 }
 </style>
