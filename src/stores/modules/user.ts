@@ -12,7 +12,14 @@ export const useUserStore = defineStore('userInfo', {
     userInfo: {} as UserInfoVO,
     workTabList: [{ title: '工作台', path: HOME_PAGE }] as WorkTab[],
   }),
-  getters: {},
+  getters: {
+    hasPermission: (state) => (value: string | string[]) => {
+      if (typeof value === 'string') {
+        return state.userInfo.permissions.includes(value)
+      }
+      return value.some((permission) => state.userInfo.permissions.includes(permission))
+    },
+  },
   actions: {
     /**
      * 登录

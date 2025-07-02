@@ -5,4 +5,5 @@ export interface UserInfoVO {
   nickname: string
   avatar: string
   menus: MenuTreeVO[]
+  permissions: string[]
 }

@@ -20,6 +20,8 @@ declare module 'vue' {
     EZLayout: typeof import('./src/components/layout/EZLayout.vue')['default']
     LoginPage: typeof import('./src/views/login/LoginPage.vue')['default']
     NotFountPage: typeof import('./src/views/errors/NotFountPage.vue')['default']
+    PermissionButton: typeof import('./src/components/permission/PermissionButton.vue')['default']
+    PermissionGuard: typeof import('./src/components/permission/PermissionGuard.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SvgIcon: typeof import('./src/components/svg/SvgIcon.vue')['default']
